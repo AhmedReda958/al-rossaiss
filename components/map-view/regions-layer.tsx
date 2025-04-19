@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Group, Path, Image, Layer, Text, Circle, Rect } from "react-konva";
 import Konva from "konva";
 import { renderToStaticMarkup } from "react-dom/server";
 import regions from "./reigons";
 import useImage from "use-image";
 import colors from "@/lib/colors";
+
 interface RegionsLayerProps {
   mapSize: {
     width: number;
@@ -31,6 +32,10 @@ const RegionsLayer: React.FC<RegionsLayerProps> = ({
   const [pathDataMap, setPathDataMap] = useState<Record<string, string>>({});
   const [mapImage] = useImage("/map.png");
   const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
+  const layerRef = useRef<Konva.Layer>(null);
+
+  const effectiveMapWidth = mapSize.width * 1.25; // Account for scaleX of the image
+  const effectiveMapHeight = mapSize.height * 1.25; // Account for scaleY of the image
 
   // Extract path data on client-side only
   useEffect(() => {
@@ -47,8 +52,33 @@ const RegionsLayer: React.FC<RegionsLayerProps> = ({
     setPathDataMap(extractedData);
   }, []);
 
+  const limitDragBoundaries = (pos: { x: number; y: number }) => {
+    const stage = layerRef.current?.getStage();
+
+    if (!stage) return pos;
+
+    const stageWidth = stage.width();
+    const stageHeight = stage.height();
+
+    // Calculate drag limits
+    const xMin = Math.min(0, stageWidth - effectiveMapWidth + 180);
+    const yMin = Math.min(0, stageHeight - effectiveMapHeight + 180);
+
+    // Return constrained position
+    return {
+      x: Math.max(xMin, Math.min(0, pos.x)),
+      y: Math.max(yMin, Math.min(0, pos.y)),
+    };
+  };
+
   return (
-    <Layer draggable width={1368} height={1024}>
+    <Layer
+      ref={layerRef}
+      draggable
+      width={effectiveMapWidth}
+      height={effectiveMapHeight}
+      dragBoundFunc={limitDragBoundaries}
+    >
       {mapImage && (
         <Image
           image={mapImage}
