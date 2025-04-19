@@ -1,16 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import { Stage } from "react-konva";
 import RegionsLayer from "./regions-layer";
-
+import { useMapStore } from "@/lib/store";
 const MapContainer = () => {
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const mapSize = {
-    width: 1368,
-    height: 1024,
-  };
-  const [stageSize, setStageSize] = useState({
+  const { mapSize } = useMapStore();
+
+  const [stageSize, setStageSize] = React.useState({
     width: mapSize.width,
     height: mapSize.height,
   });
@@ -40,21 +37,13 @@ const MapContainer = () => {
     };
   }, []);
 
-  const handleRegionClick = (id: string) => {
-    setSelectedRegion(id);
-  };
-
   return (
     <div
       ref={containerRef}
-      className="w-full h-full rounded-2xl aspect-video overflow-hidden bg-[#DBDCDC]"
+      className={`w-full h-full max-w-[${mapSize.width}px] max-h-[${mapSize.height}px] rounded-2xl  lg:aspect-video overflow-hidden bg-[#DBDCDC]`}
     >
       <Stage width={stageSize.width} height={stageSize.height}>
-        <RegionsLayer
-          mapSize={mapSize}
-          selectedRegion={selectedRegion}
-          onRegionClick={handleRegionClick}
-        />
+        <RegionsLayer />
       </Stage>
     </div>
   );

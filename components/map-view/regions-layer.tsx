@@ -1,19 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
+import React from "react";
 import { Group, Path, Image, Layer, Text, Circle, Rect } from "react-konva";
 import Konva from "konva";
-import { renderToStaticMarkup } from "react-dom/server";
-import regions from "./reigons";
-import useImage from "use-image";
-import colors from "@/lib/colors";
 
-interface RegionsLayerProps {
-  mapSize: {
-    width: number;
-    height: number;
-  };
-  selectedRegion: string | null;
-  onRegionClick: (id: string) => void;
-}
+import regions from "./reigons";
+import { useMapStore } from "@/lib/store";
+import colors from "@/lib/colors";
+import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
 
 // Define region positions for labels
 const regionLabelPositions: Record<string, { x: number; y: number }> = {
@@ -24,60 +16,36 @@ const regionLabelPositions: Record<string, { x: number; y: number }> = {
   central: { x: 500, y: 450 },
 };
 
-const RegionsLayer: React.FC<RegionsLayerProps> = ({
-  mapSize,
-  selectedRegion,
-  onRegionClick,
-}) => {
-  const [pathDataMap, setPathDataMap] = useState<Record<string, string>>({});
-  const [mapImage] = useImage("/map.png");
-  const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
-  const layerRef = useRef<Konva.Layer>(null);
-
-  const effectiveMapWidth = mapSize.width * 1.25; // Account for scaleX of the image
-  const effectiveMapHeight = mapSize.height * 1.25; // Account for scaleY of the image
-
-  // Extract path data on client-side only
-  useEffect(() => {
-    const extractedData: Record<string, string> = {};
-
-    regions.forEach(({ Component, id }) => {
-      const markup = renderToStaticMarkup(<Component />);
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = markup;
-      const pathElement = tempDiv.querySelector("path");
-      extractedData[id] = pathElement?.getAttribute("d") || "";
-    });
-
-    setPathDataMap(extractedData);
-  }, []);
-
-  const limitDragBoundaries = (pos: { x: number; y: number }) => {
-    const stage = layerRef.current?.getStage();
-
-    if (!stage) return pos;
-
-    const stageWidth = stage.width();
-    const stageHeight = stage.height();
-
-    // Calculate drag limits
-    const xMin = Math.min(0, stageWidth - effectiveMapWidth + 180);
-    const yMin = Math.min(0, stageHeight - effectiveMapHeight + 180);
-
-    // Return constrained position
-    return {
-      x: Math.max(xMin, Math.min(0, pos.x)),
-      y: Math.max(yMin, Math.min(0, pos.y)),
-    };
-  };
+const RegionsLayer = () => {
+  const { mapSize } = useMapStore();
+  const {
+    pathDataMap,
+    mapImage,
+    layerRef,
+    hoveredRegionId,
+    scale,
+    position,
+    isZooming,
+    selectedRegion,
+    effectiveMapWidth,
+    effectiveMapHeight,
+    setHoveredRegionId,
+    handleRegionClick,
+    assignPathRef,
+    limitDragBoundaries,
+  } = useRegionsLayer();
 
   return (
     <Layer
       ref={layerRef}
-      draggable
+      draggable={!isZooming}
       width={effectiveMapWidth}
       height={effectiveMapHeight}
       dragBoundFunc={limitDragBoundaries}
+      x={position.x}
+      y={position.y}
+      scaleX={scale}
+      scaleY={scale}
     >
       {mapImage && (
         <Image
@@ -100,13 +68,17 @@ const RegionsLayer: React.FC<RegionsLayerProps> = ({
           if (!pathData) return null;
 
           return (
-            <>
+            <React.Fragment key={id}>
               <Path
+                key={`path-${id}`}
+                ref={(node) => assignPathRef(id, node)}
                 data={pathData}
                 fill={selectedRegion === id ? colors.primary : "white"}
-                stroke={selectedRegion === id ? colors.primary : "#5E8894"}
-                strokeWidth={selectedRegion === id ? 2 : 1}
-                onClick={() => onRegionClick(id)}
+                stroke={
+                  selectedRegion === id ? colors.primaryHover : colors.primary
+                }
+                strokeWidth={selectedRegion === id ? 3 : 1}
+                onClick={() => handleRegionClick(id)}
                 onMouseEnter={(e) => {
                   const container = e.target.getStage()?.container();
                   if (container) {
@@ -145,6 +117,7 @@ const RegionsLayer: React.FC<RegionsLayerProps> = ({
 
               {/* Region label */}
               <Group
+                key={`label-${id}`}
                 x={labelPos.x}
                 y={labelPos.y}
                 scaleX={isHovered ? 1.1 : 1}
@@ -192,7 +165,7 @@ const RegionsLayer: React.FC<RegionsLayerProps> = ({
                   offsetY={15}
                 />
               </Group>
-            </>
+            </React.Fragment>
           );
         })}
       </Group>
