@@ -6,7 +6,7 @@ import regions from "./reigons";
 import useImage from "use-image";
 import colors from "@/lib/colors";
 interface RegionsLayerProps {
-  stageSize: {
+  mapSize: {
     width: number;
     height: number;
   };
@@ -24,7 +24,7 @@ const regionLabelPositions: Record<string, { x: number; y: number }> = {
 };
 
 const RegionsLayer: React.FC<RegionsLayerProps> = ({
-  stageSize,
+  mapSize,
   selectedRegion,
   onRegionClick,
 }) => {
@@ -48,12 +48,12 @@ const RegionsLayer: React.FC<RegionsLayerProps> = ({
   }, []);
 
   return (
-    <Layer>
+    <Layer draggable width={1368} height={1024}>
       {mapImage && (
         <Image
           image={mapImage}
-          width={stageSize.width}
-          height={stageSize.height}
+          width={mapSize.width}
+          height={mapSize.height}
           alt="map"
           y={-180}
           x={-150}
