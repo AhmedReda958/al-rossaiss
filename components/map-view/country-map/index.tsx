@@ -2,8 +2,8 @@ import React from "react";
 import { Image, Layer } from "react-konva";
 import { useMapStore } from "@/lib/store";
 import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
-import CitiesLayer from "./cities-layer";
 import RegionsLayer from "./regions-layer";
+import PolygonMarker from "../polygon-marker";
 
 const CountryMap = () => {
   const { mapSize } = useMapStore();
@@ -47,7 +47,7 @@ const CountryMap = () => {
       )}
 
       <RegionsLayer />
-      <CitiesLayer />
+      <PolygonMarker />
     </Layer>
   );
 };

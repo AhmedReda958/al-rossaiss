@@ -2,7 +2,7 @@ import React from "react";
 import { Group, Path, Text, Circle, Rect } from "react-konva";
 import Konva from "konva";
 
-import regions from "./reigons";
+import regions from "./regions";
 
 import colors from "@/lib/colors";
 import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
@@ -84,55 +84,56 @@ const RegionsLayer = () => {
             />
 
             {/* Region label */}
-            <Group
-              key={`label-${id}`}
-              x={labelPos.x}
-              y={labelPos.y}
-              scaleX={isHovered ? 1.1 : 1}
-              scaleY={isHovered ? 1.1 : 1}
-              opacity={isHovered ? 1 : 0.9}
-              zIndex={1000}
-            >
-              {/* Background for label */}
-              <Rect
-                width={177}
-                height={52}
-                fill={isHovered ? "#ffffff" : colors.secondary}
-                opacity={0.16}
-                cornerRadius={4}
-              />
+            {selectedRegion !== id && (
+              <Group
+                key={`label-${id}`}
+                x={labelPos.x}
+                y={labelPos.y}
+                scaleX={isHovered ? 1.1 : 1}
+                scaleY={isHovered ? 1.1 : 1}
+                opacity={isHovered ? 1 : 0.9}
+              >
+                {/* Background for label */}
+                <Rect
+                  width={177}
+                  height={52}
+                  fill={isHovered ? "#ffffff" : colors.secondary}
+                  opacity={0.16}
+                  cornerRadius={4}
+                />
 
-              {/* Region name */}
-              <Text
-                text={name}
-                x={14}
-                y={18}
-                fontSize={16}
-                fontFamily="Arial"
-                fill={colors.primary}
-                fontWeight="bold"
-              />
+                {/* Region name */}
+                <Text
+                  text={name}
+                  x={14}
+                  y={18}
+                  fontSize={16}
+                  fontFamily="Arial"
+                  fill={colors.primary}
+                  fontWeight="bold"
+                />
 
-              {/* Number circle */}
-              <Circle x={153} y={26} radius={15} fill="#ffffff" />
+                {/* Number circle */}
+                <Circle x={153} y={26} radius={15} fill="#ffffff" />
 
-              {/* Number text */}
-              <Text
-                text={(index + 1).toString()}
-                x={153}
-                y={26}
-                fontSize={14}
-                fontFamily="Arial"
-                fill={colors.primary}
-                align="center"
-                verticalAlign="middle"
-                fontWeight="bold"
-                width={30}
-                height={30}
-                offsetX={15}
-                offsetY={15}
-              />
-            </Group>
+                {/* Number text */}
+                <Text
+                  text={(index + 1).toString()}
+                  x={153}
+                  y={26}
+                  fontSize={14}
+                  fontFamily="Arial"
+                  fill={colors.primary}
+                  align="center"
+                  verticalAlign="middle"
+                  fontWeight="bold"
+                  width={30}
+                  height={30}
+                  offsetX={15}
+                  offsetY={15}
+                />
+              </Group>
+            )}
           </React.Fragment>
         );
       })}

@@ -4,16 +4,11 @@ import { BsQuestionCircle } from "react-icons/bs";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { useMapStore } from "@/lib/store";
+import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 
 const ControlsLayerHeader = () => {
-  const {
-    isAdmin,
-    isAddingCity,
-    setIsAddingCity,
-    selectedCity,
-    selectedRegion,
-    instructions,
-  } = useMapStore();
+  const { isAdmin, selectedCity, selectedRegion, instructions } = useMapStore();
+  const { toggleDrawingMode } = usePolygonMarkerStore();
 
   return (
     <nav className="flex items-start justify-between z-10 absolute top-0 left-0 w-full h-16 p-5">
@@ -51,7 +46,7 @@ const ControlsLayerHeader = () => {
           <Button
             variant="light"
             size={"icon-sm"}
-            onClick={() => setIsAddingCity(!isAddingCity)}
+            onClick={() => toggleDrawingMode(selectedRegion)}
           >
             <PlusIcon />
           </Button>

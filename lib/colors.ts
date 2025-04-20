@@ -1,4 +1,6 @@
 const colors = {
+  primary_100: "#BBD5DB",
+  primary_400: "#5E8894",
   primary: "#003c4c",
   primaryHover: "#5E8894",
   secondary: "#2F6270",

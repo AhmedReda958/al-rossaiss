@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useCallback, useLayoutEffect } from "react";
 import Konva from "konva";
 import { renderToStaticMarkup } from "react-dom/server";
-import regions from "@/components/map-view/country-map/reigons";
+import regions from "@/components/map-view/country-map/regions";
 import useImage from "use-image";
 import { useMapStore } from "@/lib/store";
 

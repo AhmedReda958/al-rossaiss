@@ -32,7 +32,7 @@ const CityEditorControls: React.FC = () => {
   return (
     <div className="absolute bottom-4 left-4 flex flex-col gap-2 z-10">
       <button
-        onClick={toggleDrawingMode}
+        onClick={() => toggleDrawingMode(selectedRegion || "")}
         className={`px-4 py-2 rounded-md text-white font-medium ${
           isDrawingMode
             ? "bg-red-500 hover:bg-red-600"

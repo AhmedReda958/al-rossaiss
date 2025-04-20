@@ -40,7 +40,7 @@ interface PolygonMarkerState {
   // Workflow actions
   startEditingPolygon: (id: string) => void;
   finishPolygon: (regionId: string) => void;
-  toggleDrawingMode: () => void;
+  toggleDrawingMode: (selectedRegion: string) => void;
 }
 
 export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
@@ -158,7 +158,7 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
     get().setIsDrawingMode(false);
   },
 
-  toggleDrawingMode: () => {
+  toggleDrawingMode: (selectedRegion: string) => {
     const {
       isDrawingMode,
       currentPoints,
@@ -169,7 +169,7 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
 
     if (isDrawingMode) {
       if (currentPoints.length >= 3) {
-        finishPolygon(""); // Region ID will be filled in by the component
+        finishPolygon(selectedRegion); // Region ID will be filled in by the component
       } else {
         clearCurrentPoints();
         set({

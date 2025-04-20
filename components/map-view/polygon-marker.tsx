@@ -4,6 +4,8 @@ import Konva from "konva";
 
 import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
+import colors from "@/lib/colors";
+
 const PolygonMarker = () => {
   const { selectedRegion, scale, position } = useMapStore();
   const {
@@ -47,8 +49,8 @@ const PolygonMarker = () => {
 
       // Adjust for group transformation and stage position/scale
       const adjustedPoint = {
-        x: (point.x - position.x - 120 * scale) / (0.95 * scale),
-        y: (point.y - position.y) / (0.95 * scale),
+        x: (point.x - position.x) / scale,
+        y: (point.y - position.y) / scale,
       };
 
       // Add to current points
@@ -67,17 +69,17 @@ const PolygonMarker = () => {
     (polygon) => !selectedRegion || polygon.regionId === selectedRegion
   );
 
+  console.log(savedPolygons);
   return (
-    <Group x={120} y={0} scaleX={0.95} scaleY={0.95}>
+    <Group>
       {/* Display current drawing polygon */}
       {isDrawingMode && currentPoints.length > 0 && (
         <Line
           points={pointsToFlatArray(currentPoints)}
-          fill="rgba(255, 0, 0, 0.3)"
-          stroke="red"
+          fill={colors.primary_100}
+          stroke={colors.primaryHover}
           strokeWidth={2}
           closed={currentPoints.length > 2}
-          dash={[5, 5]}
         />
       )}
 
@@ -89,8 +91,7 @@ const PolygonMarker = () => {
             x={point.x}
             y={point.y}
             radius={6}
-            fill="white"
-            stroke="red"
+            fill={colors.primaryHover}
             strokeWidth={2}
             draggable
             onDragMove={(e) => {
@@ -114,9 +115,7 @@ const PolygonMarker = () => {
         <Line
           key={polygon.id}
           points={polygon.points}
-          fill="rgba(0, 0, 255, 0.3)"
-          stroke="blue"
-          strokeWidth={2}
+          fill={colors.primary_400}
           closed={true}
           onClick={() => {
             if (!isDrawingMode) {
