@@ -3,10 +3,12 @@ import { Image, Layer } from "react-konva";
 import { useMapStore } from "@/lib/store";
 import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
 import RegionsLayer from "./regions-layer";
-import PolygonMarker from "../polygon-marker";
+import MarkersLayer from "../polygon/markers-layer";
+import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 
 const CountryMap = () => {
   const { mapSize } = useMapStore();
+  const { isDrawingMode } = usePolygonMarkerStore();
   const {
     mapImage,
     layerRef,
@@ -15,16 +17,13 @@ const CountryMap = () => {
     isZooming,
     effectiveMapWidth,
     effectiveMapHeight,
-
     limitDragBoundaries,
   } = useRegionsLayer();
-
-  //   console.log(position, scale, isZooming);
 
   return (
     <Layer
       ref={layerRef}
-      draggable={!isZooming}
+      draggable={!isZooming && !isDrawingMode}
       width={effectiveMapWidth}
       height={effectiveMapHeight}
       dragBoundFunc={limitDragBoundaries}
@@ -47,7 +46,7 @@ const CountryMap = () => {
       )}
 
       <RegionsLayer />
-      <PolygonMarker />
+      <MarkersLayer />
     </Layer>
   );
 };

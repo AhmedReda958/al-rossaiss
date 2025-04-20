@@ -6,17 +6,15 @@ import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import colors from "@/lib/colors";
 
-const PolygonMarker = () => {
-  const { selectedRegion, scale, position } = useMapStore();
+const DrawingPolygon = () => {
+  const { scale, position } = useMapStore();
   const {
     isDrawingMode,
     currentPoints,
-    savedPolygons,
     addPoint,
     updatePoint,
     deletePoint,
     pointsToFlatArray,
-    startEditingPolygon,
   } = usePolygonMarkerStore();
 
   const stageRef = useRef<Konva.Stage | null>(null);
@@ -64,16 +62,10 @@ const PolygonMarker = () => {
     };
   }, [isDrawingMode, position, scale, addPoint]);
 
-  // Filter polygons based on selected region
-  const visiblePolygons = savedPolygons.filter(
-    (polygon) => !selectedRegion || polygon.regionId === selectedRegion
-  );
-
-  console.log(savedPolygons);
   return (
     <Group>
       {/* Display current drawing polygon */}
-      {isDrawingMode && currentPoints.length > 0 && (
+      {currentPoints.length > 0 && (
         <Line
           points={pointsToFlatArray(currentPoints)}
           fill={colors.primary_100}
@@ -84,42 +76,26 @@ const PolygonMarker = () => {
       )}
 
       {/* Display vertex points for the current polygon */}
-      {isDrawingMode &&
-        currentPoints.map((point, index) => (
-          <Circle
-            key={`vertex-${index}`}
-            x={point.x}
-            y={point.y}
-            radius={6}
-            fill={colors.primaryHover}
-            strokeWidth={2}
-            draggable
-            onDragMove={(e) => {
-              updatePoint(index, {
-                x: e.target.x(),
-                y: e.target.y(),
-              });
-            }}
-            onClick={(e) => {
-              // Stop event propagation to prevent adding a new point
-              e.cancelBubble = true;
-              if (e.evt.shiftKey) {
-                deletePoint(index);
-              }
-            }}
-          />
-        ))}
-
-      {/* Display saved polygons */}
-      {visiblePolygons.map((polygon) => (
-        <Line
-          key={polygon.id}
-          points={polygon.points}
-          fill={colors.primary_400}
-          closed={true}
-          onClick={() => {
-            if (!isDrawingMode) {
-              startEditingPolygon(polygon.id);
+      {currentPoints.map((point, index) => (
+        <Circle
+          key={`vertex-${index}`}
+          x={point.x}
+          y={point.y}
+          radius={6}
+          fill={colors.primaryHover}
+          strokeWidth={2}
+          draggable
+          onDragMove={(e) => {
+            updatePoint(index, {
+              x: e.target.x(),
+              y: e.target.y(),
+            });
+          }}
+          onClick={(e) => {
+            // Stop event propagation to prevent adding a new point
+            e.cancelBubble = true;
+            if (e.evt.shiftKey) {
+              deletePoint(index);
             }
           }}
         />
@@ -128,4 +104,4 @@ const PolygonMarker = () => {
   );
 };
 
-export default PolygonMarker;
+export default DrawingPolygon;

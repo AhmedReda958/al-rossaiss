@@ -51,11 +51,11 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
   editingPolygonId: null,
 
   // Basic setters
-  setIsDrawingMode: (isDrawing) => set({ isDrawingMode: isDrawing }),
-  setCurrentPoints: (points) => set({ currentPoints: points }),
+  setIsDrawingMode: (isDrawing: boolean) => set({ isDrawingMode: isDrawing }),
+  setCurrentPoints: (points: Point[]) => set({ currentPoints: points }),
 
   // Point management
-  addPoint: (point) =>
+  addPoint: (point: Point) =>
     set((state) => ({
       currentPoints: [...state.currentPoints, point],
     })),
