@@ -7,8 +7,23 @@ import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 
 const ControlsLayerHeader = () => {
-  const { isAdmin, selectedCity, selectedRegion, instructions } = useMapStore();
+  const {
+    isAdmin,
+    selectedCity,
+    selectedRegion,
+    instructions,
+    setIsAddingCity,
+    isAddingCity,
+  } = useMapStore();
   const { toggleDrawingMode } = usePolygonMarkerStore();
+
+  const handleAddCityClick = () => {
+    setIsAddingCity(true);
+
+    if (selectedRegion) {
+      toggleDrawingMode(selectedRegion);
+    }
+  };
 
   return (
     <nav className="flex items-start justify-between z-10 absolute top-0 left-0 w-full h-16 p-5">
@@ -42,13 +57,14 @@ const ControlsLayerHeader = () => {
           EN
         </Button>
 
-        {isAdmin && selectedRegion && !selectedCity && (
+        {isAdmin && selectedRegion && !selectedCity && !isAddingCity && (
           <Button
             variant="light"
             size={"icon-sm"}
-            onClick={() => toggleDrawingMode(selectedRegion)}
+            onClick={handleAddCityClick}
+            title="Draw City Boundary"
           >
-            <PlusIcon />
+            <PlusIcon className="w-3 h-3" />
           </Button>
         )}
       </div>

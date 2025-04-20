@@ -9,7 +9,14 @@ const Polygon = ({
   polygon: { id: string; points: number[] };
 }) => {
   const { isDrawingMode, startEditingPolygon } = usePolygonMarkerStore();
-  const { isAdmin } = useMapStore();
+  const { isAdmin, setIsAddingCity } = useMapStore();
+
+  const handlePolygonClick = () => {
+    if (!isDrawingMode && isAdmin) {
+      startEditingPolygon(polygon.id);
+      setIsAddingCity(true);
+    }
+  };
 
   return (
     <Line
@@ -17,11 +24,7 @@ const Polygon = ({
       points={polygon.points}
       fill={colors.primary_400}
       closed={true}
-      onClick={() => {
-        if (!isDrawingMode && isAdmin) {
-          startEditingPolygon(polygon.id);
-        }
-      }}
+      onClick={handlePolygonClick}
     />
   );
 };

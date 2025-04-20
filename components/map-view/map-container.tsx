@@ -4,13 +4,13 @@ import React, { useRef, useEffect } from "react";
 import { Stage } from "react-konva";
 import Konva from "konva";
 
-import CityEditorControls from "./city-editor-controls";
 import { useMapStore } from "@/lib/store";
 import CountryMap from "./country-map";
 import ControlsLayer from "./controls-layer";
+import AddCityForm from "./controls-layer/forms/add-city";
 
 const MapContainer = () => {
-  const { mapSize } = useMapStore();
+  const { mapSize, isAddingCity, setIsAddingCity } = useMapStore();
   const stageRef = useRef<Konva.Stage>(null);
 
   const [stageSize, setStageSize] = React.useState({
@@ -43,6 +43,10 @@ const MapContainer = () => {
     };
   }, []);
 
+  const handleCloseAddCityForm = () => {
+    setIsAddingCity(false);
+  };
+
   return (
     <div
       ref={containerRef}
@@ -52,7 +56,7 @@ const MapContainer = () => {
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
           <CountryMap />
         </Stage>
-        <CityEditorControls />
+        {isAddingCity && <AddCityForm onClose={handleCloseAddCityForm} />}
       </ControlsLayer>
     </div>
   );
