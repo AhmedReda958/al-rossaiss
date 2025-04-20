@@ -2,7 +2,7 @@ import React from "react";
 import { Group, Path, Text, Circle, Rect } from "react-konva";
 import Konva from "konva";
 
-import regions from "./country-map/reigons";
+import regions from "./reigons";
 
 import colors from "@/lib/colors";
 import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
@@ -19,11 +19,8 @@ const regionLabelPositions: Record<string, { x: number; y: number }> = {
 const RegionsLayer = () => {
   const {
     pathDataMap,
-
     hoveredRegionId,
-
     selectedRegion,
-
     setHoveredRegionId,
     handleRegionClick,
     assignPathRef,

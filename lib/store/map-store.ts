@@ -9,6 +9,14 @@ interface MapState {
   selectedRegion: string | null;
   hoveredRegion: string | null;
 
+  // City-related state
+  selectedCity: string | null;
+  isAddingCity: boolean;
+
+  // Admin state
+  isAdmin: boolean;
+  instructions: string | null;
+
   // Map view state
   scale: number;
   position: { x: number; y: number };
@@ -25,6 +33,8 @@ interface MapState {
   // Actions
   setSelectedRegion: (id: string | null) => void;
   setHoveredRegion: (id: string | null) => void;
+  setSelectedCity: (id: string | null) => void;
+  setIsAddingCity: (isAdding: boolean) => void;
   setScale: (scale: number) => void;
   setPosition: (position: { x: number; y: number }) => void;
   setIsZooming: (isZooming: boolean) => void;
@@ -34,14 +44,11 @@ interface MapState {
       { x: number; y: number; width: number; height: number }
     >
   ) => void;
+  setInstructions: (text: string | null) => void;
   resetZoom: () => void;
 
   // Helper method to zoom to a region
-  zoomToRegion: (
-    regionId: string,
-    stageWidth: number,
-    stageHeight: number
-  ) => void;
+  zoomToRegion: (regionId: string) => void;
 }
 
 export const useMapStore = create<MapState>((set, get) => ({
@@ -49,6 +56,10 @@ export const useMapStore = create<MapState>((set, get) => ({
   mapSize: { width: 1368, height: 1024 },
   selectedRegion: null,
   hoveredRegion: null,
+  selectedCity: null,
+  isAddingCity: false,
+  isAdmin: true, // Set default admin state
+  instructions: null,
   scale: 1,
   position: { x: 0, y: 0 },
   isZooming: false,
@@ -58,14 +69,18 @@ export const useMapStore = create<MapState>((set, get) => ({
   // Actions
   setSelectedRegion: (id) => set({ selectedRegion: id }),
   setHoveredRegion: (id) => set({ hoveredRegion: id }),
+  setSelectedCity: (id) => set({ selectedCity: id }),
+  setIsAddingCity: (isAdding) => set({ isAddingCity: isAdding }),
   setScale: (scale) => set({ scale }),
   setPosition: (position) => set({ position }),
   setIsZooming: (isZooming) => set({ isZooming }),
   setRegionBounds: (bounds) => set({ regionBounds: bounds }),
   setLayerRef: (ref) => set({ layerRef: ref }),
+  setInstructions: (text) => set({ instructions: text }),
 
   resetZoom: () => {
-    const { layerRef, setScale, setPosition, setIsZooming } = get();
+    const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion } =
+      get();
 
     setIsZooming(true);
     const newScale = 1;
@@ -82,6 +97,7 @@ export const useMapStore = create<MapState>((set, get) => ({
         x: newPos.x,
         y: newPos.y,
         onFinish: () => {
+          setSelectedRegion(null);
           setScale(newScale);
           setPosition(newPos);
           setIsZooming(false);
@@ -97,7 +113,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     }
   },
 
-  zoomToRegion: (regionId, stageWidth, stageHeight) => {
+  zoomToRegion: (regionId) => {
     const { regionBounds, layerRef, setScale, setPosition, setIsZooming } =
       get();
 
@@ -108,6 +124,10 @@ export const useMapStore = create<MapState>((set, get) => ({
       setIsZooming(false);
       return;
     }
+
+    const stage = layerRef.current.getStage();
+    const stageWidth = stage?.width();
+    const stageHeight = stage?.height();
 
     // Add some padding around the region
     const paddingFactor = -0.2;
@@ -142,5 +162,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     });
 
     tween.play();
+
+    console.log(regionId, stageWidth, stageHeight);
   },
 }));

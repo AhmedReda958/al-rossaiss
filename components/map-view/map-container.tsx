@@ -7,6 +7,7 @@ import Konva from "konva";
 import CityEditorControls from "./city-editor-controls";
 import { useMapStore } from "@/lib/store";
 import CountryMap from "./country-map";
+import ControlsLayer from "./controls-layer";
 
 const MapContainer = () => {
   const { mapSize } = useMapStore();
@@ -47,11 +48,12 @@ const MapContainer = () => {
       ref={containerRef}
       className={`w-full h-full max-w-[${mapSize.width}px] max-h-[${mapSize.height}px] rounded-2xl lg:aspect-video overflow-hidden bg-[#DBDCDC] relative`}
     >
-      <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
-        <CountryMap />
-      </Stage>
-
-      <CityEditorControls />
+      <ControlsLayer>
+        <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
+          <CountryMap />
+        </Stage>
+        <CityEditorControls />
+      </ControlsLayer>
     </div>
   );
 };

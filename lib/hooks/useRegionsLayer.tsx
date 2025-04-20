@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useLayoutEffect } from "react";
 import Konva from "konva";
 import { renderToStaticMarkup } from "react-dom/server";
 import regions from "@/components/map-view/country-map/reigons";
@@ -34,14 +34,14 @@ export const useRegionsLayer = () => {
   const effectiveMapHeight = mapSize.height * 1.25; // Account for scaleY of the image
 
   // Set the layer reference in the store
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (layerRef.current) {
       setLayerRef({ current: layerRef.current });
     }
   }, [setLayerRef]);
 
   // Extract path data on client-side only
-  useEffect(() => {
+  useLayoutEffect(() => {
     const extractedData: Record<string, string> = {};
 
     regions.forEach(({ Component, id }) => {
@@ -57,11 +57,7 @@ export const useRegionsLayer = () => {
 
   // Calculate region bounds once paths are rendered
   useEffect(() => {
-    // Wait until all paths are referenced and the layer is available
-    if (
-      Object.keys(pathRefs.current).length !== regions.length ||
-      !layerRef.current
-    ) {
+    if (Object.keys(pathRefs.current).length !== regions.length) {
       return;
     }
 
@@ -84,7 +80,7 @@ export const useRegionsLayer = () => {
         };
       }
     });
-
+    console.log("calculatedBounds", calculatedBounds);
     setRegionBounds(calculatedBounds);
   }, [pathDataMap, setRegionBounds]);
 
@@ -98,15 +94,13 @@ export const useRegionsLayer = () => {
   // Zoom to selected region
   useEffect(() => {
     if (selectedRegion && layerRef.current && regionBounds[selectedRegion]) {
-      const stage = layerRef.current.getStage();
-      if (stage) {
-        storeZoomToRegion(selectedRegion, stage.width(), stage.height());
-      }
+      storeZoomToRegion(selectedRegion);
     }
   }, [selectedRegion, regionBounds, storeZoomToRegion]);
 
   const handleRegionClick = (id: string) => {
     setSelectedRegion(id);
+    storeZoomToRegion(id);
   };
 
   const assignPathRef = (id: string, node: Konva.Path | null) => {
@@ -147,6 +141,7 @@ export const useRegionsLayer = () => {
     pathDataMap,
     mapImage,
     layerRef,
+    pathRefs,
     hoveredRegionId,
     setHoveredRegionId,
     scale,
