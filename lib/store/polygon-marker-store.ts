@@ -1,0 +1,185 @@
+import { create } from "zustand";
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+export interface CityPolygon {
+  id: string;
+  name: string;
+  points: number[];
+  regionId: string;
+}
+
+interface PolygonMarkerState {
+  // Drawing state
+  isDrawingMode: boolean;
+  currentPoints: Point[];
+  savedPolygons: CityPolygon[];
+  editingPolygonId: string | null;
+
+  // Actions
+  setIsDrawingMode: (isDrawing: boolean) => void;
+  setCurrentPoints: (points: Point[]) => void;
+  addPoint: (point: Point) => void;
+  clearCurrentPoints: () => void;
+  updatePoint: (index: number, point: Point) => void;
+  deletePoint: (index: number) => void;
+
+  // Polygon management
+  addPolygon: (polygon: CityPolygon) => void;
+  updatePolygon: (id: string, polygon: Partial<CityPolygon>) => void;
+  deletePolygon: (id: string) => void;
+  setEditingPolygonId: (id: string | null) => void;
+
+  // Utilities
+  pointsToFlatArray: (points: Point[]) => number[];
+  flatArrayToPoints: (flatArray: number[]) => Point[];
+
+  // Workflow actions
+  startEditingPolygon: (id: string) => void;
+  finishPolygon: (regionId: string) => void;
+  toggleDrawingMode: () => void;
+}
+
+export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
+  // State
+  isDrawingMode: false,
+  currentPoints: [],
+  savedPolygons: [],
+  editingPolygonId: null,
+
+  // Basic setters
+  setIsDrawingMode: (isDrawing) => set({ isDrawingMode: isDrawing }),
+  setCurrentPoints: (points) => set({ currentPoints: points }),
+
+  // Point management
+  addPoint: (point) =>
+    set((state) => ({
+      currentPoints: [...state.currentPoints, point],
+    })),
+  clearCurrentPoints: () => set({ currentPoints: [] }),
+  updatePoint: (index, point) =>
+    set((state) => {
+      const newPoints = [...state.currentPoints];
+      newPoints[index] = point;
+      return { currentPoints: newPoints };
+    }),
+  deletePoint: (index) =>
+    set((state) => ({
+      currentPoints: state.currentPoints.filter((_, i) => i !== index),
+    })),
+
+  // Polygon management
+  addPolygon: (polygon) =>
+    set((state) => ({
+      savedPolygons: [...state.savedPolygons, polygon],
+    })),
+  updatePolygon: (id, updatedFields) =>
+    set((state) => ({
+      savedPolygons: state.savedPolygons.map((polygon) =>
+        polygon.id === id ? { ...polygon, ...updatedFields } : polygon
+      ),
+    })),
+  deletePolygon: (id) =>
+    set((state) => ({
+      savedPolygons: state.savedPolygons.filter((polygon) => polygon.id !== id),
+    })),
+  setEditingPolygonId: (id) => set({ editingPolygonId: id }),
+
+  // Utilities
+  pointsToFlatArray: (points) => {
+    return points.reduce<number[]>(
+      (acc, point) => [...acc, point.x, point.y],
+      []
+    );
+  },
+  flatArrayToPoints: (flatArray) => {
+    const points: Point[] = [];
+    for (let i = 0; i < flatArray.length; i += 2) {
+      points.push({
+        x: flatArray[i],
+        y: flatArray[i + 1],
+      });
+    }
+    return points;
+  },
+
+  // Complex actions
+  startEditingPolygon: (id) => {
+    const {
+      savedPolygons,
+      flatArrayToPoints,
+      setCurrentPoints,
+      setIsDrawingMode,
+      setEditingPolygonId,
+    } = get();
+    const polygonToEdit = savedPolygons.find((p) => p.id === id);
+
+    if (polygonToEdit) {
+      setCurrentPoints(flatArrayToPoints(polygonToEdit.points));
+      setEditingPolygonId(id);
+      setIsDrawingMode(true);
+    }
+  },
+
+  finishPolygon: (regionId) => {
+    const {
+      currentPoints,
+      pointsToFlatArray,
+      savedPolygons,
+      editingPolygonId,
+    } = get();
+
+    if (currentPoints.length < 3) {
+      alert("A polygon needs at least 3 points");
+      return;
+    }
+
+    if (editingPolygonId) {
+      // Update existing polygon
+      get().updatePolygon(editingPolygonId, {
+        points: pointsToFlatArray(currentPoints),
+      });
+    } else {
+      // Create new polygon
+      const newPolygon: CityPolygon = {
+        id: `city-${Date.now()}`,
+        name: `City ${savedPolygons.length + 1}`,
+        points: pointsToFlatArray(currentPoints),
+        regionId,
+      };
+      get().addPolygon(newPolygon);
+    }
+
+    get().clearCurrentPoints();
+    get().setEditingPolygonId(null);
+    get().setIsDrawingMode(false);
+  },
+
+  toggleDrawingMode: () => {
+    const {
+      isDrawingMode,
+      currentPoints,
+      clearCurrentPoints,
+      finishPolygon,
+      setIsDrawingMode,
+    } = get();
+
+    if (isDrawingMode) {
+      if (currentPoints.length >= 3) {
+        finishPolygon(""); // Region ID will be filled in by the component
+      } else {
+        clearCurrentPoints();
+        set({
+          isDrawingMode: false,
+          editingPolygonId: null,
+        });
+      }
+    } else {
+      clearCurrentPoints();
+      setIsDrawingMode(true);
+    }
+  },
+}));

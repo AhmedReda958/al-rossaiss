@@ -2,10 +2,15 @@
 
 import React, { useRef, useEffect } from "react";
 import { Stage } from "react-konva";
-import RegionsLayer from "./regions-layer";
+import Konva from "konva";
+
+import CityEditorControls from "./city-editor-controls";
 import { useMapStore } from "@/lib/store";
+import CountryMap from "./country-map";
+
 const MapContainer = () => {
   const { mapSize } = useMapStore();
+  const stageRef = useRef<Konva.Stage>(null);
 
   const [stageSize, setStageSize] = React.useState({
     width: mapSize.width,
@@ -40,11 +45,13 @@ const MapContainer = () => {
   return (
     <div
       ref={containerRef}
-      className={`w-full h-full max-w-[${mapSize.width}px] max-h-[${mapSize.height}px] rounded-2xl  lg:aspect-video overflow-hidden bg-[#DBDCDC]`}
+      className={`w-full h-full max-w-[${mapSize.width}px] max-h-[${mapSize.height}px] rounded-2xl lg:aspect-video overflow-hidden bg-[#DBDCDC] relative`}
     >
-      <Stage width={stageSize.width} height={stageSize.height}>
-        <RegionsLayer />
+      <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
+        <CountryMap />
       </Stage>
+
+      <CityEditorControls />
     </div>
   );
 };
