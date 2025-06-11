@@ -9,7 +9,7 @@ export const useRegionsLayer = () => {
   const [pathDataMap, setPathDataMap] = React.useState<Record<string, string>>(
     {}
   );
-  const [mapImage] = useImage("/map.png");
+  const [mapImage] = useImage("/map.jpg");
   const layerRef = useRef<Konva.Layer>(null);
   const pathRefs = useRef<Record<string, Konva.Path>>({});
 
@@ -125,8 +125,8 @@ export const useRegionsLayer = () => {
       const scaledMapHeight = effectiveMapHeight * scale;
 
       // Add padding to allow for some overflow
-      const xMin = Math.min(0, stageWidth - scaledMapWidth + 180 * scale);
-      const yMin = Math.min(0, stageHeight - scaledMapHeight + 180 * scale);
+      const xMin = Math.min(0, stageWidth - scaledMapWidth + 580 * scale);
+      const yMin = Math.min(0, stageHeight - scaledMapHeight + 580 * scale);
 
       // Return constrained position
       return {

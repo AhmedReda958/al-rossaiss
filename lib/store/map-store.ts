@@ -53,7 +53,7 @@ interface MapState {
 
 export const useMapStore = create<MapState>((set, get) => ({
   // Initial state
-  mapSize: { width: 1368, height: 1024 },
+  mapSize: { width: 2048, height: 2048 },
   selectedRegion: null,
   hoveredRegion: null,
   selectedCity: null,

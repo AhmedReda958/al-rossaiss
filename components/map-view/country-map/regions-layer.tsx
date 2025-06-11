@@ -27,7 +27,7 @@ const RegionsLayer = () => {
   } = useRegionsLayer();
 
   return (
-    <Group x={120} y={0} scaleX={0.95} scaleY={0.95}>
+    <Group x={120} y={0} scaleX={1} scaleY={1}>
       {regions.map(({ id, name }, index) => {
         const pathData = pathDataMap[id] || "";
         const isHovered = hoveredRegionId === id;

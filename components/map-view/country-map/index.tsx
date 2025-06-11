@@ -38,10 +38,6 @@ const CountryMap = () => {
           width={mapSize.width}
           height={mapSize.height}
           alt="map"
-          y={-180}
-          x={-150}
-          scaleX={1.25}
-          scaleY={1.25}
         />
       )}
 
