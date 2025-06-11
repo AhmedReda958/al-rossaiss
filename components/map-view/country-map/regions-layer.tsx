@@ -42,6 +42,7 @@ const RegionsLayer = () => {
               ref={(node) => assignPathRef(id, node)}
               data={pathData}
               fill={selectedRegion === id ? colors.primary : "white"}
+              fillOpacity={0.24}
               stroke={
                 selectedRegion === id ? colors.primaryHover : colors.primary
               }
