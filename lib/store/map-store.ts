@@ -86,7 +86,7 @@ export const useMapStore = create<MapState>((set, get) => ({
 
     setIsZooming(true);
     const newScale = 1;
-    const newPos = { x: 0, y: 0 };
+    const newPos = intialPosition;
 
     // Animate the zoom out if layer ref exists
     if (layerRef?.current) {
