@@ -80,7 +80,6 @@ export const useRegionsLayer = () => {
         };
       }
     });
-    console.log("calculatedBounds", calculatedBounds);
     setRegionBounds(calculatedBounds);
   }, [pathDataMap, setRegionBounds]);
 

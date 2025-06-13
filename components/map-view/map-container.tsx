@@ -51,6 +51,7 @@ const MapContainer = () => {
     <div
       ref={containerRef}
       className={`w-full h-full max-w-[${mapSize.width}px] max-h-[${mapSize.height}px] rounded-2xl lg:aspect-video overflow-hidden bg-[#DBDCDC] relative`}
+      id="map_view"
     >
       <ControlsLayer>
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>

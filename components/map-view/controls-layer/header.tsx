@@ -26,7 +26,7 @@ const ControlsLayerHeader = () => {
   };
 
   return (
-    <nav className="flex items-center justify-end gap-4 z-10 absolute top-8 left-0 w-full h-16 p-5">
+    <nav className="flex items-center justify-end gap-4 z-10 absolute top-6 left-0 w-full h-16 p-5">
       {/* logo */}
       <div className="bg-white rounded-sm p-1">
         <Image
@@ -46,7 +46,7 @@ const ControlsLayerHeader = () => {
       )}
 
       {/* controls */}
-      <div className="flex flex-col gap-3">
+      {/* <div className="flex flex-col gap-3">
         <Button variant="light" size={"icon-sm"}>
           <BsQuestionCircle className="w-3 h-3" />
         </Button>
@@ -58,18 +58,7 @@ const ControlsLayerHeader = () => {
         >
           EN
         </Button>
-
-        {isAdmin && selectedRegion && !selectedCity && !isAddingCity && (
-          <Button
-            variant="light"
-            size={"icon-sm"}
-            onClick={handleAddCityClick}
-            title="Draw City Boundary"
-          >
-            <PlusIcon className="w-3 h-3" />
-          </Button>
-        )}
-      </div>
+      </div> */}
     </nav>
   );
 };
