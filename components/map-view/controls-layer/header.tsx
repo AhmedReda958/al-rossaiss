@@ -26,15 +26,17 @@ const ControlsLayerHeader = () => {
   };
 
   return (
-    <nav className="flex items-start justify-between z-10 absolute top-0 left-0 w-full h-16 p-5">
+    <nav className="flex items-center justify-end gap-4 z-10 absolute top-8 left-0 w-full h-16 p-5">
       {/* logo */}
-      <Image
-        src={"Logo.svg"}
-        alt="Logo"
-        width={42}
-        height={42}
-        draggable={false}
-      />
+      <div className="bg-white rounded-sm p-1">
+        <Image
+          src={"/logo.png"}
+          alt="Logo"
+          width={212}
+          height={60}
+          draggable={false}
+        />
+      </div>
 
       {/* Instructions */}
       {instructions && (

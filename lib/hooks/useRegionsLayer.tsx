@@ -30,8 +30,8 @@ export const useRegionsLayer = () => {
     resetZoom,
   } = useMapStore();
 
-  const effectiveMapWidth = mapSize.width * 1.25; // Account for scaleX of the image
-  const effectiveMapHeight = mapSize.height * 1.25; // Account for scaleY of the image
+  const effectiveMapWidth = mapSize.width; // Account for scaleX of the image
+  const effectiveMapHeight = mapSize.height; // Account for scaleY of the image
 
   // Set the layer reference in the store
   useLayoutEffect(() => {
@@ -125,8 +125,8 @@ export const useRegionsLayer = () => {
       const scaledMapHeight = effectiveMapHeight * scale;
 
       // Add padding to allow for some overflow
-      const xMin = Math.min(0, stageWidth - scaledMapWidth + 580 * scale);
-      const yMin = Math.min(0, stageHeight - scaledMapHeight + 580 * scale);
+      const xMin = Math.min(0, stageWidth - scaledMapWidth + scale);
+      const yMin = Math.min(0, stageHeight - scaledMapHeight + scale);
 
       // Return constrained position
       return {

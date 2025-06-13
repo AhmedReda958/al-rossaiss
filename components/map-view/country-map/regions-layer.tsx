@@ -9,11 +9,11 @@ import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
 
 // Define region positions for labels
 const regionLabelPositions: Record<string, { x: number; y: number }> = {
-  western: { x: 280, y: 600 },
-  eastern: { x: 830, y: 500 },
-  northern: { x: 250, y: 80 },
-  southern: { x: 500, y: 850 },
-  central: { x: 500, y: 450 },
+  western: { x: 150, y: 300 },
+  eastern: { x: 830, y: 350 },
+  northern: { x: 250, y: 30 },
+  southern: { x: 400, y: 550 },
+  central: { x: 450, y: 250 },
 };
 
 const RegionsLayer = () => {
@@ -27,7 +27,7 @@ const RegionsLayer = () => {
   } = useRegionsLayer();
 
   return (
-    <Group x={120} y={0} scaleX={1} scaleY={1}>
+    <Group x={369} y={664} scaleX={1} scaleY={1}>
       {regions.map(({ id, name }, index) => {
         const pathData = pathDataMap[id] || "";
         const isHovered = hoveredRegionId === id;
@@ -42,11 +42,9 @@ const RegionsLayer = () => {
               ref={(node) => assignPathRef(id, node)}
               data={pathData}
               fill={selectedRegion === id ? colors.primary : "white"}
-              fillOpacity={0.24}
-              stroke={
-                selectedRegion === id ? colors.primaryHover : colors.primary
-              }
-              strokeWidth={selectedRegion === id ? 3 : 1}
+              stroke={colors.primary}
+              opacity={0.24}
+              strokeWidth={2}
               onClick={() => handleRegionClick(id)}
               onMouseEnter={(e) => {
                 const container = e.target.getStage()?.container();
@@ -96,32 +94,32 @@ const RegionsLayer = () => {
               >
                 {/* Background for label */}
                 <Rect
-                  width={177}
-                  height={52}
-                  fill={isHovered ? "#ffffff" : colors.secondary}
-                  opacity={0.16}
+                  width={150}
+                  height={44}
+                  fill={"#ffffff"}
+                  opacity={0.42}
                   cornerRadius={4}
                 />
 
                 {/* Region name */}
                 <Text
                   text={name}
-                  x={14}
-                  y={18}
-                  fontSize={16}
+                  x={8}
+                  y={16}
+                  fontSize={14}
                   fontFamily="Arial"
                   fill={colors.primary}
                   fontWeight="bold"
                 />
 
                 {/* Number circle */}
-                <Circle x={153} y={26} radius={15} fill="#ffffff" />
+                <Circle x={128} y={23} radius={14} fill="#ffffff" />
 
                 {/* Number text */}
                 <Text
                   text={(index + 1).toString()}
-                  x={153}
-                  y={26}
+                  x={128}
+                  y={24}
                   fontSize={14}
                   fontFamily="Arial"
                   fill={colors.primary}

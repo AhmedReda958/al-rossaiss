@@ -61,6 +61,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   isAdmin: true, // Set default admin state
   instructions: null,
   scale: 1,
+  // position: { x: -200, y: -500 },
   position: { x: 0, y: 0 },
   isZooming: false,
   regionBounds: {},
@@ -120,6 +121,9 @@ export const useMapStore = create<MapState>((set, get) => ({
     setIsZooming(true);
 
     const bounds = regionBounds[regionId];
+
+    console.log("Zooming to region:", regionId, bounds);
+
     if (!bounds || !layerRef?.current) {
       setIsZooming(false);
       return;
@@ -133,8 +137,8 @@ export const useMapStore = create<MapState>((set, get) => ({
     const paddingFactor = -0.2;
     const paddedWidth = bounds.width * (1 + paddingFactor);
     const paddedHeight = bounds.height * (1 + paddingFactor);
-    const paddedX = bounds.x - (bounds.width * paddingFactor) / 2;
-    const paddedY = bounds.y - (bounds.height * paddingFactor) / 2;
+    const paddedX = bounds.x - bounds.width * paddingFactor;
+    const paddedY = bounds.y - bounds.height * paddingFactor;
 
     // Calculate scale to fit the region
     const scaleX = stageWidth / paddedWidth;
@@ -145,6 +149,12 @@ export const useMapStore = create<MapState>((set, get) => ({
     const newX = stageWidth / 2 - (paddedX + paddedWidth / 2) * newScale;
     const newY = stageHeight / 2 - (paddedY + paddedHeight / 2) * newScale;
 
+    console.log(
+      `Zooming to region ${regionId}:`,
+      `bounds=${JSON.stringify(bounds)},`,
+      `stageWidth=${stageWidth}, stageHeight=${stageHeight},`,
+      `newScale=${newScale}, newX=${newX}, newY=${newY}`
+    );
     // Animate the zoom
     const tween = new Konva.Tween({
       node: layerRef.current,
