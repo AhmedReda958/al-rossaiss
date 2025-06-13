@@ -51,6 +51,8 @@ interface MapState {
   zoomToRegion: (regionId: string) => void;
 }
 
+const intialPosition = { x: -200, y: -500 };
+
 export const useMapStore = create<MapState>((set, get) => ({
   // Initial state
   mapSize: { width: 2048, height: 2048 },
@@ -61,8 +63,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   isAdmin: true, // Set default admin state
   instructions: null,
   scale: 1,
-  // position: { x: -200, y: -500 },
-  position: { x: 0, y: 0 },
+  position: { x: intialPosition.x, y: intialPosition.y },
   isZooming: false,
   regionBounds: {},
   layerRef: null,
@@ -134,7 +135,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     const stageHeight = stage?.height();
 
     // Add some padding around the region
-    const paddingFactor = -0.2;
+    const paddingFactor = 0;
     const paddedWidth = bounds.width * (1 + paddingFactor);
     const paddedHeight = bounds.height * (1 + paddingFactor);
     const paddedX = bounds.x - bounds.width * paddingFactor;
@@ -146,8 +147,12 @@ export const useMapStore = create<MapState>((set, get) => ({
     const newScale = Math.min(scaleX, scaleY);
 
     // Calculate position to center the region
-    const newX = stageWidth / 2 - (paddedX + paddedWidth / 2) * newScale;
-    const newY = stageHeight / 2 - (paddedY + paddedHeight / 2) * newScale;
+    const newX =
+      stageWidth / 2 -
+      (paddedX + paddedWidth / 2 - intialPosition.x) * newScale;
+    const newY =
+      stageHeight / 2 -
+      (paddedY + paddedHeight / 2 - intialPosition.y) * newScale;
 
     console.log(
       `Zooming to region ${regionId}:`,
