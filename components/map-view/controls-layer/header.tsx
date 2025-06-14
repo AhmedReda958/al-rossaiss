@@ -30,7 +30,7 @@ const ControlsLayerHeader = () => {
       {/* logo */}
       <div className="bg-white rounded-sm p-1">
         <Image
-          src={"/logo.png"}
+          src={"/logo_large.png"}
           alt="Logo"
           width={212}
           height={60}

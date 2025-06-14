@@ -1,0 +1,43 @@
+import React from "react";
+
+interface Props {
+  className?: string;
+}
+
+function BoxIcon({ className }: Props) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      {" "}
+      <path
+        d="M2.93231 5.72778L9.26865 9.39468L15.5619 5.74931"
+        stroke="currentColor"
+        strokeWidth="1.07639"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.26868 15.896V9.38745"
+        stroke="currentColor"
+        strokeWidth="1.07639"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />{" "}
+      <path
+        d="M7.78333 2.16871L3.95138 4.29279C3.0831 4.77357 2.37268 5.97913 2.37268 6.96941V11.0238C2.37268 12.0141 3.0831 13.2196 3.95138 13.7004L7.78333 15.8317C8.60138 16.2838 9.94328 16.2838 10.7613 15.8317L14.5933 13.7004C15.4616 13.2196 16.172 12.0141 16.172 11.0238V6.96941C16.172 5.97913 15.4616 4.77357 14.5933 4.29279L10.7613 2.16154C9.93611 1.70945 8.60138 1.70945 7.78333 2.16871Z"
+        stroke="currentColor"
+        strokeWidth="1.07639"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export default BoxIcon;
