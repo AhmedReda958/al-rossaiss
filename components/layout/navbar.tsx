@@ -20,7 +20,7 @@ export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="container bg-white mx-auto mt-8 px-5 rounded-lg">
+    <nav className="container bg-white mx-auto mt-8 mb-8 px-5 rounded-lg">
       <div className="flex justify-between md:justify-start items-center gap-16 h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
