@@ -10,7 +10,7 @@ import BoxIcon from "@/svgs/box";
 import LandMarkIcon from "@/svgs/landmark";
 
 const navigationLinks = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { name: "Home", href: "/dashboard", icon: HomeIcon },
   { name: "Cities", href: "/dashboard/cities", icon: CityIcon },
   { name: "Projects", href: "/dashboard/projects", icon: BoxIcon },
   { name: "Landmarks", href: "/dashboard/landmarks", icon: LandMarkIcon },
