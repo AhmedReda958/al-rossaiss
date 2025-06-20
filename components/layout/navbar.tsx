@@ -11,9 +11,9 @@ import LandMarkIcon from "@/svgs/landmark";
 
 const navigationLinks = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Cities", href: "/cities", icon: CityIcon },
-  { name: "Projects", href: "/projects", icon: BoxIcon },
-  { name: "Landmarks", href: "/landmarks", icon: LandMarkIcon },
+  { name: "Cities", href: "/dashboard/cities", icon: CityIcon },
+  { name: "Projects", href: "/dashboard/projects", icon: BoxIcon },
+  { name: "Landmarks", href: "/dashboard/landmarks", icon: LandMarkIcon },
 ];
 
 export function Navbar() {
