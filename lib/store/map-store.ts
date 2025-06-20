@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import Konva from "konva";
+import { Tween, Easings } from "konva/lib/Tween";
 import { Layer } from "konva/lib/Layer";
 
 interface MapState {
@@ -90,10 +90,10 @@ export const useMapStore = create<MapState>((set, get) => ({
 
     // Animate the zoom out if layer ref exists
     if (layerRef?.current) {
-      const tween = new Konva.Tween({
+      const tween = new Tween({
         node: layerRef.current,
         duration: 0.5,
-        easing: Konva.Easings.EaseInOut,
+        easing: Easings.EaseInOut,
         scaleX: newScale,
         scaleY: newScale,
         x: newPos.x,
@@ -161,10 +161,10 @@ export const useMapStore = create<MapState>((set, get) => ({
       `newScale=${newScale}, newX=${newX}, newY=${newY}`
     );
     // Animate the zoom
-    const tween = new Konva.Tween({
+    const tween = new Tween({
       node: layerRef.current,
       duration: 0.5,
-      easing: Konva.Easings.EaseInOut,
+      easing: Easings.EaseInOut,
       scaleX: newScale,
       scaleY: newScale,
       x: newX,

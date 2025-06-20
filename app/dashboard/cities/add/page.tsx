@@ -1,6 +1,6 @@
+"use client";
 import PageHeader from "@/components/layout/page-header";
 import MapView from "@/components/map-view";
-import React from "react";
 
 const Page = () => {
   return (
@@ -13,7 +13,7 @@ const Page = () => {
         ]}
       />
       <div className="h-screen mt-10">
-        <MapView />
+        <MapView type="add-city" />
       </div>
     </>
   );

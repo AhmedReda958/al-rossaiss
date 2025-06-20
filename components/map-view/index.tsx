@@ -1,6 +1,9 @@
 "use client";
 
+import { useMapStore } from "@/lib/store";
 import dynamic from "next/dynamic";
+import { useLayoutEffect } from "react";
+import { TMapType } from "@/app/types/map";
 
 const MapContainer = dynamic(
   () => import("@/components/map-view/map-container"),
@@ -9,6 +12,12 @@ const MapContainer = dynamic(
   }
 );
 
-export default function MapView() {
+export default function MapView({ type = "main" }: { type?: TMapType }) {
+  const { setIsAddingCity } = useMapStore();
+
+  useLayoutEffect(() => {
+    setIsAddingCity(type === "add-city");
+  }, [setIsAddingCity, type]);
+
   return <MapContainer />;
 }
