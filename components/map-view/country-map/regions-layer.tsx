@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Group, Path, Text, Circle, Rect } from "react-konva";
 import Konva from "konva";
 
@@ -6,6 +6,7 @@ import regions from "./regions";
 
 import colors from "@/lib/colors";
 import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
+import { useMapStore } from "@/lib/store";
 
 // Define region positions for labels
 const regionLabelPositions: Record<string, { x: number; y: number }> = {
@@ -25,6 +26,18 @@ const RegionsLayer = () => {
     handleRegionClick,
     assignPathRef,
   } = useRegionsLayer();
+  const { mapType } = useMapStore();
+  const [regionCityCounts, setRegionCityCounts] = useState<Record<
+    string,
+    number
+  > | null>(null);
+
+  useEffect(() => {
+    fetch("/api/regions/counts")
+      .then((res) => res.json())
+      .then((data) => setRegionCityCounts(data))
+      .catch((err) => console.error("Failed to fetch region counts", err));
+  }, []);
 
   return (
     <Group x={369} y={664} scaleX={1} scaleY={1}>
@@ -32,6 +45,8 @@ const RegionsLayer = () => {
         const pathData = pathDataMap[id] || "";
         const isHovered = hoveredRegionId === id;
         const labelPos = regionLabelPositions[id] || { x: 0, y: 0 };
+        const cityCount = regionCityCounts ? regionCityCounts[id] : -1;
+        const isDisabled = mapType === "main" && cityCount === 0;
 
         if (!pathData) return null;
 
@@ -43,8 +58,9 @@ const RegionsLayer = () => {
               data={pathData}
               fill={selectedRegion === id ? colors.primary : "white"}
               stroke={colors.primary}
-              opacity={0.24}
+              opacity={isDisabled ? 0.1 : 0.24}
               strokeWidth={2}
+              listening={!isDisabled}
               onClick={() => handleRegionClick(id)}
               onMouseEnter={(e) => {
                 const container = e.target.getStage()?.container();
@@ -88,13 +104,13 @@ const RegionsLayer = () => {
                 key={`label-${id}`}
                 x={labelPos.x}
                 y={labelPos.y}
-                scaleX={isHovered ? 1.1 : 1}
-                scaleY={isHovered ? 1.1 : 1}
-                opacity={isHovered ? 1 : 0.9}
+                scaleX={isHovered && !isDisabled ? 1.1 : 1}
+                scaleY={isHovered && !isDisabled ? 1.1 : 1}
+                opacity={isHovered && !isDisabled ? 1 : 0.9}
               >
                 {/* Background for label */}
                 <Rect
-                  width={150}
+                  width={isDisabled ? 120 : 150}
                   height={44}
                   fill={"#ffffff"}
                   opacity={0.42}
@@ -112,25 +128,54 @@ const RegionsLayer = () => {
                   fontWeight="bold"
                 />
 
-                {/* Number circle */}
-                <Circle x={128} y={23} radius={14} fill="#ffffff" />
+                {mapType === "main"
+                  ? regionCityCounts &&
+                    cityCount > 0 && (
+                      <>
+                        {/* Number circle */}
+                        <Circle x={128} y={23} radius={14} fill="#ffffff" />
 
-                {/* Number text */}
-                <Text
-                  text={(index + 1).toString()}
-                  x={128}
-                  y={24}
-                  fontSize={14}
-                  fontFamily="Arial"
-                  fill={colors.primary}
-                  align="center"
-                  verticalAlign="middle"
-                  fontWeight="bold"
-                  width={30}
-                  height={30}
-                  offsetX={15}
-                  offsetY={15}
-                />
+                        {/* Number text */}
+                        <Text
+                          text={cityCount.toString()}
+                          x={128}
+                          y={24}
+                          fontSize={14}
+                          fontFamily="Arial"
+                          fill={colors.primary}
+                          align="center"
+                          verticalAlign="middle"
+                          fontWeight="bold"
+                          width={30}
+                          height={30}
+                          offsetX={15}
+                          offsetY={15}
+                        />
+                      </>
+                    )
+                  : regionCityCounts && (
+                      <>
+                        {/* Number circle */}
+                        <Circle x={128} y={23} radius={14} fill="#ffffff" />
+
+                        {/* Number text */}
+                        <Text
+                          text={(index + 1).toString()}
+                          x={128}
+                          y={24}
+                          fontSize={14}
+                          fontFamily="Arial"
+                          fill={colors.primary}
+                          align="center"
+                          verticalAlign="middle"
+                          fontWeight="bold"
+                          width={30}
+                          height={30}
+                          offsetX={15}
+                          offsetY={15}
+                        />
+                      </>
+                    )}
               </Group>
             )}
           </React.Fragment>

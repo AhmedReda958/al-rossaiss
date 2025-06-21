@@ -28,6 +28,7 @@ export const useRegionsLayer = () => {
     setLayerRef,
     zoomToRegion: storeZoomToRegion,
     resetZoom,
+    setCities,
   } = useMapStore();
 
   const effectiveMapWidth = mapSize.width; // Account for scaleX of the image
@@ -97,8 +98,21 @@ export const useRegionsLayer = () => {
     }
   }, [selectedRegion, regionBounds, storeZoomToRegion]);
 
-  const handleRegionClick = (id: string) => {
+  const handleRegionClick = async (id: string) => {
     setSelectedRegion(id);
+
+    try {
+      const response = await fetch(`/api/cities/region/${id}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch cities for region ${id}`);
+      }
+      const cities = await response.json();
+      setCities(cities);
+    } catch (error) {
+      console.error(error);
+      setCities([]); // Clear cities in case of an error
+    }
+
     storeZoomToRegion(id);
   };
 

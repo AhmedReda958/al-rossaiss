@@ -3,6 +3,16 @@ import { Tween, Easings } from "konva/lib/Tween";
 import { Layer } from "konva/lib/Layer";
 import { TMapType } from "@/app/types/map";
 
+// Duplicating the City type from Prisma schema
+export interface City {
+  id: number;
+  name: string;
+  image: string;
+  labelDirection: string;
+  points: number[];
+  regionId: number;
+}
+
 interface MapState {
   mapSize: { width: number; height: number };
   mapType: TMapType;
@@ -13,6 +23,7 @@ interface MapState {
 
   // City-related state
   selectedCity: string | null;
+  cities: City[];
 
   // Admin state
   isAdmin: boolean;
@@ -35,6 +46,7 @@ interface MapState {
   setSelectedRegion: (id: string | null) => void;
   setHoveredRegion: (id: string | null) => void;
   setSelectedCity: (id: string | null) => void;
+  setCities: (cities: City[]) => void;
   setMapType: (type: TMapType) => void;
   setScale: (scale: number) => void;
   setPosition: (position: { x: number; y: number }) => void;
@@ -62,6 +74,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   selectedRegion: null,
   hoveredRegion: null,
   selectedCity: null,
+  cities: [],
   isAdmin: true, // Set default admin state
   instructions: null,
   scale: 1,
@@ -74,6 +87,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   setSelectedRegion: (id) => set({ selectedRegion: id }),
   setHoveredRegion: (id) => set({ hoveredRegion: id }),
   setSelectedCity: (id) => set({ selectedCity: id }),
+  setCities: (cities) => set({ cities }),
   setMapType: (type) => set({ mapType: type }),
   setScale: (scale) => set({ scale }),
   setPosition: (position) => set({ position }),
@@ -102,6 +116,7 @@ export const useMapStore = create<MapState>((set, get) => ({
         y: newPos.y,
         onFinish: () => {
           setSelectedRegion(null);
+          set({ cities: [] });
           setScale(newScale);
           setPosition(newPos);
           setIsZooming(false);
@@ -114,6 +129,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       setScale(newScale);
       setPosition(newPos);
       setIsZooming(false);
+      set({ cities: [] });
     }
   },
 
