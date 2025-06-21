@@ -1,8 +1,6 @@
 import colors from "@/lib/colors";
-import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import React from "react";
 import { Line, Group, Text } from "react-konva";
-import { useMapStore } from "@/lib/store";
 import { CityPolygon } from "@/lib/store/polygon-marker-store";
 
 const getPolygonCenter = (points: number[]) => {
@@ -19,14 +17,8 @@ const getPolygonCenter = (points: number[]) => {
 };
 
 const Polygon = ({ polygon }: { polygon: CityPolygon }) => {
-  const { isDrawingMode, startEditingPolygon } = usePolygonMarkerStore();
-  const { isAdmin, setMapType } = useMapStore();
-
   const handlePolygonClick = () => {
-    if (!isDrawingMode && isAdmin) {
-      startEditingPolygon(polygon.id);
-      setMapType("add-city");
-    }
+    // setSelectedCity(polygon);
   };
 
   const center = getPolygonCenter(polygon.points);
