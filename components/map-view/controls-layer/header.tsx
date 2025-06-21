@@ -1,34 +1,14 @@
 import React from "react";
 import Image from "next/image";
-import { BsQuestionCircle } from "react-icons/bs";
-import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
 import { useMapStore } from "@/lib/store";
-import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 
 const ControlsLayerHeader = () => {
-  const {
-    isAdmin,
-    selectedCity,
-    selectedRegion,
-    instructions,
-    setIsAddingCity,
-    isAddingCity,
-  } = useMapStore();
-  const { toggleDrawingMode } = usePolygonMarkerStore();
-
-  const handleAddCityClick = () => {
-    setIsAddingCity(true);
-
-    if (selectedRegion) {
-      toggleDrawingMode(selectedRegion);
-    }
-  };
+  const { mapType, instructions } = useMapStore();
 
   return (
     <nav className="flex items-center justify-end gap-4 z-10 absolute top-6 left-0 w-full h-16 p-5">
       {/* logo */}
-      <div className="bg-white rounded-sm p-1">
+      <div className="bg-white rounded-sm p-1" hidden={mapType !== "main"}>
         <Image
           src={"/logo_large.png"}
           alt="Logo"

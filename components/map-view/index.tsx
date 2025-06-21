@@ -13,11 +13,11 @@ const MapContainer = dynamic(
 );
 
 export default function MapView({ type = "main" }: { type?: TMapType }) {
-  const { setIsAddingCity } = useMapStore();
+  const { setMapType } = useMapStore();
 
   useLayoutEffect(() => {
-    setIsAddingCity(type === "add-city");
-  }, [setIsAddingCity, type]);
+    setMapType(type);
+  }, [setMapType, type]);
 
   return <MapContainer />;
 }

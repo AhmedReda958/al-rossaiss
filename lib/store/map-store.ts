@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import { Tween, Easings } from "konva/lib/Tween";
 import { Layer } from "konva/lib/Layer";
+import { TMapType } from "@/app/types/map";
 
 interface MapState {
   mapSize: { width: number; height: number };
+  mapType: TMapType;
 
   // Region-related state
   selectedRegion: string | null;
@@ -11,7 +13,6 @@ interface MapState {
 
   // City-related state
   selectedCity: string | null;
-  isAddingCity: boolean;
 
   // Admin state
   isAdmin: boolean;
@@ -34,7 +35,7 @@ interface MapState {
   setSelectedRegion: (id: string | null) => void;
   setHoveredRegion: (id: string | null) => void;
   setSelectedCity: (id: string | null) => void;
-  setIsAddingCity: (isAdding: boolean) => void;
+  setMapType: (type: TMapType) => void;
   setScale: (scale: number) => void;
   setPosition: (position: { x: number; y: number }) => void;
   setIsZooming: (isZooming: boolean) => void;
@@ -56,10 +57,10 @@ const intialPosition = { x: -200, y: -500 };
 export const useMapStore = create<MapState>((set, get) => ({
   // Initial state
   mapSize: { width: 2048, height: 2048 },
+  mapType: "main",
   selectedRegion: null,
   hoveredRegion: null,
   selectedCity: null,
-  isAddingCity: false,
   isAdmin: true, // Set default admin state
   instructions: null,
   scale: 1,
@@ -72,7 +73,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   setSelectedRegion: (id) => set({ selectedRegion: id }),
   setHoveredRegion: (id) => set({ hoveredRegion: id }),
   setSelectedCity: (id) => set({ selectedCity: id }),
-  setIsAddingCity: (isAdding) => set({ isAddingCity: isAdding }),
+  setMapType: (type) => set({ mapType: type }),
   setScale: (scale) => set({ scale }),
   setPosition: (position) => set({ position }),
   setIsZooming: (isZooming) => set({ isZooming }),
