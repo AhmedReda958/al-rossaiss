@@ -30,26 +30,30 @@ const Polygon = ({ polygon }: { polygon: CityPolygon }) => {
   };
 
   const center = getPolygonCenter(polygon.points);
-  const labelOffset = 100;
+  const labelOffset = 50;
   let labelPos = { x: 0, y: 0 };
   let linePoints: number[] = [];
 
   switch (polygon.labelDirection) {
     case "up":
-      labelPos = { x: center.x - 25, y: center.y - labelOffset - 20 };
+      labelPos = { x: center.x - 35, y: center.y - labelOffset - 20 };
       linePoints = [center.x, center.y, center.x, center.y - labelOffset];
       break;
     case "down":
-      labelPos = { x: center.x - 25, y: center.y + labelOffset };
+      labelPos = { x: center.x - 35, y: center.y + labelOffset };
       linePoints = [center.x, center.y, center.x, center.y + labelOffset];
       break;
     case "left":
-      labelPos = { x: center.x - labelOffset - 50, y: center.y - 10 };
+      labelPos = { x: center.x - labelOffset - 70, y: center.y - 10 };
       linePoints = [center.x, center.y, center.x - labelOffset, center.y];
       break;
     case "right":
       labelPos = { x: center.x + labelOffset, y: center.y - 10 };
       linePoints = [center.x, center.y, center.x + labelOffset, center.y];
+      break;
+    default:
+      labelPos = { x: center.x - 35, y: center.y - 10 };
+      linePoints = [];
       break;
   }
 
@@ -66,12 +70,12 @@ const Polygon = ({ polygon }: { polygon: CityPolygon }) => {
       <Group x={labelPos.x} y={labelPos.y}>
         <Text
           text={polygon.name}
-          fontSize={14}
+          fontSize={12}
           fontStyle="bold"
           fill={colors.primary}
-          padding={2}
           width={70}
           align="center"
+          verticalAlign="middle"
         />
       </Group>
     </Group>
