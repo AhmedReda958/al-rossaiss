@@ -17,6 +17,12 @@ import {
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
+import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import ArrowUp from "@/svgs/arrow-up";
+import ArrowDown from "@/svgs/arrow-down";
+import ArrowLeft from "@/svgs/arrow-left";
+import ArrowRight from "@/svgs/arrow-right";
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -29,6 +35,7 @@ const formSchema = z.object({
     .refine((val) => val !== undefined, {
       message: "City image is required",
     }),
+  labelDirection: z.enum(["up", "down", "left", "right"]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,6 +54,7 @@ const AddCityForm: React.FC = () => {
     defaultValues: {
       cityName: "",
       cityImage: undefined,
+      labelDirection: "up",
     },
   });
 
@@ -85,7 +93,7 @@ const AddCityForm: React.FC = () => {
   };
 
   const onSubmit = (values: FormValues) => {
-    finishPolygon(selectedRegion || "", values.cityName);
+    finishPolygon(selectedRegion || "", values.cityName, values.labelDirection);
   };
 
   const onCancel = () => {
@@ -185,6 +193,38 @@ const AddCityForm: React.FC = () => {
                     </div>
                   )}
                 </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="labelDirection"
+            render={({ field }) => (
+              <FormItem className="mt-3">
+                <Label>Label Direction</Label>
+                <ToggleGroup
+                  type="single"
+                  defaultValue={field.value}
+                  onValueChange={field.onChange}
+                  variant="outline"
+                  className="text-primary"
+                >
+                  <ToggleGroupItem value="up" aria-label="Up">
+                    <ArrowUp width={20} height={20} />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="down" aria-label="Down">
+                    <ArrowDown width={20} height={20} />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="left" aria-label="Left">
+                    <ArrowLeft width={20} height={20} />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="right" aria-label="Right">
+                    <ArrowRight width={20} height={20} />
+                  </ToggleGroupItem>
+                </ToggleGroup>
+
                 <FormMessage />
               </FormItem>
             )}

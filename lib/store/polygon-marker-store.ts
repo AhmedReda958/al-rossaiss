@@ -10,6 +10,7 @@ export interface CityPolygon {
   name: string;
   points: number[];
   regionId: string;
+  labelDirection: "up" | "down" | "left" | "right";
 }
 
 interface PolygonMarkerState {
@@ -39,7 +40,11 @@ interface PolygonMarkerState {
 
   // Workflow actions
   startEditingPolygon: (id: string) => void;
-  finishPolygon: (regionId: string, name?: string) => void;
+  finishPolygon: (
+    regionId: string,
+    name: string,
+    labelDirection: "up" | "down" | "left" | "right"
+  ) => void;
   toggleDrawingMode: (selectedRegion: string) => void;
 }
 
@@ -124,7 +129,7 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
     }
   },
 
-  finishPolygon: (regionId, name) => {
+  finishPolygon: (regionId, name, labelDirection) => {
     const {
       currentPoints,
       pointsToFlatArray,
@@ -141,6 +146,8 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
       // Update existing polygon
       get().updatePolygon(editingPolygonId, {
         points: pointsToFlatArray(currentPoints),
+        name,
+        labelDirection,
       });
     } else {
       // Create new polygon
@@ -149,6 +156,7 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
         name: name || `City ${savedPolygons.length + 1}`,
         points: pointsToFlatArray(currentPoints),
         regionId,
+        labelDirection: labelDirection,
       };
       get().addPolygon(newPolygon);
     }
@@ -169,7 +177,11 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
 
     if (isDrawingMode) {
       if (currentPoints.length >= 3) {
-        finishPolygon(selectedRegion); // Region ID will be filled in by the component
+        finishPolygon(
+          selectedRegion,
+          `City ${get().savedPolygons.length + 1}`,
+          "up"
+        ); // Region ID will be filled in by the component
       } else {
         clearCurrentPoints();
         set({
