@@ -102,7 +102,7 @@ const AddCityForm: React.FC = () => {
 
   return (
     <>
-      <div className="mb-3">
+      <div className="mb-6">
         <h2 className="text-lg font-semibold">Add City</h2>
         <p className="text-xs text-muted mb-1">
           Select Mark Type and Pick it on City Map
@@ -132,7 +132,7 @@ const AddCityForm: React.FC = () => {
             name="cityImage"
             render={({ field: { onChange, onBlur, name, ref } }) => (
               <FormItem>
-                <div className="border rounded-lg px-3 py-2.5 mt-3">
+                <div className="border rounded-lg px-3 py-2.5 mt-6">
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <Image
                       src="/icons/image-icon.svg"
@@ -202,8 +202,8 @@ const AddCityForm: React.FC = () => {
             control={form.control}
             name="labelDirection"
             render={({ field }) => (
-              <FormItem className="mt-3">
-                <Label>Label Direction</Label>
+              <FormItem className="mt-6">
+                <Label className="mb-2">Label Direction</Label>
                 <ToggleGroup
                   type="single"
                   defaultValue={field.value}
@@ -230,7 +230,7 @@ const AddCityForm: React.FC = () => {
             )}
           />
 
-          <div className="flex justify-end gap-2 mt-3">
+          <div className="flex justify-end gap-2 mt-8">
             <Button
               variant="ghost"
               className="w-[114px]"
