@@ -50,6 +50,7 @@ interface MapState {
 
   // Helper method to zoom to a region
   zoomToRegion: (regionId: string) => void;
+  zoomToPoint: (point: { x: number; y: number }) => void;
 }
 
 const intialPosition = { x: -200, y: -500 };
@@ -124,8 +125,6 @@ export const useMapStore = create<MapState>((set, get) => ({
 
     const bounds = regionBounds[regionId];
 
-    console.log("Zooming to region:", regionId, bounds);
-
     if (!bounds || !layerRef?.current) {
       setIsZooming(false);
       return;
@@ -155,12 +154,6 @@ export const useMapStore = create<MapState>((set, get) => ({
       stageHeight / 2 -
       (paddedY + paddedHeight / 2 - intialPosition.y) * newScale;
 
-    console.log(
-      `Zooming to region ${regionId}:`,
-      `bounds=${JSON.stringify(bounds)},`,
-      `stageWidth=${stageWidth}, stageHeight=${stageHeight},`,
-      `newScale=${newScale}, newX=${newX}, newY=${newY}`
-    );
     // Animate the zoom
     const tween = new Tween({
       node: layerRef.current,
@@ -178,7 +171,41 @@ export const useMapStore = create<MapState>((set, get) => ({
     });
 
     tween.play();
+  },
 
-    console.log(regionId, stageWidth, stageHeight);
+  zoomToPoint: (point) => {
+    const { layerRef, setScale, setPosition, setIsZooming } = get();
+    if (!layerRef?.current) {
+      return;
+    }
+    setIsZooming(true);
+
+    const stage = layerRef.current.getStage();
+    const stageWidth = stage?.width() || 0;
+    const stageHeight = stage?.height() || 0;
+
+    const newScale = 2;
+
+    // Calculate position to center the point
+    const newX = stageWidth / 2 - point.x * newScale;
+    const newY = stageHeight / 2 - point.y * newScale;
+
+    // Animate the zoom
+    const tween = new Tween({
+      node: layerRef.current,
+      duration: 0.5,
+      easing: Easings.EaseInOut,
+      scaleX: newScale,
+      scaleY: newScale,
+      x: newX,
+      y: newY,
+      onFinish: () => {
+        setScale(newScale);
+        setPosition({ x: newX, y: newY });
+        setIsZooming(false);
+      },
+    });
+
+    tween.play();
   },
 }));

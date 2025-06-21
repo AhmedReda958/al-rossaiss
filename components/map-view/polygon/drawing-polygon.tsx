@@ -7,7 +7,7 @@ import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import colors from "@/lib/colors";
 
 const DrawingPolygon = () => {
-  const { scale, position } = useMapStore();
+  const { scale, position, zoomToPoint } = useMapStore();
   const {
     isDrawingMode,
     currentPoints,
@@ -18,6 +18,12 @@ const DrawingPolygon = () => {
   } = usePolygonMarkerStore();
 
   const stageRef = useRef<Konva.Stage | null>(null);
+
+  // useEffect(() => {
+  //   if (currentPoints.length > 0) {
+  //     zoomToPoint(currentPoints[0]);
+  //   }
+  // }, [currentPoints, zoomToPoint]);
 
   // Get the stage reference when component mounts
   useEffect(() => {
