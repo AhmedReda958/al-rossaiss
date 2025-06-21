@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import path from "path";
 import { writeFile, mkdir } from "fs/promises";
 
@@ -82,14 +82,58 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const q = searchParams.get("q");
+    const regionName = searchParams.get("region");
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "12", 10);
+
+    const where: Prisma.CityWhereInput = {};
+
+    if (q) {
+      where.name = {
+        contains: q,
+        mode: "insensitive",
+      };
+    }
+
+    if (regionName && regionName !== "all") {
+      const region = await prisma.region.findUnique({
+        where: { name: regionName },
+      });
+      if (region) {
+        where.regionId = region.id;
+      } else {
+        return NextResponse.json({ cities: [], total: 0, totalPages: 0 });
+      }
+    }
+
+    const total = await prisma.city.count({ where });
+    const totalPages = Math.ceil(total / limit);
+
     const cities = await prisma.city.findMany({
+      where,
       include: {
-        region: true,
+        region: {
+          select: {
+            id: true,
+            name: true,
+            _count: {
+              select: { projects: true },
+            },
+          },
+        },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
       },
     });
-    return NextResponse.json(cities);
+
+    return NextResponse.json({ cities, total, totalPages });
   } catch (error) {
     console.error("Error fetching cities:", error);
     return NextResponse.json(
