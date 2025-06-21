@@ -35,10 +35,10 @@ type FormValues = z.infer<typeof formSchema>;
 
 const AddCityForm: React.FC = () => {
   const router = useRouter();
-  const { selectedRegion } = useMapStore();
+  const { selectedRegion, setInstructions } = useMapStore();
   const [cityImagePreview, setCityImagePreview] = useState<string | null>(null);
 
-  const { savedPolygons, editingPolygonId, finishPolygon, updatePolygon } =
+  const { finishPolygon, setIsDrawingMode, clearCurrentPoints } =
     usePolygonMarkerStore();
 
   // Initialize react-hook-form with zod validation
@@ -50,15 +50,22 @@ const AddCityForm: React.FC = () => {
     },
   });
 
-  // When a polygon is selected, update the form with its name
   useEffect(() => {
-    if (editingPolygonId) {
-      const polygon = savedPolygons.find((p) => p.id === editingPolygonId);
-      if (polygon) {
-        form.setValue("cityName", polygon.name);
-      }
+    if (selectedRegion) {
+      setIsDrawingMode(true);
+      clearCurrentPoints();
+      setInstructions(null);
+    } else {
+      setIsDrawingMode(false);
+      setInstructions(
+        "Please select a region on the map to start adding a city."
+      );
     }
-  }, [editingPolygonId, savedPolygons, form]);
+    return () => {
+      setIsDrawingMode(false);
+      setInstructions(null);
+    };
+  }, [selectedRegion, setIsDrawingMode, clearCurrentPoints, setInstructions]);
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -78,21 +85,7 @@ const AddCityForm: React.FC = () => {
   };
 
   const onSubmit = (values: FormValues) => {
-    // Handle form submission
-    console.log({
-      region: selectedRegion,
-      cityName: values.cityName,
-      cityImage: values.cityImage,
-      polygonId: editingPolygonId,
-    });
-
-    // If we're in editing mode, apply the name to the polygon
-    if (editingPolygonId) {
-      updatePolygon(editingPolygonId, { name: values.cityName });
-    }
-
-    finishPolygon(selectedRegion || "");
-    onCancel();
+    finishPolygon(selectedRegion || "", values.cityName);
   };
 
   const onCancel = () => {
@@ -107,7 +100,6 @@ const AddCityForm: React.FC = () => {
           Select Mark Type and Pick it on City Map
         </p>
       </div>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
@@ -207,7 +199,11 @@ const AddCityForm: React.FC = () => {
             >
               Cancel
             </Button>
-            <Button type="submit" className="w-[114px]">
+            <Button
+              type="submit"
+              className="w-[114px]"
+              disabled={!selectedRegion}
+            >
               Save
             </Button>
           </div>

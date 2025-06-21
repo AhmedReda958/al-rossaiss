@@ -39,7 +39,7 @@ interface PolygonMarkerState {
 
   // Workflow actions
   startEditingPolygon: (id: string) => void;
-  finishPolygon: (regionId: string) => void;
+  finishPolygon: (regionId: string, name?: string) => void;
   toggleDrawingMode: (selectedRegion: string) => void;
 }
 
@@ -124,7 +124,7 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
     }
   },
 
-  finishPolygon: (regionId) => {
+  finishPolygon: (regionId, name) => {
     const {
       currentPoints,
       pointsToFlatArray,
@@ -146,7 +146,7 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
       // Create new polygon
       const newPolygon: CityPolygon = {
         id: `city-${Date.now()}`,
-        name: `City ${savedPolygons.length + 1}`,
+        name: name || `City ${savedPolygons.length + 1}`,
         points: pointsToFlatArray(currentPoints),
         regionId,
       };

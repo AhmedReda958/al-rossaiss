@@ -12,7 +12,7 @@ const Page = () => {
           { label: "Add city", isCurrentPage: true },
         ]}
       />
-      <div className="h-screen my-10 ">
+      <div className="h-[calc(100vh-10rem)] my-10 ">
         <MapView type="add-city" />
       </div>
     </>
