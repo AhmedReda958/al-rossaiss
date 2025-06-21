@@ -32,7 +32,7 @@ const formSchema = z.object({
   cityImage: z
     .instanceof(File)
     .or(z.string())
-    .refine((val) => val !== undefined, {
+    .refine((val) => val !== undefined && val !== null && val !== "", {
       message: "City image is required",
     }),
   labelDirection: z.enum(["up", "down", "left", "right"]),
@@ -44,9 +44,14 @@ const AddCityForm: React.FC = () => {
   const router = useRouter();
   const { selectedRegion, setInstructions } = useMapStore();
   const [cityImagePreview, setCityImagePreview] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { finishPolygon, setIsDrawingMode, clearCurrentPoints } =
-    usePolygonMarkerStore();
+  const {
+    setIsDrawingMode,
+    clearCurrentPoints,
+    currentPoints,
+    pointsToFlatArray,
+  } = usePolygonMarkerStore();
 
   // Initialize react-hook-form with zod validation
   const form = useForm<FormValues>({
@@ -92,8 +97,55 @@ const AddCityForm: React.FC = () => {
     }
   };
 
-  const onSubmit = (values: FormValues) => {
-    finishPolygon(selectedRegion || "", values.cityName, values.labelDirection);
+  const onSubmit = async (values: FormValues) => {
+    if (!selectedRegion) {
+      // TODO: show a toast instead
+      alert("Please select a region on the map.");
+      return;
+    }
+
+    if (currentPoints.length < 3) {
+      alert("A polygon needs at least 3 points.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("name", values.cityName);
+      if (values.cityImage instanceof File) {
+        formData.append("image", values.cityImage);
+      }
+      formData.append("labelDirection", values.labelDirection);
+      formData.append(
+        "points",
+        JSON.stringify(pointsToFlatArray(currentPoints))
+      );
+      formData.append("regionId", selectedRegion);
+
+      const response = await fetch("/api/cities", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        // TODO: show a success toast
+        alert("City created successfully!");
+        clearCurrentPoints();
+        setIsDrawingMode(false);
+        router.push("/dashboard/cities");
+      } else {
+        const errorData = await response.json();
+        // TODO: show an error toast
+        alert(`Error: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error("Failed to submit form:", error);
+      // TODO: show an error toast
+      alert("An unexpected error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const onCancel = () => {
@@ -242,9 +294,9 @@ const AddCityForm: React.FC = () => {
             <Button
               type="submit"
               className="w-[114px]"
-              disabled={!selectedRegion}
+              disabled={!selectedRegion || isSubmitting}
             >
-              Save
+              {isSubmitting ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>

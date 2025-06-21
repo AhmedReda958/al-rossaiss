@@ -12,4 +12,34 @@ model User {
   email    String @unique
   password String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model City {
+  id             Int      @id @default(autoincrement())
+  name           String
+  image          String
+  labelDirection String
+  points         Float[]
+  regionId       Int
+  region         Region   @relation(fields: [regionId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Region {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  cities   City[]
+  projects Project[]
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  regionId    Int
+  region      Region   @relation(fields: [regionId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 } 
