@@ -3,20 +3,24 @@ const prisma = new PrismaClient();
 
 async function main() {
   const regions = [
-    { id: 1, name: "Western Region" },
-    { id: 2, name: "Eastern Region" },
-    { id: 3, name: "Northern Region" },
-    { id: 4, name: "Southern Region" },
-    { id: 5, name: "Central Region" },
+    { id: 1, name: "Western Region", key: "western" },
+    { id: 2, name: "Eastern Region", key: "eastern" },
+    { id: 3, name: "Northern Region", key: "northern" },
+    { id: 4, name: "Southern Region", key: "southern" },
+    { id: 5, name: "Central Region", key: "central" },
   ];
 
   for (const region of regions) {
     await prisma.region.upsert({
       where: { id: region.id },
-      update: {},
+      update: {
+        name: region.name,
+        key: region.key,
+      },
       create: {
         id: region.id,
         name: region.name,
+        key: region.key,
       },
     });
   }

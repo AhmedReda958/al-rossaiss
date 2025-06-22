@@ -23,6 +23,7 @@ export const useRegionsLayer = () => {
     regionBounds,
     selectedRegion,
     mapSize,
+    editingCity,
     setRegionBounds,
     setSelectedRegion,
     setLayerRef,
@@ -55,6 +56,14 @@ export const useRegionsLayer = () => {
 
     setPathDataMap(extractedData);
   }, []);
+
+  // Click the region when a city is being edited
+  useEffect(() => {
+    if (editingCity && editingCity.region?.key) {
+      handleRegionClick(editingCity.region?.key);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingCity]);
 
   // Calculate region bounds once paths are rendered
   useEffect(() => {
@@ -163,6 +172,7 @@ export const useRegionsLayer = () => {
     selectedRegion,
     effectiveMapWidth,
     effectiveMapHeight,
+    storeZoomToRegion,
     handleRegionClick,
     assignPathRef,
     limitDragBoundaries,

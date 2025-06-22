@@ -1,6 +1,7 @@
 export type Region = {
   id: string;
   name: string;
+  key: string;
   lat: number;
   lng: number;
   zoom: number;

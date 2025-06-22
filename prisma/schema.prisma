@@ -30,6 +30,7 @@ model City {
 model Region {
   id       Int       @id @default(autoincrement())
   name     String    @unique
+  key      String    @unique
   cities   City[]
   projects Project[]
 }

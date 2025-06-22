@@ -7,7 +7,7 @@ import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import colors from "@/lib/colors";
 
 const DrawingPolygon = () => {
-  const { scale, position, zoomToPoint } = useMapStore();
+  const { scale, position } = useMapStore();
   const {
     isDrawingMode,
     currentPoints,
