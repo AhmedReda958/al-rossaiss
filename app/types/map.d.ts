@@ -5,4 +5,6 @@ export type TMapType =
   | "add-project"
   | "edit-project"
   | "add-landmark"
-  | "edit-landmark";
+  | "edit-landmark"
+  | "view-cities"
+  | "view-regions";

@@ -2,15 +2,11 @@ import { create } from "zustand";
 import { Tween, Easings } from "konva/lib/Tween";
 import { Layer } from "konva/lib/Layer";
 import { TMapType } from "@/app/types/map";
+import { City as GlobalCity, Region } from "@/app/types";
 
 // Duplicating the City type from Prisma schema
-export interface City {
-  id: number;
-  name: string;
-  image: string;
-  labelDirection: string;
-  points: number[];
-  regionId: number;
+export interface City extends GlobalCity {
+  region?: Region;
 }
 
 interface MapState {
@@ -23,6 +19,7 @@ interface MapState {
 
   // City-related state
   selectedCity: string | null;
+  editingCity: City | null;
   cities: City[];
 
   // Admin state
@@ -46,6 +43,7 @@ interface MapState {
   setSelectedRegion: (id: string | null) => void;
   setHoveredRegion: (id: string | null) => void;
   setSelectedCity: (id: string | null) => void;
+  setEditingCity: (city: City | null) => void;
   setCities: (cities: City[]) => void;
   setMapType: (type: TMapType) => void;
   setScale: (scale: number) => void;
@@ -74,6 +72,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   selectedRegion: null,
   hoveredRegion: null,
   selectedCity: null,
+  editingCity: null,
   cities: [],
   isAdmin: true, // Set default admin state
   instructions: null,
@@ -87,6 +86,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   setSelectedRegion: (id) => set({ selectedRegion: id }),
   setHoveredRegion: (id) => set({ hoveredRegion: id }),
   setSelectedCity: (id) => set({ selectedCity: id }),
+  setEditingCity: (city) => set({ editingCity: city }),
   setCities: (cities) => set({ cities }),
   setMapType: (type) => set({ mapType: type }),
   setScale: (scale) => set({ scale }),

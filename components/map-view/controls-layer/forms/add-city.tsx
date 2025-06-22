@@ -41,8 +41,15 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const AddCityForm: React.FC = () => {
+  const {
+    selectedRegion,
+    setInstructions,
+    setSelectedRegion,
+    editingCity: city,
+  } = useMapStore();
+  const isEditMode = !!city;
   const router = useRouter();
-  const { selectedRegion, setInstructions } = useMapStore();
+
   const [cityImagePreview, setCityImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,34 +58,59 @@ const AddCityForm: React.FC = () => {
     clearCurrentPoints,
     currentPoints,
     pointsToFlatArray,
+    setPointsFromFlatArray,
   } = usePolygonMarkerStore();
 
   // Initialize react-hook-form with zod validation
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      cityName: "",
-      cityImage: undefined,
-      labelDirection: "up",
+      cityName: city?.name || "",
+      cityImage: city?.image || undefined,
+      labelDirection: city?.labelDirection || "up",
     },
   });
 
   useEffect(() => {
-    if (selectedRegion) {
+    if (city?.image) {
+      setCityImagePreview(city.image);
+    }
+  }, [city?.image]);
+
+  useEffect(() => {
+    if (isEditMode && city) {
+      if (city.points) {
+        setPointsFromFlatArray(city.points);
+      }
       setIsDrawingMode(true);
-      clearCurrentPoints();
-      setInstructions(null);
+      setInstructions("You can edit the city polygon.");
+      setSelectedRegion(city.regionId);
     } else {
-      setIsDrawingMode(false);
-      setInstructions(
-        "Please select a region on the map to start adding a city."
-      );
+      if (selectedRegion) {
+        setIsDrawingMode(true);
+        clearCurrentPoints();
+        setInstructions(null);
+      } else {
+        setIsDrawingMode(false);
+        setInstructions(
+          "Please select a region on the map to start adding a city."
+        );
+      }
     }
     return () => {
       setIsDrawingMode(false);
       setInstructions(null);
     };
-  }, [selectedRegion, setIsDrawingMode, clearCurrentPoints, setInstructions]);
+  }, [
+    isEditMode,
+    city,
+    selectedRegion,
+    setIsDrawingMode,
+    clearCurrentPoints,
+    setInstructions,
+    setPointsFromFlatArray,
+    setSelectedRegion,
+  ]);
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -98,7 +130,8 @@ const AddCityForm: React.FC = () => {
   };
 
   const onSubmit = async (values: FormValues) => {
-    if (!selectedRegion) {
+    const regionForSubmit = isEditMode ? city?.regionId : selectedRegion;
+    if (!regionForSubmit) {
       // TODO: show a toast instead
       alert("Please select a region on the map.");
       return;
@@ -121,16 +154,19 @@ const AddCityForm: React.FC = () => {
         "points",
         JSON.stringify(pointsToFlatArray(currentPoints))
       );
-      formData.append("regionId", selectedRegion);
+      formData.append("regionId", regionForSubmit);
 
-      const response = await fetch("/api/cities", {
-        method: "POST",
+      const url = isEditMode ? `/api/cities/${city.id}` : "/api/cities";
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
         body: formData,
       });
 
       if (response.ok) {
         // TODO: show a success toast
-        alert("City created successfully!");
+        alert(`City ${isEditMode ? "updated" : "created"} successfully!`);
         clearCurrentPoints();
         setIsDrawingMode(false);
         router.push("/dashboard/cities");
@@ -155,7 +191,9 @@ const AddCityForm: React.FC = () => {
   return (
     <>
       <div className="mb-6">
-        <h2 className="text-lg font-semibold">Add City</h2>
+        <h2 className="text-lg font-semibold">
+          {isEditMode ? "Edit City" : "Add City"}
+        </h2>
         <p className="text-xs text-muted mb-1">
           Select Mark Type and Pick it on City Map
         </p>
@@ -294,9 +332,15 @@ const AddCityForm: React.FC = () => {
             <Button
               type="submit"
               className="w-[114px]"
-              disabled={!selectedRegion || isSubmitting}
+              disabled={
+                isEditMode ? isSubmitting : !selectedRegion || isSubmitting
+              }
             >
-              {isSubmitting ? "Saving..." : "Save"}
+              {isSubmitting
+                ? "Saving..."
+                : isEditMode
+                ? "Save Changes"
+                : "Save"}
             </Button>
           </div>
         </form>

@@ -46,6 +46,9 @@ interface PolygonMarkerState {
     labelDirection: "up" | "down" | "left" | "right"
   ) => void;
   toggleDrawingMode: (selectedRegion: string) => void;
+
+  // New actions
+  setPointsFromFlatArray: (points: number[]) => void;
 }
 
 export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
@@ -94,12 +97,7 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
   setEditingPolygonId: (id) => set({ editingPolygonId: id }),
 
   // Utilities
-  pointsToFlatArray: (points) => {
-    return points.reduce<number[]>(
-      (acc, point) => [...acc, point.x, point.y],
-      []
-    );
-  },
+  pointsToFlatArray: (points) => points.flatMap((p) => [p.x, p.y]),
   flatArrayToPoints: (flatArray) => {
     const points: Point[] = [];
     for (let i = 0; i < flatArray.length; i += 2) {
@@ -193,5 +191,13 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
       clearCurrentPoints();
       setIsDrawingMode(true);
     }
+  },
+
+  setPointsFromFlatArray: (points) => {
+    const newPoints = [];
+    for (let i = 0; i < points.length; i += 2) {
+      newPoints.push({ x: points[i], y: points[i + 1] });
+    }
+    set({ currentPoints: newPoints });
   },
 }));

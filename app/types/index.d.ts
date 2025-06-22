@@ -1,6 +1,9 @@
 export type Region = {
-  id: number;
+  id: string;
   name: string;
+  lat: number;
+  lng: number;
+  zoom: number;
   _count?: {
     projects: number;
   };
@@ -10,7 +13,10 @@ export type City = {
   id: number;
   name: string;
   image: string;
-  region: Region;
+  labelDirection: "up" | "down" | "left" | "right";
+  points: number[];
+  regionId: string;
+  region?: Region;
 };
 
 export type CitiesApiResponse = {

@@ -17,8 +17,8 @@ const MapForms = () => {
           switch (mapType) {
             case "add-city":
               return <AddCityForm />;
-            // case "edit-city":
-            //   return <EditCityForm />;
+            case "edit-city":
+              return <AddCityForm />;
             // case "add-project":
             //   return <AddProjectForm />;
             // case "edit-project":
