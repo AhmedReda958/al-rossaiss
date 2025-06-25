@@ -6,10 +6,11 @@ import Konva from "konva";
 
 import { useMapStore } from "@/lib/store";
 import CountryMap from "./country-map";
+import CityMap from "./city-map";
 import ControlsLayer from "./controls-layer";
 
 const MapContainer = () => {
-  const { mapSize } = useMapStore();
+  const { mapSize, mapType, selectedCity } = useMapStore();
   const stageRef = useRef<Konva.Stage>(null);
 
   const [stageSize, setStageSize] = React.useState({
@@ -50,7 +51,7 @@ const MapContainer = () => {
     >
       <ControlsLayer>
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
-          <CountryMap />
+          {mapType === "main" && selectedCity ? <CityMap /> : <CountryMap />}
         </Stage>
       </ControlsLayer>
     </div>

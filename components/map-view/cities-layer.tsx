@@ -8,10 +8,14 @@ import { CityPolygon } from "@/lib/store/polygon-marker-store";
 
 const mapCityToCityPolygon = (city: City): CityPolygon => {
   let direction = city.labelDirection;
-  if (direction === "top") {
+  if (direction === "up") {
     direction = "up";
-  } else if (direction === "bottom") {
+  } else if (direction === "down") {
     direction = "down";
+  } else if (direction === "left") {
+    direction = "left";
+  } else if (direction === "right") {
+    direction = "right";
   }
 
   return {

@@ -16,7 +16,7 @@ export async function GET(
   { params }: { params: { regionName: string } }
 ) {
   try {
-    const { regionName } = params;
+    const { regionName } = await params;
 
     const mappedRegionName = regionNameMapping[regionName];
 

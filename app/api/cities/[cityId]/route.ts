@@ -8,14 +8,15 @@ export async function GET(
   { params }: { params: { cityId: string } }
 ) {
   try {
-    const cityId = parseInt(params.cityId, 10);
-    if (isNaN(cityId)) {
+    const { cityId } = await params;
+    const cityIdNum = parseInt(cityId, 10);
+    if (isNaN(cityIdNum)) {
       return NextResponse.json({ error: "Invalid city ID" }, { status: 400 });
     }
 
     const city = await prisma.city.findUnique({
       where: {
-        id: cityId,
+        id: cityIdNum,
       },
       include: {
         region: true,
@@ -41,8 +42,9 @@ export async function PUT(
   { params }: { params: { cityId: string } }
 ) {
   try {
-    const cityId = parseInt(params.cityId, 10);
-    if (isNaN(cityId)) {
+    const { cityId } = await params;
+    const cityIdNum = parseInt(cityId, 10);
+    if (isNaN(cityIdNum)) {
       return NextResponse.json({ error: "Invalid city ID" }, { status: 400 });
     }
 
@@ -78,7 +80,7 @@ export async function PUT(
     }
 
     const updatedCity = await prisma.city.update({
-      where: { id: cityId },
+      where: { id: cityIdNum },
       data: {
         ...updateData,
         region: {
