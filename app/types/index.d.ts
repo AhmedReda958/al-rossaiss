@@ -30,3 +30,22 @@ export type RegionApiResponse = {
   id: number;
   name: string;
 }[];
+
+export type Project = {
+  id: number;
+  name: string;
+  description?: string;
+  image?: string;
+  labelDirection?: "up" | "down" | "left" | "right";
+  points: number[];
+  cityId: number;
+  city?: City;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProjectsApiResponse = {
+  projects: Project[];
+  total: number;
+  totalPages: number;
+};

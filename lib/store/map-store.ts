@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { Tween, Easings } from "konva/lib/Tween";
 import { Layer } from "konva/lib/Layer";
 import { TMapType } from "@/app/types/map";
-import { City as GlobalCity, Region } from "@/app/types";
+import { City as GlobalCity, Region, Project } from "@/app/types";
 
 // Duplicating the City type from Prisma schema
 export interface City extends GlobalCity {
@@ -61,6 +61,16 @@ interface MapState {
   // Helper method to zoom to a region
   zoomToRegion: (regionId: string) => void;
   zoomToPoint: (point: { x: number; y: number }) => void;
+
+  // Project-related state
+  selectedProject: number | null;
+  editingProject: Project | null;
+  projects: Project[];
+
+  // Actions
+  setSelectedProject: (id: number | null) => void;
+  setEditingProject: (project: Project | null) => void;
+  setProjects: (projects: Project[]) => void;
 }
 
 const intialPosition = { x: -200, y: -500 };
@@ -81,6 +91,9 @@ export const useMapStore = create<MapState>((set, get) => ({
   isZooming: false,
   regionBounds: {},
   layerRef: null,
+  selectedProject: null,
+  editingProject: null,
+  projects: [],
 
   // Actions
   setSelectedRegion: (id) => set({ selectedRegion: id }),
@@ -95,6 +108,9 @@ export const useMapStore = create<MapState>((set, get) => ({
   setRegionBounds: (bounds) => set({ regionBounds: bounds }),
   setLayerRef: (ref) => set({ layerRef: ref }),
   setInstructions: (text) => set({ instructions: text }),
+  setSelectedProject: (id) => set({ selectedProject: id }),
+  setEditingProject: (project) => set({ editingProject: project }),
+  setProjects: (projects) => set({ projects }),
 
   resetZoom: () => {
     const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion } =

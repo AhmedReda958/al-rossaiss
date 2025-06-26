@@ -3,6 +3,7 @@ import { Image, Layer } from "react-konva";
 import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import { useCitiesLayer } from "@/lib/hooks/useCitiesLayer";
+import ProjectsLayer from "./projects-layer";
 
 // Define a minimal city data type
 interface CityData {
@@ -11,7 +12,7 @@ interface CityData {
 }
 
 const CityMap = () => {
-  const { mapSize, selectedCity } = useMapStore();
+  const { mapSize, selectedCity, setProjects } = useMapStore();
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
 
@@ -24,7 +25,7 @@ const CityMap = () => {
     layerRef,
   } = useCitiesLayer();
 
-  // Fetch city data when selectedCity changes
+  // Fetch city data and projects when selectedCity changes
   useEffect(() => {
     if (!selectedCity) return;
     const fetchCity = async () => {
@@ -44,8 +45,18 @@ const CityMap = () => {
         setCityImage(null);
       }
     };
+    const fetchProjects = async () => {
+      const res = await fetch(`/api/projects/city/${selectedCity}`);
+      if (res.ok) {
+        const data = await res.json();
+        setProjects(data.projects || []);
+      } else {
+        setProjects([]);
+      }
+    };
     fetchCity();
-  }, [selectedCity]);
+    fetchProjects();
+  }, [selectedCity, setProjects]);
 
   if (!selectedCity || !cityData) return null;
 
@@ -68,6 +79,7 @@ const CityMap = () => {
         />
       )}
       {/* Add city-specific layers/components here */}
+      <ProjectsLayer />
     </Layer>
   );
 };

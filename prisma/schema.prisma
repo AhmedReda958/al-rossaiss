@@ -23,6 +23,7 @@ model City {
   points         Float[]
   regionId       Int
   region         Region   @relation(fields: [regionId], references: [id])
+  projects       Project[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -32,15 +33,17 @@ model Region {
   name     String    @unique
   key      String    @unique
   cities   City[]
-  projects Project[]
 }
 
 model Project {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  regionId    Int
-  region      Region   @relation(fields: [regionId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  name           String
+  description    String?
+  image          String?
+  labelDirection String?
+  points         Float[]
+  cityId         Int     // Foreign key to City
+  city           City    @relation(fields: [cityId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 } 
