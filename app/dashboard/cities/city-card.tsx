@@ -18,7 +18,7 @@ interface CityCardProps {
 }
 
 export default function CityCard({ city }: CityCardProps) {
-  const projectCount = city.region._count?.projects ?? 0;
+  const projectCount = city?.region?._count?.projects ?? 0;
 
   return (
     <Card className="shadow-md p-3 gap-2">
@@ -52,7 +52,7 @@ export default function CityCard({ city }: CityCardProps) {
         <div className="flex items-center space-x-2">
           <Map className="h-5 w-5 text-primary" />
           <span>Region: </span>
-          <span className="font-semibold">{city.region.name}</span>
+          <span className="font-semibold">{city?.region?.name ?? "N/A"}</span>
         </div>
         <div className="flex items-center space-x-2">
           <LayoutGrid className="h-5 w-5 text-primary" />

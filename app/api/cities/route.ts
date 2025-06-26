@@ -120,10 +120,10 @@ export async function GET(request: Request) {
           select: {
             id: true,
             name: true,
-            _count: {
-              select: { projects: true },
-            },
           },
+        },
+        _count: {
+          select: { projects: true },
         },
       },
       skip: (page - 1) * limit,
