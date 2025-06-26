@@ -1,16 +1,52 @@
-import { useRef, useState } from "react";
+import { useRef, useCallback, useLayoutEffect } from "react";
 import Konva from "konva";
+import { useMapStore } from "@/lib/store";
 
 /**
- * Custom hook to manage the cities layer state
+ * Custom hook to manage the cities layer state, including hover, selection, and drag boundaries (no scale)
  */
 export const useCitiesLayer = () => {
   const layerRef = useRef<Konva.Layer>(null);
-  const [hoveredCityId, setHoveredCityId] = useState<string | null>(null);
+  const { selectedCity, setSelectedCity, mapSize, isZooming, setLayerRef } =
+    useMapStore();
+
+  // Set the layer reference in the store
+  useLayoutEffect(() => {
+    if (layerRef.current) {
+      setLayerRef({ current: layerRef.current });
+    }
+  }, [setLayerRef]);
+
+  const effectiveMapWidth = mapSize.width;
+  const effectiveMapHeight = mapSize.height;
+
+  const position = { x: -mapSize.width / 4, y: -mapSize.height / 4 }; // the initial position of the city map
+
+  // Drag boundaries for the city map (no scale)
+  const limitDragBoundaries = useCallback(
+    (pos: { x: number; y: number }) => {
+      if (isZooming) return pos;
+      const stage = layerRef.current?.getStage();
+      if (!stage) return pos;
+      const stageWidth = stage.width();
+      const stageHeight = stage.height();
+      const xMin = Math.min(0, stageWidth - effectiveMapWidth);
+      const yMin = Math.min(0, stageHeight - effectiveMapHeight);
+      return {
+        x: Math.max(xMin, Math.min(0, pos.x)),
+        y: Math.max(yMin, Math.min(0, pos.y)),
+      };
+    },
+    [effectiveMapWidth, effectiveMapHeight, isZooming]
+  );
 
   return {
     layerRef,
-    hoveredCityId,
-    setHoveredCityId,
+    selectedCity,
+    setSelectedCity,
+    effectiveMapWidth,
+    effectiveMapHeight,
+    position,
+    limitDragBoundaries,
   };
 };

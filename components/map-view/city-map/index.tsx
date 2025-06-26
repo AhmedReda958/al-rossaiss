@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Image, Layer } from "react-konva";
-import Konva from "konva";
 import { useMapStore } from "@/lib/store";
+import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
+import { useCitiesLayer } from "@/lib/hooks/useCitiesLayer";
 
 // Define a minimal city data type
 interface CityData {
@@ -13,7 +14,15 @@ const CityMap = () => {
   const { mapSize, selectedCity } = useMapStore();
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
-  const layerRef = useRef<Konva.Layer>(null);
+
+  const { isDrawingMode } = usePolygonMarkerStore();
+  const {
+    position,
+    effectiveMapWidth,
+    effectiveMapHeight,
+    limitDragBoundaries,
+    layerRef,
+  } = useCitiesLayer();
 
   // Fetch city data when selectedCity changes
   useEffect(() => {
@@ -40,9 +49,16 @@ const CityMap = () => {
 
   if (!selectedCity || !cityData) return null;
 
-  console.log(cityImage);
   return (
-    <Layer ref={layerRef} width={mapSize.width} height={mapSize.height}>
+    <Layer
+      ref={layerRef}
+      draggable={!isDrawingMode}
+      width={effectiveMapWidth}
+      height={effectiveMapHeight}
+      dragBoundFunc={limitDragBoundaries}
+      x={position.x}
+      y={position.y}
+    >
       {cityImage && (
         <Image
           image={cityImage}
