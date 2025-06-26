@@ -1,12 +1,8 @@
 import React from "react";
 import PageHeader from "@/components/layout/page-header";
-import { FolderPlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 
 const ProjectsHeader = () => {
-  const handleCreateProject = () => {
-    console.log("Create project clicked");
-  };
-
   return (
     <PageHeader
       title="Projects"
@@ -16,9 +12,9 @@ const ProjectsHeader = () => {
       ]}
       action={{
         label: "Create Project",
-        icon: FolderPlusIcon,
-        onClick: handleCreateProject,
-        variant: "outline",
+        icon: PlusIcon,
+        href: "/dashboard/projects/add",
+        variant: "default",
       }}
     />
   );
