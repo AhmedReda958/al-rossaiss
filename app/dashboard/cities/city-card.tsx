@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { City } from "@/app/types";
 import { Pencil, Trash2, Map, LayoutGrid } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface CityCardProps {
   city: City;
@@ -19,9 +20,15 @@ interface CityCardProps {
 
 export default function CityCard({ city }: CityCardProps) {
   const projectCount = city?.region?._count?.projects ?? 0;
+  const router = useRouter();
 
   return (
-    <Card className="shadow-md p-3 gap-2">
+    <Card
+      className="shadow-md p-3 gap-2"
+      onClick={() => {
+        router.push(`/dashboard/cities/${city.id}`);
+      }}
+    >
       <CardHeader className="p-0">
         <div className="relative h-40 w-full">
           <Image
