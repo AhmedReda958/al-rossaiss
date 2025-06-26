@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "create-user": "node scripts/create-user.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

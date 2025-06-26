@@ -4,8 +4,14 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = "admin@example.com"; // Change to your desired email
-  const password = "yourpassword"; // Change to your desired password
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error(
+      "ADMIN_EMAIL and ADMIN_PASSWORD environment variables must be set."
+    );
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
