@@ -43,6 +43,13 @@ const MapContainer = () => {
     };
   }, []);
 
+  // Determine if we should show the city map
+  const shouldShowCityMap =
+    selectedCity &&
+    (mapType === "main" ||
+      mapType === "add-project" ||
+      mapType === "edit-project");
+
   return (
     <div
       ref={containerRef}
@@ -51,7 +58,7 @@ const MapContainer = () => {
     >
       <ControlsLayer>
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
-          {mapType === "main" && selectedCity ? <CityMap /> : <CountryMap />}
+          {shouldShowCityMap ? <CityMap /> : <CountryMap />}
         </Stage>
       </ControlsLayer>
     </div>
