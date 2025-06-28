@@ -33,11 +33,14 @@ const formSchema = z.object({
     message: "Project name must be at least 2 characters",
   }),
   unitType: z.enum(Object.values(UNIT_TYPES) as [string, ...string[]]),
+  space: z.number().min(1, { message: "Space must be greater than 0" }),
+  unitsCount: z
+    .number()
+    .min(1, { message: "Number of units must be greater than 0" }),
   image: z.instanceof(File).or(z.string()).optional(),
   description: z.string().optional(),
   labelDirection: z.enum(["up", "down", "left", "right"]),
   soldOut: z.boolean(),
-  space: z.number().min(1, { message: "Space must be greater than 0" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -65,11 +68,12 @@ const AddProjectForm: React.FC = () => {
       cityId: selectedCity || "",
       name: "",
       unitType: UNIT_TYPES.APARTMENT,
+      space: 0,
+      unitsCount: 1,
       description: "",
       image: undefined,
       labelDirection: "up",
       soldOut: false,
-      space: 0,
     },
   });
 
@@ -157,6 +161,7 @@ const AddProjectForm: React.FC = () => {
       formData.append("labelDirection", values.labelDirection);
       formData.append("soldOut", String(values.soldOut));
       formData.append("space", String(values.space));
+      formData.append("unitsCount", String(values.unitsCount));
       formData.append(
         "points",
         JSON.stringify(pointsToFlatArray(currentPoints))
@@ -274,6 +279,28 @@ const AddProjectForm: React.FC = () => {
                     placeholder="Enter space in square meters"
                     className="w-full"
                     onChange={(e) => onChange(parseFloat(e.target.value))}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="unitsCount"
+            render={({ field: { onChange, ...field } }) => (
+              <FormItem>
+                <Label>Number of Units</Label>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Enter number of units"
+                    className="w-full"
+                    onChange={(e) => onChange(parseInt(e.target.value, 10))}
                     {...field}
                   />
                 </FormControl>

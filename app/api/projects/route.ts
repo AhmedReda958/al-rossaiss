@@ -58,8 +58,18 @@ export async function POST(req: Request) {
     const unitType = formData.get("unitType") as string;
     const soldOut = formData.get("soldOut") === "true";
     const space = parseFloat(formData.get("space") as string);
+    const unitsCount = parseInt(formData.get("unitsCount") as string, 10);
 
-    if (!name || !points || !cityId || !unitType || !space || isNaN(space)) {
+    if (
+      !name ||
+      !points ||
+      !cityId ||
+      !unitType ||
+      !space ||
+      isNaN(space) ||
+      !unitsCount ||
+      isNaN(unitsCount)
+    ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -105,6 +115,7 @@ export async function POST(req: Request) {
         unitType,
         soldOut,
         space,
+        unitsCount,
       },
     });
 

@@ -52,6 +52,7 @@ export type Project = {
   unitType: (typeof UNIT_TYPES)[keyof typeof UNIT_TYPES];
   soldOut: boolean;
   space: number;
+  unitsCount: number;
   createdAt: string;
   updatedAt: string;
 };

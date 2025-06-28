@@ -10,7 +10,15 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Project } from "@/app/types";
-import { Pencil, Trash2, Map, Landmark, Home, Ruler } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Map,
+  Landmark,
+  Home,
+  Ruler,
+  Building2,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -73,32 +81,31 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
             </Button>
           </div>
         </div>
-        <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Home className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium capitalize">
-              {project.unitType}
-            </span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Ruler className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">{project.space} m²</span>
-          </div>
-        </div>
-        <p className="text-gray-600 mt-2 line-clamp-2">{project.description}</p>
+
+        <p className="text-gray-600 mt-2 line-clamp-1">{project.description}</p>
       </CardContent>
-      <CardFooter className="py-2 ps-0 pe-2 flex justify-between text-sm text-gray-500">
-        <div className="flex items-center space-x-2">
-          <Landmark className="h-5 w-5 text-primary" />
-          <span>City: </span>
-          <span className="font-semibold">{project.city?.name ?? "N/A"}</span>
-        </div>
+      <CardFooter className="py-2 ps-0 pe-2 grid grid-cols-2 gap-2 text-sm text-gray-500">
         <div className="flex items-center space-x-2">
           <Map className="h-5 w-5 text-primary" />
-          <span>Region: </span>
           <span className="font-semibold">
             {project.city?.region?.name ?? "N/A"}
           </span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Landmark className="h-5 w-5 text-primary" />
+          <span className="font-semibold">{project.city?.name ?? "N/A"}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Home className="h-5 w-5 text-primary" />
+          <span className="font-semibold">{project.unitType}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Building2 className="h-5 w-5 text-primary" />
+          <span className="font-semibold">{project.unitsCount} Units</span>
+        </div>
+        <div className="flex items-center space-x-2 col-span-2">
+          <Ruler className="h-5 w-5 text-primary" />
+          <span className="font-semibold">{project.space} m²</span>
         </div>
       </CardFooter>
     </Card>
