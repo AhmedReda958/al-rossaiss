@@ -26,6 +26,7 @@ import ArrowUp from "@/svgs/arrow-up";
 import ArrowDown from "@/svgs/arrow-down";
 import ArrowLeft from "@/svgs/arrow-left";
 import ArrowRight from "@/svgs/arrow-right";
+import { Textarea } from "@/components/ui/textarea";
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -73,9 +74,6 @@ const AddProjectForm: React.FC = () => {
     defaultValues: {
       cityId: selectedCity || "",
       name: "",
-      unitType: UNIT_TYPES.APARTMENT,
-      space: 0,
-      unitsCount: 1,
       url: "",
       description: "",
       image: undefined,
@@ -415,7 +413,7 @@ const AddProjectForm: React.FC = () => {
               <FormItem>
                 <Label>Description</Label>
                 <FormControl>
-                  <Input
+                  <Textarea
                     placeholder="Description (optional)"
                     className="w-full"
                     {...field}
