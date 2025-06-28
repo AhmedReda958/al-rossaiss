@@ -4,6 +4,7 @@ import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import { useCitiesLayer } from "@/lib/hooks/useCitiesLayer";
 import ProjectsLayer from "./projects-layer";
+import DrawingPolygon from "../polygon/drawing-polygon";
 
 // Define a minimal city data type
 interface CityData {
@@ -12,7 +13,7 @@ interface CityData {
 }
 
 const CityMap = () => {
-  const { mapSize, selectedCity, setProjects } = useMapStore();
+  const { mapSize, selectedCity, setProjects, mapType } = useMapStore();
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
 
@@ -60,6 +61,9 @@ const CityMap = () => {
 
   if (!selectedCity || !cityData) return null;
 
+  const showDrawingPolygon =
+    isDrawingMode && (mapType === "add-project" || mapType === "edit-project");
+
   return (
     <Layer
       ref={layerRef}
@@ -80,6 +84,7 @@ const CityMap = () => {
       )}
       {/* Add city-specific layers/components here */}
       <ProjectsLayer />
+      {showDrawingPolygon && <DrawingPolygon />}
     </Layer>
   );
 };

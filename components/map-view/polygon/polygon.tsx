@@ -17,10 +17,24 @@ const getPolygonCenter = (points: number[]) => {
   };
 };
 
-const Polygon = ({ polygon }: { polygon: CityPolygon }) => {
-  const { setSelectedCity } = useMapStore();
+const Polygon = ({
+  polygon,
+  fillColor = colors.primary_400,
+  strokeColor = colors.primary,
+  type = "city",
+}: {
+  polygon: CityPolygon;
+  fillColor?: string;
+  strokeColor?: string;
+  type?: "city" | "project";
+}) => {
+  const { setSelectedCity, setSelectedProject } = useMapStore();
   const handlePolygonClick = () => {
-    setSelectedCity(polygon.id);
+    if (type === "city") {
+      setSelectedCity(polygon.id);
+    } else {
+      setSelectedProject(parseInt(polygon.id, 10));
+    }
   };
 
   const center = getPolygonCenter(polygon.points);
@@ -56,17 +70,17 @@ const Polygon = ({ polygon }: { polygon: CityPolygon }) => {
       <Line
         key={polygon.id}
         points={polygon.points}
-        fill={colors.primary_400}
+        fill={fillColor}
         closed={true}
         onClick={handlePolygonClick}
       />
-      <Line points={linePoints} stroke={colors.primary} strokeWidth={1} />
+      <Line points={linePoints} stroke={strokeColor} strokeWidth={1} />
       <Group x={labelPos.x} y={labelPos.y}>
         <Text
           text={polygon.name}
           fontSize={12}
           fontStyle="bold"
-          fill={colors.primary}
+          fill={strokeColor}
           width={70}
           align="center"
           verticalAlign="middle"

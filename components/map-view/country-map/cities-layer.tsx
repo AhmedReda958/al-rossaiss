@@ -37,7 +37,11 @@ const CitiesLayer = () => {
   return (
     <Group>
       {cities.map((city) => (
-        <Polygon key={city.id} polygon={mapCityToCityPolygon(city)} />
+        <Polygon
+          key={city.id}
+          polygon={mapCityToCityPolygon(city)}
+          type="city"
+        />
       ))}
     </Group>
   );
