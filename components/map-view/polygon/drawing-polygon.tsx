@@ -5,9 +5,15 @@ import Konva from "konva";
 import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import colors from "@/lib/colors";
+import { useCitiesLayer } from "@/lib/hooks/useCitiesLayer";
 
 const DrawingPolygon = () => {
-  const { scale, position } = useMapStore();
+  const {
+    scale: reigonMapScale,
+    position: reigonMapPosition,
+    selectedCity,
+  } = useMapStore();
+  const { position: cityMapPosition } = useCitiesLayer();
   const {
     isDrawingMode,
     currentPoints,
@@ -39,6 +45,8 @@ const DrawingPolygon = () => {
   }, []);
 
   // Add click event listener to the stage
+  const position = selectedCity ? cityMapPosition : reigonMapPosition;
+  const scale = selectedCity ? 1 : reigonMapScale;
   useEffect(() => {
     if (!stageRef.current) return;
 
