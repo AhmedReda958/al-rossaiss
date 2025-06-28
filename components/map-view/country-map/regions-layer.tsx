@@ -42,6 +42,21 @@ const RegionsLayer = () => {
       .catch((err) => console.error("Failed to fetch region counts", err));
   }, []);
 
+  const animateLabel = (id: string, isHovered: boolean) => {
+    requestAnimationFrame(() => {
+      const labelNode = labelRefs.current[id];
+      if (labelNode && labelNode.getStage()) {
+        labelNode.to({
+          scaleX: isHovered ? 1.1 : 1,
+          scaleY: isHovered ? 1.1 : 1,
+          opacity: isHovered ? 1 : 0.9,
+          duration: HOVER_ANIMATION_DURATION,
+          easing: Konva.Easings.EaseInOut,
+        });
+      }
+    });
+  };
+
   return (
     <Group x={369} y={664} scaleX={1} scaleY={1}>
       {regions.map(({ id, name }) => {
@@ -77,17 +92,7 @@ const RegionsLayer = () => {
                     easing: Konva.Easings.EaseInOut,
                   });
                 }
-                // Animate the label
-                const labelNode = labelRefs.current[id];
-                if (labelNode && !isDisabled) {
-                  labelNode.to({
-                    scaleX: 1.1,
-                    scaleY: 1.1,
-                    opacity: 1,
-                    duration: HOVER_ANIMATION_DURATION,
-                    easing: Konva.Easings.EaseInOut,
-                  });
-                }
+                animateLabel(id, true);
                 setHoveredRegionId(id);
               }}
               onMouseLeave={(e) => {
@@ -103,17 +108,7 @@ const RegionsLayer = () => {
                     easing: Konva.Easings.EaseInOut,
                   });
                 }
-                // Animate the label back
-                const labelNode = labelRefs.current[id];
-                if (labelNode && !isDisabled) {
-                  labelNode.to({
-                    scaleX: 1,
-                    scaleY: 1,
-                    opacity: 0.9,
-                    duration: HOVER_ANIMATION_DURATION,
-                    easing: Konva.Easings.EaseInOut,
-                  });
-                }
+                animateLabel(id, false);
                 setHoveredRegionId(null);
               }}
             />
