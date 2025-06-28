@@ -13,6 +13,7 @@ import {
   FormField,
   FormItem,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,6 +38,11 @@ const formSchema = z.object({
   unitsCount: z
     .number()
     .min(1, { message: "Number of units must be greater than 0" }),
+  url: z
+    .string()
+    .url({ message: "Please enter a valid URL" })
+    .optional()
+    .or(z.literal("")),
   image: z.instanceof(File).or(z.string()).optional(),
   description: z.string().optional(),
   labelDirection: z.enum(["up", "down", "left", "right"]),
@@ -70,6 +76,7 @@ const AddProjectForm: React.FC = () => {
       unitType: UNIT_TYPES.APARTMENT,
       space: 0,
       unitsCount: 1,
+      url: "",
       description: "",
       image: undefined,
       labelDirection: "up",
@@ -149,19 +156,19 @@ const AddProjectForm: React.FC = () => {
     setIsSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append("cityId", values.cityId);
       formData.append("name", values.name);
+      formData.append("cityId", values.cityId);
       formData.append("unitType", values.unitType);
+      formData.append("space", String(values.space));
+      formData.append("unitsCount", String(values.unitsCount));
+      if (values.url) formData.append("url", values.url);
+      if (values.description)
+        formData.append("description", values.description);
       if (values.image instanceof File) {
         formData.append("image", values.image);
       }
-      if (values.description) {
-        formData.append("description", values.description);
-      }
       formData.append("labelDirection", values.labelDirection);
       formData.append("soldOut", String(values.soldOut));
-      formData.append("space", String(values.space));
-      formData.append("unitsCount", String(values.unitsCount));
       formData.append(
         "points",
         JSON.stringify(pointsToFlatArray(currentPoints))
@@ -304,6 +311,28 @@ const AddProjectForm: React.FC = () => {
                     {...field}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="url"
+            render={({ field }) => (
+              <FormItem>
+                <Label>Project Website URL</Label>
+                <FormControl>
+                  <Input
+                    type="url"
+                    placeholder="https://example.com"
+                    className="w-full"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Optional link to the project&apos;s website or landing page
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

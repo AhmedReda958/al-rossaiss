@@ -48,6 +48,7 @@ model Project {
   soldOut        Boolean @default(false)
   space          Float   @default(0) // Space in square meters
   unitsCount     Int     @default(1) // Number of units in the project
+  url            String? // Project website or landing page URL
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 } 

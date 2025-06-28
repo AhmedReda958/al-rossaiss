@@ -59,6 +59,7 @@ export async function POST(req: Request) {
     const soldOut = formData.get("soldOut") === "true";
     const space = parseFloat(formData.get("space") as string);
     const unitsCount = parseInt(formData.get("unitsCount") as string, 10);
+    const url = formData.get("url") as string | null;
 
     if (
       !name ||
@@ -116,6 +117,7 @@ export async function POST(req: Request) {
         soldOut,
         space,
         unitsCount,
+        url,
       },
     });
 

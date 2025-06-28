@@ -18,10 +18,17 @@ import {
   Home,
   Ruler,
   Building2,
+  Link2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ProjectCardProps {
   project: Project;
@@ -56,7 +63,35 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
       </CardHeader>
       <CardContent className="px-0">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-xl font-bold">{project.name}</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-xl font-bold">{project.name}</CardTitle>
+            {project.url && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      asChild
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Link2 className="h-4 w-4 text-primary" />
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Visit Project Website</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
           <div className="flex items-center space-x-1">
             <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
               <Link

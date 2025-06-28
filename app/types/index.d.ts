@@ -53,6 +53,7 @@ export type Project = {
   soldOut: boolean;
   space: number;
   unitsCount: number;
+  url?: string | null;
   createdAt: string;
   updatedAt: string;
 };
