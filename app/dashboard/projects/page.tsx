@@ -13,17 +13,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Region } from "@prisma/client";
+import { Region, City } from "@prisma/client";
 import { Search } from "lucide-react";
 import { PaginationWithNumbers } from "@/components/ui/pagination-with-numbers";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("all");
+  const [selectedCity, setSelectedCity] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -40,12 +42,15 @@ export default function ProjectsPage() {
     if (selectedRegion && selectedRegion !== "all") {
       params.append("regionId", selectedRegion);
     }
+    if (selectedCity && selectedCity !== "all") {
+      params.append("cityId", selectedCity);
+    }
     const response = await fetch(`/api/projects?${params.toString()}`);
     const data = await response.json();
     setProjects(data.projects);
     setTotalPages(data.totalPages);
     setIsLoading(false);
-  }, [currentPage, debouncedSearchTerm, selectedRegion]);
+  }, [currentPage, debouncedSearchTerm, selectedRegion, selectedCity]);
 
   useEffect(() => {
     fetchProjects();
@@ -59,6 +64,21 @@ export default function ProjectsPage() {
     }
     fetchRegions();
   }, []);
+
+  useEffect(() => {
+    async function fetchCities() {
+      const params = new URLSearchParams();
+      if (selectedRegion !== "all") {
+        params.append("regionId", selectedRegion);
+      }
+      const response = await fetch(`/api/cities?${params.toString()}`);
+      const data = await response.json();
+      setCities(data.cities || []);
+      // Reset city selection when region changes
+      setSelectedCity("all");
+    }
+    fetchCities();
+  }, [selectedRegion]);
 
   return (
     <>
@@ -76,24 +96,40 @@ export default function ProjectsPage() {
               className="pl-10 h-12"
             />
           </div>
-          <div className="w-[250px]">
-            <Select
-              value={selectedRegion}
-              onValueChange={(value) => setSelectedRegion(value)}
-            >
-              <SelectTrigger className="!h-12 min-w-48">
-                <SelectValue placeholder="Filter by Region" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Regions</SelectItem>
-                {regions.map((region) => (
-                  <SelectItem key={region.id} value={region.id.toString()}>
-                    {region.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+
+          <Select
+            value={selectedRegion}
+            onValueChange={(value) => setSelectedRegion(value)}
+          >
+            <SelectTrigger className="!h-12 min-w-48">
+              <SelectValue placeholder="Filter by Region" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Regions</SelectItem>
+              {regions.map((region) => (
+                <SelectItem key={region.id} value={region.id.toString()}>
+                  {region.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={selectedCity}
+            onValueChange={(value) => setSelectedCity(value)}
+          >
+            <SelectTrigger className="!h-12 min-w-48">
+              <SelectValue placeholder="Filter by City" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Cities</SelectItem>
+              {cities.map((city) => (
+                <SelectItem key={city.id} value={city.id.toString()}>
+                  {city.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {isLoading ? (
