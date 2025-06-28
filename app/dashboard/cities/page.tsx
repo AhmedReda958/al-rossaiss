@@ -13,17 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationEllipsis,
-} from "@/components/ui/pagination";
 import { Region } from "@prisma/client";
 import { Search } from "lucide-react";
+import { PaginationWithNumbers } from "@/components/ui/pagination-with-numbers";
 
 export default function CitiesPage() {
   const [cities, setCities] = useState<City[]>([]);
@@ -67,111 +59,6 @@ export default function CitiesPage() {
     }
     fetchRegions();
   }, []);
-
-  const handlePageChange = (page: number) => {
-    if (page > 0 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
-  const renderPagination = () => {
-    const pages = [];
-    const maxPagesToShow = 5;
-    const ellipsis = <PaginationEllipsis />;
-
-    if (totalPages <= maxPagesToShow + 2) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(
-          <PaginationItem key={i}>
-            <PaginationLink
-              href="#"
-              isActive={currentPage === i}
-              onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                e.preventDefault();
-                handlePageChange(i);
-              }}
-            >
-              {i}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      }
-    } else {
-      pages.push(
-        <PaginationItem key={1}>
-          <PaginationLink
-            href="#"
-            isActive={currentPage === 1}
-            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-              e.preventDefault();
-              handlePageChange(1);
-            }}
-          >
-            1
-          </PaginationLink>
-        </PaginationItem>
-      );
-
-      if (currentPage > maxPagesToShow - 2) {
-        pages.push(
-          <PaginationItem key="start-ellipsis">{ellipsis}</PaginationItem>
-        );
-      }
-
-      let startPage = Math.max(2, currentPage - 1);
-      let endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      if (currentPage < 4) {
-        startPage = 2;
-        endPage = 4;
-      }
-
-      if (currentPage > totalPages - 3) {
-        startPage = totalPages - 3;
-        endPage = totalPages - 1;
-      }
-
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(
-          <PaginationItem key={i}>
-            <PaginationLink
-              href="#"
-              isActive={currentPage === i}
-              onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                e.preventDefault();
-                handlePageChange(i);
-              }}
-            >
-              {i}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      }
-
-      if (currentPage < totalPages - (maxPagesToShow - 2)) {
-        pages.push(
-          <PaginationItem key="end-ellipsis">{ellipsis}</PaginationItem>
-        );
-      }
-
-      pages.push(
-        <PaginationItem key={totalPages}>
-          <PaginationLink
-            href="#"
-            isActive={currentPage === totalPages}
-            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-              e.preventDefault();
-              handlePageChange(totalPages);
-            }}
-          >
-            {totalPages}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
-
-    return pages;
-  };
 
   return (
     <>
@@ -225,29 +112,11 @@ export default function CitiesPage() {
 
         {!isLoading && totalPages > 1 && (
           <div className="mt-8">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                      e.preventDefault();
-                      handlePageChange(currentPage - 1);
-                    }}
-                  />
-                </PaginationItem>
-                {renderPagination()}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                      e.preventDefault();
-                      handlePageChange(currentPage + 1);
-                    }}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <PaginationWithNumbers
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )}
       </main>
