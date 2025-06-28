@@ -10,10 +10,10 @@ const MapForms = () => {
 
   return (
     <div
-      className="absolute left-4 top-4 z-20 bg-white rounded-lg shadow-md w-80"
+      className="absolute left-4 top-4 z-20 bg-white rounded-lg shadow-md w-80 max-h-[calc(100vh-2rem)]"
       hidden={mapType === "main"}
     >
-      <ScrollArea className="p-4 h-full">
+      <ScrollArea className="h-[calc(100vh-12rem)] p-4 pb-8">
         {(() => {
           switch (mapType) {
             case "add-city":

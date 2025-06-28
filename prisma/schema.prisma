@@ -44,6 +44,9 @@ model Project {
   points         Float[]
   cityId         Int     // Foreign key to City
   city           City    @relation(fields: [cityId], references: [id])
+  unitType       String  @default("apartment") // Type of unit (villa, apartment, etc.)
+  soldOut        Boolean @default(false)
+  space          Float   @default(0) // Space in square meters
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 } 

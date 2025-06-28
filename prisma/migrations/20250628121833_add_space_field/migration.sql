@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Project" ADD COLUMN     "space" DOUBLE PRECISION NOT NULL DEFAULT 0;

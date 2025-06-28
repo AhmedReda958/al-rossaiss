@@ -1,3 +1,5 @@
+import { UNIT_TYPES } from "@/lib/constants";
+
 export type Region = {
   id: string;
   name: string;
@@ -34,12 +36,22 @@ export type RegionApiResponse = {
 export type Project = {
   id: number;
   name: string;
-  description?: string;
-  image?: string;
-  labelDirection?: "up" | "down" | "left" | "right";
+  description?: string | null;
+  image?: string | null;
+  labelDirection?: string | null;
   points: number[];
   cityId: number;
-  city?: City;
+  city?: {
+    id: number;
+    name: string;
+    region?: {
+      id: number;
+      name: string;
+    } | null;
+  } | null;
+  unitType: (typeof UNIT_TYPES)[keyof typeof UNIT_TYPES];
+  soldOut: boolean;
+  space: number;
   createdAt: string;
   updatedAt: string;
 };

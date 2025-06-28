@@ -55,8 +55,11 @@ export async function POST(req: Request) {
     const points = JSON.parse(formData.get("points") as string) as number[];
     const cityId = parseInt(formData.get("cityId") as string, 10);
     const image = formData.get("image") as File | null;
+    const unitType = formData.get("unitType") as string;
+    const soldOut = formData.get("soldOut") === "true";
+    const space = parseFloat(formData.get("space") as string);
 
-    if (!name || !points || !cityId) {
+    if (!name || !points || !cityId || !unitType || !space || isNaN(space)) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -99,6 +102,9 @@ export async function POST(req: Request) {
         labelDirection,
         points,
         cityId,
+        unitType,
+        soldOut,
+        space,
       },
     });
 
