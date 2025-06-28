@@ -136,20 +136,26 @@ const AddProjectForm: React.FC = () => {
     }
     setIsSubmitting(true);
     try {
-      const imageUrl = null;
-      const payload = {
-        name: values.name,
-        description: values.description,
-        image: imageUrl,
-        labelDirection: values.labelDirection,
-        points: pointsToFlatArray(currentPoints),
-        cityId: parseInt(values.cityId, 10),
-      };
+      const formData = new FormData();
+      formData.append("name", values.name);
+      if (values.description) {
+        formData.append("description", values.description);
+      }
+      if (values.image instanceof File) {
+        formData.append("image", values.image);
+      }
+      formData.append("labelDirection", values.labelDirection);
+      formData.append(
+        "points",
+        JSON.stringify(pointsToFlatArray(currentPoints))
+      );
+      formData.append("cityId", values.cityId);
+
       const response = await fetch("/api/projects", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
       });
+
       if (response.ok) {
         alert("Project created successfully!");
         clearCurrentPoints();

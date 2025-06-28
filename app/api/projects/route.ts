@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import path from "path";
+import { writeFile, mkdir } from "fs/promises";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -45,24 +47,67 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  // For now, just parse JSON body (no file upload yet)
-  const body = await req.json();
-  const { name, description, image, labelDirection, points, cityId } = body;
-  if (!name || !points || !cityId) {
+  try {
+    const formData = await req.formData();
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const labelDirection = formData.get("labelDirection") as string;
+    const points = JSON.parse(formData.get("points") as string) as number[];
+    const cityId = parseInt(formData.get("cityId") as string, 10);
+    const image = formData.get("image") as File | null;
+
+    if (!name || !points || !cityId) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    let imageUrl = null;
+    if (image) {
+      // Handle file upload
+      const uploadsDir = path.join(
+        process.cwd(),
+        "public",
+        "uploads",
+        "projects"
+      );
+      try {
+        await mkdir(uploadsDir, { recursive: true });
+      } catch (error) {
+        // Ignore error if directory already exists
+        if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
+          throw error;
+        }
+      }
+
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const fileExtension = path.extname(image.name);
+      const filename = `${uniqueSuffix}${fileExtension}`;
+      const imagePath = path.join(uploadsDir, filename);
+      imageUrl = `/uploads/projects/${filename}`;
+
+      const buffer = Buffer.from(await image.arrayBuffer());
+      await writeFile(imagePath, buffer);
+    }
+
+    const project = await prisma.project.create({
+      data: {
+        name,
+        description,
+        image: imageUrl,
+        labelDirection,
+        points,
+        cityId,
+      },
+    });
+
+    return NextResponse.json(project, { status: 201 });
+  } catch (error) {
+    console.error("Error creating project:", error);
     return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 }
+      { error: "Failed to create project" },
+      { status: 500 }
     );
   }
-  const project = await prisma.project.create({
-    data: {
-      name,
-      description,
-      image: image || null,
-      labelDirection,
-      points: points as number[],
-      cityId,
-    },
-  });
-  return NextResponse.json({ project });
 }
