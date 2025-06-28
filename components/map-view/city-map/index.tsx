@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Image, Layer } from "react-konva";
 import { useMapStore } from "@/lib/store";
@@ -8,12 +10,13 @@ import DrawingPolygon from "../polygon/drawing-polygon";
 
 // Define a minimal city data type
 interface CityData {
+  id: number;
   imageUrl?: string;
   // Add other city fields as needed
 }
 
 const CityMap = () => {
-  const { mapSize, selectedCity, setProjects, mapType } = useMapStore();
+  const { mapSize, selectedCity, mapType, setSelectedCityId } = useMapStore();
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
 
@@ -28,12 +31,17 @@ const CityMap = () => {
 
   // Fetch city data and projects when selectedCity changes
   useEffect(() => {
-    if (!selectedCity) return;
+    if (!selectedCity) {
+      setSelectedCityId(null);
+      return;
+    }
+
     const fetchCity = async () => {
       const res = await fetch(`/api/cities/${selectedCity}`);
       if (res.ok) {
         const data = await res.json();
         setCityData(data);
+        setSelectedCityId(data.id);
         if (data.image) {
           const img = new window.Image();
           img.src = data.image;
@@ -44,20 +52,12 @@ const CityMap = () => {
       } else {
         setCityData(null);
         setCityImage(null);
+        setSelectedCityId(null);
       }
     };
-    const fetchProjects = async () => {
-      const res = await fetch(`/api/projects/city/${selectedCity}`);
-      if (res.ok) {
-        const data = await res.json();
-        setProjects(data.projects || []);
-      } else {
-        setProjects([]);
-      }
-    };
+
     fetchCity();
-    fetchProjects();
-  }, [selectedCity, setProjects]);
+  }, [selectedCity, setSelectedCityId]);
 
   if (!selectedCity || !cityData) return null;
 

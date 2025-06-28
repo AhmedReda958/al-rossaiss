@@ -71,6 +71,10 @@ interface MapState {
   setSelectedProject: (id: number | null) => void;
   setEditingProject: (project: Project | null) => void;
   setProjects: (projects: Project[]) => void;
+
+  // New state
+  selectedCityId: number | null;
+  setSelectedCityId: (cityId: number | null) => void;
 }
 
 const intialPosition = { x: -200, y: -500 };
@@ -94,6 +98,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   selectedProject: null,
   editingProject: null,
   projects: [],
+  selectedCityId: null,
 
   // Actions
   setSelectedRegion: (id) => set({ selectedRegion: id }),
@@ -111,6 +116,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   setSelectedProject: (id) => set({ selectedProject: id }),
   setEditingProject: (project) => set({ editingProject: project }),
   setProjects: (projects) => set({ projects }),
+  setSelectedCityId: (cityId) => set({ selectedCityId: cityId }),
 
   resetZoom: () => {
     const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion } =

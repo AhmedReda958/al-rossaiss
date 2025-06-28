@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Group } from "react-konva";
 import { useMapStore } from "@/lib/store";
 import Polygon from "@/components/map-view/polygon/polygon";
@@ -8,16 +8,7 @@ import { CityPolygon } from "@/lib/store/polygon-marker-store";
 import { Project } from "@/app/types";
 
 const mapProjectToCityPolygon = (project: Project): CityPolygon => {
-  let direction = project.labelDirection || "up";
-  if (direction === "up") {
-    direction = "up";
-  } else if (direction === "down") {
-    direction = "down";
-  } else if (direction === "left") {
-    direction = "left";
-  } else if (direction === "right") {
-    direction = "right";
-  }
+  const direction = project.labelDirection || "up";
 
   return {
     id: String(project.id),
@@ -29,7 +20,25 @@ const mapProjectToCityPolygon = (project: Project): CityPolygon => {
 };
 
 const ProjectsLayer = () => {
-  const { projects } = useMapStore();
+  const { projects, setProjects, selectedCityId } = useMapStore();
+
+  useEffect(() => {
+    const fetchCityProjects = async () => {
+      if (!selectedCityId) return;
+
+      try {
+        const response = await fetch(`/api/cities/${selectedCityId}/projects`);
+        if (!response.ok) throw new Error("Failed to fetch projects");
+
+        const data = await response.json();
+        setProjects(data);
+      } catch (error) {
+        console.error("Error fetching city projects:", error);
+      }
+    };
+
+    fetchCityProjects();
+  }, [selectedCityId, setProjects]);
 
   if (!projects.length) {
     return null;
@@ -41,8 +50,7 @@ const ProjectsLayer = () => {
         <Polygon
           key={project.id}
           polygon={mapProjectToCityPolygon(project)}
-          fillColor="rgba(255, 165, 0, 0.3)" // Orange with transparency for projects
-          strokeColor="#ff8c00" // Darker orange for the border
+          strokeColor="#fff"
           type="project"
         />
       ))}
