@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Group, Path, Text, Circle, Rect } from "react-konva";
 import Konva from "konva";
 
@@ -6,31 +6,34 @@ import regions from "./regions";
 
 import colors from "@/lib/colors";
 import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
-import { useMapStore } from "@/lib/store";
 
 // Define region positions for labels
 const regionLabelPositions: Record<string, { x: number; y: number }> = {
-  western: { x: 150, y: 300 },
-  eastern: { x: 830, y: 350 },
-  northern: { x: 250, y: 30 },
-  southern: { x: 400, y: 550 },
-  central: { x: 450, y: 250 },
+  western: { x: 225, y: 322 },
+  eastern: { x: 905, y: 372 },
+  northern: { x: 325, y: 52 },
+  southern: { x: 475, y: 572 },
+  central: { x: 525, y: 272 },
 };
+
+// Animation configuration
+const HOVER_ANIMATION_DURATION = 0.3;
 
 const RegionsLayer = () => {
   const {
     pathDataMap,
-    hoveredRegionId,
     selectedRegion,
     setHoveredRegionId,
     handleRegionClick,
     assignPathRef,
   } = useRegionsLayer();
-  const { mapType } = useMapStore();
+
   const [regionCityCounts, setRegionCityCounts] = useState<Record<
     string,
     number
   > | null>(null);
+
+  const labelRefs = useRef<Record<string, Konva.Group>>({});
 
   useEffect(() => {
     fetch("/api/regions/counts")
@@ -41,12 +44,11 @@ const RegionsLayer = () => {
 
   return (
     <Group x={369} y={664} scaleX={1} scaleY={1}>
-      {regions.map(({ id, name }, index) => {
+      {regions.map(({ id, name }) => {
         const pathData = pathDataMap[id] || "";
-        const isHovered = hoveredRegionId === id;
         const labelPos = regionLabelPositions[id] || { x: 0, y: 0 };
         const cityCount = regionCityCounts ? regionCityCounts[id] : -1;
-        const isDisabled = mapType === "main" && cityCount === 0;
+        const isDisabled = cityCount === 0;
 
         if (!pathData) return null;
 
@@ -67,16 +69,25 @@ const RegionsLayer = () => {
                 if (container) {
                   container.style.cursor = "pointer";
                 }
-                // Use proper type assertion
                 const path = e.target as Konva.Path;
                 if (selectedRegion !== id) {
-                  path.fill(colors.primaryHover);
+                  path.to({
+                    fill: colors.primaryHover,
+                    duration: HOVER_ANIMATION_DURATION,
+                    easing: Konva.Easings.EaseInOut,
+                  });
                 }
-                const layer = path.getLayer();
-                if (layer) {
-                  layer.batchDraw();
+                // Animate the label
+                const labelNode = labelRefs.current[id];
+                if (labelNode && !isDisabled) {
+                  labelNode.to({
+                    scaleX: 1.1,
+                    scaleY: 1.1,
+                    opacity: 1,
+                    duration: HOVER_ANIMATION_DURATION,
+                    easing: Konva.Easings.EaseInOut,
+                  });
                 }
-
                 setHoveredRegionId(id);
               }}
               onMouseLeave={(e) => {
@@ -84,16 +95,25 @@ const RegionsLayer = () => {
                 if (container) {
                   container.style.cursor = "default";
                 }
-                // Use proper type assertion
                 const path = e.target as Konva.Path;
                 if (selectedRegion !== id) {
-                  path.fill("white");
+                  path.to({
+                    fill: "white",
+                    duration: HOVER_ANIMATION_DURATION,
+                    easing: Konva.Easings.EaseInOut,
+                  });
                 }
-                const layer = path.getLayer();
-                if (layer) {
-                  layer.batchDraw();
+                // Animate the label back
+                const labelNode = labelRefs.current[id];
+                if (labelNode && !isDisabled) {
+                  labelNode.to({
+                    scaleX: 1,
+                    scaleY: 1,
+                    opacity: 0.9,
+                    duration: HOVER_ANIMATION_DURATION,
+                    easing: Konva.Easings.EaseInOut,
+                  });
                 }
-
                 setHoveredRegionId(null);
               }}
             />
@@ -104,9 +124,16 @@ const RegionsLayer = () => {
                 key={`label-${id}`}
                 x={labelPos.x}
                 y={labelPos.y}
-                scaleX={isHovered && !isDisabled ? 1.1 : 1}
-                scaleY={isHovered && !isDisabled ? 1.1 : 1}
-                opacity={isHovered && !isDisabled ? 1 : 0.9}
+                opacity={0.9}
+                offset={{
+                  x: (isDisabled ? 120 : 150) / 2,
+                  y: 44 / 2,
+                }}
+                ref={(node) => {
+                  if (node) {
+                    labelRefs.current[id] = node;
+                  }
+                }}
               >
                 {/* Background for label */}
                 <Rect
@@ -128,54 +155,29 @@ const RegionsLayer = () => {
                   fontWeight="bold"
                 />
 
-                {mapType === "main"
-                  ? regionCityCounts &&
-                    cityCount > 0 && (
-                      <>
-                        {/* Number circle */}
-                        <Circle x={128} y={23} radius={14} fill="#ffffff" />
+                {regionCityCounts && cityCount > 0 && (
+                  <>
+                    {/* Number circle */}
+                    <Circle x={130} y={23} radius={14} fill="#ffffff" />
 
-                        {/* Number text */}
-                        <Text
-                          text={cityCount.toString()}
-                          x={128}
-                          y={24}
-                          fontSize={14}
-                          fontFamily="Arial"
-                          fill={colors.primary}
-                          align="center"
-                          verticalAlign="middle"
-                          fontWeight="bold"
-                          width={30}
-                          height={30}
-                          offsetX={15}
-                          offsetY={15}
-                        />
-                      </>
-                    )
-                  : regionCityCounts && (
-                      <>
-                        {/* Number circle */}
-                        <Circle x={128} y={23} radius={14} fill="#ffffff" />
-
-                        {/* Number text */}
-                        <Text
-                          text={(index + 1).toString()}
-                          x={128}
-                          y={24}
-                          fontSize={14}
-                          fontFamily="Arial"
-                          fill={colors.primary}
-                          align="center"
-                          verticalAlign="middle"
-                          fontWeight="bold"
-                          width={30}
-                          height={30}
-                          offsetX={15}
-                          offsetY={15}
-                        />
-                      </>
-                    )}
+                    {/* Number text */}
+                    <Text
+                      text={cityCount.toString()}
+                      x={130}
+                      y={24}
+                      fontSize={14}
+                      fontFamily="Arial"
+                      fill={colors.primary}
+                      align="center"
+                      verticalAlign="middle"
+                      fontWeight="bold"
+                      width={30}
+                      height={30}
+                      offsetX={15}
+                      offsetY={15}
+                    />
+                  </>
+                )}
               </Group>
             )}
           </React.Fragment>
