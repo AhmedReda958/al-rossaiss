@@ -17,7 +17,7 @@ const regionLabelPositions: Record<string, { x: number; y: number }> = {
 };
 
 // Animation configuration
-const HOVER_ANIMATION_DURATION = 0.3;
+const HOVER_ANIMATION_DURATION = 0.2;
 
 const RegionsLayer = () => {
   const {
