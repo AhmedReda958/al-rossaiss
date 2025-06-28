@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { GoZoomOut } from "react-icons/go";
 import Image from "next/image";
 import { useMapStore } from "@/lib/store";
+import CitySlider from "./city-slider";
 
 const ControlsLayerFooter = () => {
   const { resetZoom, setSelectedCity, selectedRegion, selectedCity } =
@@ -28,7 +29,12 @@ const ControlsLayerFooter = () => {
   return (
     <nav className="flex items-end justify-between z-10 absolute bottom-0 left-0 w-full h-16 p-5 ">
       <div></div>
-      <div></div>
+      <div
+        className="absolute left-1/2 -translate-x-1/2 bottom-5"
+        hidden={!selectedCity}
+      >
+        <CitySlider />
+      </div>
       {/* controls */}
 
       <div className="flex items-end gap-20">
