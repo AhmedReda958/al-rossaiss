@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, MapPin, Search } from "lucide-react";
 import { useMapStore } from "@/lib/store";
 import ProjectCard from "./project-card";
 import { UnitType } from "@/lib/constants";
+import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/lib/hooks/use-debounce";
 
 export interface Project {
   id: number;
@@ -42,6 +45,9 @@ const ProjectsList = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [total, setTotal] = useState(0);
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   const {
     selectedCityId,
@@ -60,6 +66,7 @@ const ProjectsList = () => {
 
       if (selectedCityId) params.append("cityId", selectedCityId.toString());
       if (selectedRegion) params.append("regionId", selectedRegion);
+      if (debouncedSearch) params.append("search", debouncedSearch);
 
       const response = await fetch(`/api/projects?${params}`);
       const data: ProjectsResponse = await response.json();
@@ -70,6 +77,7 @@ const ProjectsList = () => {
         setProjects((prev) => [...prev, ...data.projects]);
       }
 
+      setTotal(data.total);
       setHasMore(page < data.totalPages);
       setLoading(false);
     } catch (error) {
@@ -83,7 +91,7 @@ const ProjectsList = () => {
       setPage(1);
       fetchProjects();
     }
-  }, [isOpen, selectedCityId, selectedRegion]);
+  }, [isOpen, selectedCityId, selectedRegion, debouncedSearch]);
 
   const loadMore = () => {
     if (!loading && hasMore) {
@@ -93,6 +101,49 @@ const ProjectsList = () => {
 
   const handleProjectClick = (projectId: number) => {
     setSelectedProject(projectId);
+  };
+
+  const currentCity = projects[0]?.city;
+  const currentRegion = currentCity?.region;
+
+  const getHeaderTitle = () => {
+    if (selectedCityId && currentCity) {
+      return (
+        <div>
+          <h2 className="text-xl font-semibold mb-2">{currentCity.name}</h2>
+          <div className="flex items-center gap-2 text-md text-gray-400">
+            <MapPin className="h-4 w-4 text-primary" />
+            <span>{currentRegion?.name}</span>
+            <span className="text-md font-bold text-primary">•</span>
+            <span>
+              {total} {total === 1 ? "Project" : "Projects"}
+            </span>
+          </div>
+        </div>
+      );
+    } else if (selectedRegion && currentRegion) {
+      return (
+        <div>
+          <h2 className="text-xl font-semibold mb-2">{currentRegion.name}</h2>
+          <div className="flex items-center gap-2 text-md text-gray-400">
+            <span>
+              {total} {total === 1 ? "Project" : "Projects"}
+            </span>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <h2 className="text-xl font-semibold mb-2">All Projects</h2>
+          <div className="flex items-center gap-2 text-md text-gray-400">
+            <span>
+              {total} {total === 1 ? "Project" : "Projects"}
+            </span>
+          </div>
+        </div>
+      );
+    }
   };
 
   return (
@@ -128,7 +179,30 @@ const ProjectsList = () => {
               </Button>
 
               <div className="p-4 pe-0 h-[calc(100%-3rem)]">
-                <h2 className="text-xl font-semibold mb-4">Projects</h2>
+                {/* Header Section */}
+                <div className="mb-6 pe-4">
+                  <div className="flex items-center justify-between mb-4">
+                    {getHeaderTitle()}
+                    <Image
+                      src="/logo.svg"
+                      alt="Logo"
+                      width={42}
+                      height={42}
+                      className="h-8 w-auto"
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search on Projects"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-8 pr-4 py-2 bg-gray-100/50"
+                    />
+                  </div>
+                </div>
+
                 <ScrollArea
                   className="h-full"
                   onScrollCapture={(e) => {
