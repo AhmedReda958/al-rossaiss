@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useMapStore } from "@/lib/store";
+import ProjectCard from "./project-card";
 
 export interface Project {
   id: number;
@@ -40,7 +41,12 @@ const ProjectsList = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  const { selectedCityId, selectedRegion, setSelectedProject } = useMapStore();
+  const {
+    selectedCityId,
+    selectedRegion,
+    selectedProject,
+    setSelectedProject,
+  } = useMapStore();
 
   const fetchProjects = async () => {
     try {
@@ -88,7 +94,7 @@ const ProjectsList = () => {
   };
 
   return (
-    <div className="absolute left-4 top-4 bottom-4 z-50  h-[calc(100vh-2rem)]">
+    <div className="absolute left-4 top-4 bottom-4 z-50 h-[calc(100vh-2rem)]">
       {/* Projects Panel */}
       <Button
         variant="secondary"
@@ -119,7 +125,7 @@ const ProjectsList = () => {
                 <ChevronLeft className="h-4 w-4" />
               </Button>
 
-              <div className="p-4 h-[calc(100%-3rem)]">
+              <div className="p-4 pe-0 h-[calc(100%-3rem)]">
                 <h2 className="text-xl font-semibold mb-4">Projects</h2>
                 <ScrollArea
                   className="h-full"
@@ -135,52 +141,14 @@ const ProjectsList = () => {
                     }
                   }}
                 >
-                  <div className="space-y-4">
+                  <div className="space-y-4 pe-4">
                     {projects.map((project) => (
-                      <div
+                      <ProjectCard
                         key={project.id}
-                        className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                        project={project}
+                        isSelected={selectedProject === project.id}
                         onClick={() => handleProjectClick(project.id)}
-                      >
-                        {project.image && (
-                          <div className="relative h-40 mb-3">
-                            <img
-                              src={project.image}
-                              alt={project.name}
-                              className="w-full h-full object-cover rounded-md"
-                            />
-                            {project.soldOut && (
-                              <div className="absolute top-2 right-2">
-                                <span className="bg-red-500 text-white px-2 py-1 rounded-md text-sm">
-                                  Sold Out
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        <h3 className="font-medium text-lg">{project.name}</h3>
-                        {project.description && (
-                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                            {project.description}
-                          </p>
-                        )}
-                        <div className="mt-2 text-sm text-gray-600 space-y-1">
-                          <p>Units: {project.unitsCount}</p>
-                          <p>Space: {project.space} M²</p>
-                          {project.city && <p>Location: {project.city.name}</p>}
-                          {project.url && (
-                            <a
-                              href={project.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline block mt-2"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              Visit Website
-                            </a>
-                          )}
-                        </div>
-                      </div>
+                      />
                     ))}
                     {loading && (
                       <div className="py-4 text-center text-gray-500">
