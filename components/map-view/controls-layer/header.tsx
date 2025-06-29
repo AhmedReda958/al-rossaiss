@@ -14,6 +14,15 @@ const ControlsLayerHeader = () => {
           alt="Logo"
           width={212}
           height={60}
+          className="hidden md:block"
+          draggable={false}
+        />
+        <Image
+          src={"/logo.svg"}
+          alt="Logo"
+          width={32}
+          height={32}
+          className="block md:hidden"
           draggable={false}
         />
       </div>
