@@ -88,7 +88,7 @@ const ProjectsList = () => {
   };
 
   return (
-    <div className="absolute left-4 top-4 z-50  h-[calc(100vh-2rem)]">
+    <div className="absolute left-4 top-4 bottom-4 z-50  h-[calc(100vh-2rem)]">
       {/* Projects Panel */}
       <Button
         variant="secondary"
@@ -106,7 +106,7 @@ const ProjectsList = () => {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 120 }}
-            className="bg-white rounded-lg shadow-md w-80 h-[calc(100vh-2rem)] left-4"
+            className="bg-white rounded-lg shadow-md w-80 h-[calc(100vh-3rem)] left-4"
           >
             <div className="relative h-full">
               {/* Toggle Button */}
@@ -119,10 +119,10 @@ const ProjectsList = () => {
                 <ChevronLeft className="h-4 w-4" />
               </Button>
 
-              <div className="p-4 h-full">
+              <div className="p-4 h-[calc(100%-3rem)]">
                 <h2 className="text-xl font-semibold mb-4">Projects</h2>
                 <ScrollArea
-                  className="h-[calc(80vh-8rem)]"
+                  className="h-full"
                   onScrollCapture={(e) => {
                     const target = e.target as HTMLDivElement;
                     if (
