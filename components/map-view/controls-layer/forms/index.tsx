@@ -11,7 +11,10 @@ const MapForms = () => {
   // Hide forms if mapType is main or if no region/city is selected when required
   const shouldHide =
     mapType === "main" ||
-    ((mapType === "add-project" || mapType === "edit-project") &&
+    ((mapType === "add-project" ||
+      mapType === "edit-project" ||
+      mapType === "add-landmark" ||
+      mapType === "edit-landmark") &&
       (!selectedRegion || !selectedCity));
 
   return (

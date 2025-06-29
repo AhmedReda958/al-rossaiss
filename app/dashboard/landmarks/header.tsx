@@ -2,17 +2,9 @@
 
 import React from "react";
 import PageHeader from "@/components/layout/page-header";
-import { MapPinIcon, DownloadIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 
 const LandmarksHeader = () => {
-  const handleAddLandmark = () => {
-    console.log("Add landmark clicked");
-  };
-
-  const handleExportData = () => {
-    console.log("Export data clicked");
-  };
-
   return (
     <PageHeader
       title="Landmarks"
@@ -22,19 +14,10 @@ const LandmarksHeader = () => {
       ]}
       action={{
         label: "Add Landmark",
-        icon: MapPinIcon,
-        onClick: handleAddLandmark,
+        icon: PlusIcon,
+        href: "/dashboard/landmarks/add",
       }}
-    >
-      {/* Additional action button as children */}
-      <button
-        onClick={handleExportData}
-        className="flex items-center gap-2 px-3 py-2 text-sm border rounded-md hover:bg-gray-50"
-      >
-        <DownloadIcon className="h-4 w-4" />
-        Export
-      </button>
-    </PageHeader>
+    ></PageHeader>
   );
 };
 

@@ -48,7 +48,9 @@ const MapContainer = () => {
     selectedCity &&
     (mapType === "main" ||
       mapType === "add-project" ||
-      mapType === "edit-project");
+      mapType === "edit-project" ||
+      mapType === "add-landmark" ||
+      mapType === "edit-landmark");
 
   return (
     <div
