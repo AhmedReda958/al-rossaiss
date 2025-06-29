@@ -73,6 +73,7 @@ const Polygon = ({
         fill={fillColor}
         closed={true}
         onClick={handlePolygonClick}
+        onTap={handlePolygonClick}
       />
       <Line points={linePoints} stroke={strokeColor} strokeWidth={1} />
       <Group x={labelPos.x} y={labelPos.y}>

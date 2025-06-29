@@ -79,6 +79,7 @@ const RegionsLayer = () => {
               strokeWidth={2}
               listening={!isDisabled}
               onClick={() => handleRegionClick(id)}
+              onTap={() => handleRegionClick(id)}
               onMouseEnter={(e) => {
                 const container = e.target.getStage()?.container();
                 if (container) {

@@ -30,7 +30,7 @@ const ControlsLayerFooter = () => {
     <nav className="flex items-end justify-between z-10 absolute bottom-0 left-0 w-full h-16 p-5 ">
       <div></div>
       <div
-        className="absolute left-1/2 -translate-x-1/2 bottom-5"
+        className="absolute left-1/2 -translate-x-1/2 bottom-5 md:block hidden"
         hidden={!selectedCity}
       >
         <CitySlider />
@@ -52,7 +52,7 @@ const ControlsLayerFooter = () => {
 
         {selectedRegion && selectedCity && (
           <Image
-            src={"/map.png"}
+            src={"/map.jpg"}
             alt="go to map"
             width={75}
             height={52}
