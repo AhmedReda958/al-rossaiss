@@ -8,6 +8,7 @@ import HomeIcon from "@/svgs/home";
 import CityIcon from "@/svgs/city";
 import BoxIcon from "@/svgs/box";
 import LandMarkIcon from "@/svgs/landmark";
+import { useState } from "react";
 
 const navigationLinks = [
   { name: "Home", href: "/dashboard", icon: HomeIcon },
@@ -18,6 +19,11 @@ const navigationLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <nav className="container bg-white mx-auto mt-8 mb-8 px-5 rounded-lg">
@@ -35,7 +41,7 @@ export function Navbar() {
         {/* Navigation Links */}
         <div className="hidden md:flex items-center space-x-8">
           {navigationLinks.map((link) => {
-            const isActive = pathname.startsWith(link.href);
+            const isActive = pathname === link.href;
             const IconComponent = link.icon;
             return (
               <Link
@@ -58,8 +64,10 @@ export function Navbar() {
         <div className="md:hidden">
           <button
             type="button"
+            onClick={toggleMenu}
             className="text-muted-foreground hover:text-primary focus:outline-none focus:text-primary"
             aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
           >
             <svg
               className="h-6 w-6"
@@ -70,21 +78,26 @@ export function Navbar() {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path d="M4 6h16M4 12h16M4 18h16"></path>
+              {isMenuOpen ? (
+                <path d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              )}
             </svg>
           </button>
         </div>
       </div>{" "}
       {/* Mobile Navigation Menu */}
-      <div className="md:hidden">
+      <div className={cn("md:hidden", isMenuOpen ? "block" : "hidden")}>
         <div className="pt-2 pb-3 space-y-1">
           {navigationLinks.map((link) => {
-            const isActive = pathname.startsWith(link.href);
+            const isActive = pathname === link.href;
             const IconComponent = link.icon;
             return (
               <Link
                 key={link.name}
                 href={link.href}
+                onClick={() => setIsMenuOpen(false)}
                 className={cn(
                   "flex items-center space-x-3 px-3 py-2 text-base font-medium transition-colors duration-200",
                   isActive
