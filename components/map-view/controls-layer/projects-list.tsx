@@ -40,7 +40,7 @@ interface ProjectsResponse {
 }
 
 const ProjectsList = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -165,7 +165,7 @@ const ProjectsList = () => {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 120 }}
-            className="bg-white rounded-lg shadow-md w-80 h-[calc(100vh-3rem)] left-4"
+            className="bg-white rounded-lg shadow-md w-80 h-[calc(100vh-5em)] lg:h-[calc(100vh-3rem)] left-4"
           >
             <div className="relative h-full">
               {/* Toggle Button */}
@@ -178,7 +178,7 @@ const ProjectsList = () => {
                 <ChevronLeft className="h-4 w-4" />
               </Button>
 
-              <div className="p-4 pe-0 h-[calc(100%-3rem)]">
+              <div className="p-4 pe-0 h-[calc(100%-1rem)] overflow-y-hidden">
                 {/* Header Section */}
                 <div className="mb-6 pe-4">
                   <div className="flex items-center justify-between mb-4">
@@ -204,7 +204,7 @@ const ProjectsList = () => {
                 </div>
 
                 <ScrollArea
-                  className="h-full"
+                  className="h-full b-4"
                   onScrollCapture={(e) => {
                     const target = e.target as HTMLDivElement;
                     if (

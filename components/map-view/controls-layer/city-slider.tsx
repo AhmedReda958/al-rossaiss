@@ -61,8 +61,6 @@ const CitySlider = () => {
     >
       <CarouselContent className="-ml-4">
         {cities.map((city) => {
-          console.log(selectedCity, city.id);
-          console.log(selectedCity == city.id);
           return (
             <CarouselItem key={city.id} className="pl-4 basis-1/4">
               <Button
