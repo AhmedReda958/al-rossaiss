@@ -164,7 +164,7 @@ const ProjectsList = () => {
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 120 }}
+            transition={{ type: "tween", duration: 0.2 }}
             className="bg-white rounded-lg shadow-md w-80 h-[calc(100vh-5em)] lg:h-[calc(100vh-3rem)] left-4"
           >
             <div className="relative h-full">
