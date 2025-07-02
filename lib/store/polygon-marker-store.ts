@@ -13,6 +13,11 @@ export interface CityPolygon {
   labelDirection: "up" | "down" | "left" | "right";
 }
 
+interface Marker {
+  x: number;
+  y: number;
+}
+
 interface PolygonMarkerState {
   // Drawing state
   isDrawingMode: boolean;
@@ -49,6 +54,16 @@ interface PolygonMarkerState {
 
   // New actions
   setPointsFromFlatArray: (points: number[]) => void;
+
+  coordinates: [number, number] | [];
+  resetMarkers: () => void;
+
+  markers: Marker[];
+  addMarker: (x: number, y: number) => void;
+  removeLastMarker: () => void;
+  clearMarkers: () => void;
+
+  setCoordinates: (x: number, y: number) => void;
 }
 
 export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
@@ -57,9 +72,16 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
   currentPoints: [],
   savedPolygons: [],
   editingPolygonId: null,
+  markers: [],
+  coordinates: [],
 
   // Basic setters
-  setIsDrawingMode: (isDrawing: boolean) => set({ isDrawingMode: isDrawing }),
+  setIsDrawingMode: (isDrawing) => {
+    if (!isDrawing) {
+      set({ coordinates: [], markers: [] });
+    }
+    set({ isDrawingMode: isDrawing });
+  },
   setCurrentPoints: (points: Point[]) => set({ currentPoints: points }),
 
   // Point management
@@ -193,11 +215,34 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
     }
   },
 
-  setPointsFromFlatArray: (points) => {
-    const newPoints = [];
+  setPointsFromFlatArray: (points: number[]) => {
+    const newPoints: Point[] = [];
     for (let i = 0; i < points.length; i += 2) {
       newPoints.push({ x: points[i], y: points[i + 1] });
     }
     set({ currentPoints: newPoints });
   },
+
+  setCoordinates: (x: number, y: number) =>
+    set({ coordinates: [x, y] as [number, number] }),
+
+  resetMarkers: () => set({ coordinates: [], markers: [] }),
+
+  addMarker: (x: number, y: number) =>
+    set((state) => {
+      // For landmarks, we only need one point
+      if (state.isDrawingMode) {
+        return { coordinates: [x, y] as [number, number] };
+      }
+
+      // For polygons, we need multiple points
+      return { markers: [...state.markers, { x, y }] };
+    }),
+
+  removeLastMarker: () =>
+    set((state) => ({
+      markers: state.markers.slice(0, -1),
+    })),
+
+  clearMarkers: () => set({ markers: [], coordinates: [] }),
 }));

@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Image, Layer } from "react-konva";
+import { Image, Layer, Circle } from "react-konva";
+import { KonvaEventObject } from "konva/lib/Node";
 import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import { useCitiesLayer } from "@/lib/hooks/useCitiesLayer";
 import ProjectsLayer from "./projects-layer";
 import DrawingPolygon from "../polygon/drawing-polygon";
+import LandmarksLayer from "./landmarks-layer";
 
 // Define a minimal city data type
 interface CityData {
@@ -20,7 +22,8 @@ const CityMap = () => {
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
 
-  const { isDrawingMode } = usePolygonMarkerStore();
+  const { isDrawingMode, coordinates, setCoordinates } =
+    usePolygonMarkerStore();
   const {
     position,
     effectiveMapWidth,
@@ -28,6 +31,16 @@ const CityMap = () => {
     limitDragBoundaries,
     layerRef,
   } = useCitiesLayer();
+
+  // Handle map click for landmark placement
+  const handleLayerClick = (e: KonvaEventObject<MouseEvent>) => {
+    if (isDrawingMode && mapType === "add-landmark") {
+      const layerPoint = layerRef.current?.getRelativePointerPosition();
+      if (layerPoint) {
+        setCoordinates(layerPoint.x, layerPoint.y);
+      }
+    }
+  };
 
   // Fetch city data and projects when selectedCity changes
   useEffect(() => {
@@ -73,6 +86,7 @@ const CityMap = () => {
       dragBoundFunc={limitDragBoundaries}
       x={position.x}
       y={position.y}
+      onClick={handleLayerClick}
     >
       {cityImage && (
         <Image
@@ -82,9 +96,22 @@ const CityMap = () => {
           alt="city-map"
         />
       )}
-      {/* Add city-specific layers/components here */}
       <ProjectsLayer />
+      <LandmarksLayer />
       {showDrawingPolygon && <DrawingPolygon />}
+      {/* Show temporary landmark marker when placing */}
+      {isDrawingMode &&
+        mapType === "add-landmark" &&
+        coordinates.length === 2 && (
+          <Circle
+            x={coordinates[0]}
+            y={coordinates[1]}
+            radius={8}
+            fill="#EA4335"
+            stroke="#ffffff"
+            strokeWidth={2}
+          />
+        )}
     </Layer>
   );
 };

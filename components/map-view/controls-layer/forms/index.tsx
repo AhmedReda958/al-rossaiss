@@ -4,6 +4,7 @@ import { useMapStore } from "@/lib/store";
 import AddCityForm from "./add-city";
 import AddProjectForm from "./add-project";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import AddLandmarkForm from "./add-landmark";
 
 const MapForms = () => {
   const { mapType, selectedRegion, selectedCity } = useMapStore();
@@ -34,8 +35,8 @@ const MapForms = () => {
               return <AddProjectForm />;
             case "edit-project":
               return <div>Edit Project Form (TODO)</div>;
-            // case "add-landmark":
-            //   return <AddLandmarkForm />;
+            case "add-landmark":
+              return <AddLandmarkForm />;
             // case "edit-landmark":
             //   return <EditLandmarkForm />;
             default:

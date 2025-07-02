@@ -1,13 +1,23 @@
 import { create } from "zustand";
 import { Tween, Easings } from "konva/lib/Tween";
 import { Layer } from "konva/lib/Layer";
-import { TMapType } from "@/app/types/map";
 import { City as GlobalCity, Region, Project } from "@/app/types";
+import { LandmarkType } from "@/lib/constants";
 
 // Duplicating the City type from Prisma schema
 export interface City extends GlobalCity {
   region?: Region;
 }
+
+export type TMapType =
+  | "main"
+  | "add-city"
+  | "edit-city"
+  | "add-project"
+  | "edit-project"
+  | "add-landmark"
+  | "edit-landmark"
+  | "default";
 
 interface MapState {
   mapSize: { width: number; height: number };
@@ -75,6 +85,20 @@ interface MapState {
   // New state
   selectedCityId: number | null;
   setSelectedCityId: (cityId: number | null) => void;
+
+  landmarks: Array<{
+    id: number;
+    name: string;
+    type: LandmarkType;
+    coordinates: {
+      x: number;
+      y: number;
+    };
+  }>;
+  setLandmarks: (landmarks: MapState["landmarks"]) => void;
+
+  selectedLandmark: number | null;
+  setSelectedLandmark: (landmarkId: number | null) => void;
 }
 
 const intialPosition = { x: -200, y: -500 };
@@ -99,6 +123,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   editingProject: null,
   projects: [],
   selectedCityId: null,
+  landmarks: [],
+  selectedLandmark: null,
 
   // Actions
   setSelectedRegion: (id) => set({ selectedRegion: id }),
@@ -117,6 +143,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   setEditingProject: (project) => set({ editingProject: project }),
   setProjects: (projects) => set({ projects }),
   setSelectedCityId: (cityId) => set({ selectedCityId: cityId }),
+  setLandmarks: (landmarks) => set({ landmarks }),
+  setSelectedLandmark: (landmarkId) => set({ selectedLandmark: landmarkId }),
 
   resetZoom: () => {
     const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion } =
