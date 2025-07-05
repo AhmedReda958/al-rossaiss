@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { cityId: string } }
 ) {
   try {
-    const cityId = parseInt(params.cityId);
+    const cityId = parseInt(await params.cityId);
     const landmarks = await prisma.landmark.findMany({
       where: { cityId },
     });
@@ -27,7 +27,7 @@ export async function POST(
   { params }: { params: { cityId: string } }
 ) {
   try {
-    const cityId = parseInt(params.cityId);
+    const cityId = parseInt(await params.cityId);
     const data = await request.json();
 
     const landmark = await prisma.landmark.create({
