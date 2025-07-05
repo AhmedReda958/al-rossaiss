@@ -129,7 +129,7 @@ const LandmarkPin = ({
       {/* Tooltip Box - Animated with requestAnimationFrame */}
       <Group
         ref={tooltipGroupRef}
-        x={tooltipX - 10}
+        x={tooltipX}
         y={tooltipY}
         scaleX={0.8}
         scaleY={0.8}
