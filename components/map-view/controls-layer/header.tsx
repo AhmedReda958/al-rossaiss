@@ -1,14 +1,15 @@
 import React from "react";
 import Image from "next/image";
 import { useMapStore } from "@/lib/store";
+import LandmarkFilter from "./landmark-filter";
 
 const ControlsLayerHeader = () => {
   const { mapType, instructions } = useMapStore();
 
   return (
-    <nav className="flex items-center justify-end gap-4 z-10 absolute top-6 left-0 w-full h-16 p-5">
+    <nav className="flex items-start justify-between flex-row-reverse gap-4 z-10 absolute top-0 left-0 w-full h-16 p-5">
       {/* logo */}
-      <div className="bg-white rounded-sm p-1" hidden={mapType !== "main"}>
+      <div className="bg-white rounded-sm p-1 " hidden={mapType !== "main"}>
         <Image
           src={"/logo_large.png"}
           alt="Logo"
@@ -27,10 +28,15 @@ const ControlsLayerHeader = () => {
         />
       </div>
 
+      {/* Landmark Filter - Center */}
+      <div className="flex-1 hidden md:flex justify-center -me-30">
+        <LandmarkFilter />
+      </div>
+
       {/* Instructions */}
       {instructions && (
-        <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-black/30 text-white/90 px-4 py-2 rounded shadow-lg z-50">
-          {instructions}
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg shadow-lg z-50 backdrop-blur-sm">
+          <p className="text-sm">{instructions}</p>
         </div>
       )}
 

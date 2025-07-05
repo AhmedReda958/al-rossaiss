@@ -103,6 +103,11 @@ interface MapState {
   // Landmark drawing mode state
   landmarkTypeInDrawing: LandmarkType | null;
   setLandmarkTypeInDrawing: (type: LandmarkType | null) => void;
+
+  // Landmark filter state
+  hiddenLandmarkTypes: Set<LandmarkType>;
+  setHiddenLandmarkTypes: (types: Set<LandmarkType>) => void;
+  toggleLandmarkTypeVisibility: (type: LandmarkType) => void;
 }
 
 const intialPosition = { x: -200, y: -500 };
@@ -130,6 +135,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   landmarks: [],
   selectedLandmark: null,
   landmarkTypeInDrawing: null,
+  hiddenLandmarkTypes: new Set(),
 
   // Actions
   setSelectedRegion: (id) => set({ selectedRegion: id }),
@@ -151,6 +157,19 @@ export const useMapStore = create<MapState>((set, get) => ({
   setLandmarks: (landmarks) => set({ landmarks }),
   setSelectedLandmark: (landmarkId) => set({ selectedLandmark: landmarkId }),
   setLandmarkTypeInDrawing: (type) => set({ landmarkTypeInDrawing: type }),
+  setHiddenLandmarkTypes: (types) => set({ hiddenLandmarkTypes: types }),
+  toggleLandmarkTypeVisibility: (type) => {
+    const { hiddenLandmarkTypes } = get();
+    const newHiddenTypes = new Set(hiddenLandmarkTypes);
+
+    if (newHiddenTypes.has(type)) {
+      newHiddenTypes.delete(type);
+    } else {
+      newHiddenTypes.add(type);
+    }
+
+    set({ hiddenLandmarkTypes: newHiddenTypes });
+  },
 
   resetZoom: () => {
     const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion } =

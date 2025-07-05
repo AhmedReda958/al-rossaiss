@@ -18,7 +18,7 @@ interface Landmark {
 }
 
 const LandmarksLayer = () => {
-  const { selectedCityId, setLandmarks, landmarks, landmarkTypeInDrawing } =
+  const { selectedCityId, setLandmarks, landmarks, landmarkTypeInDrawing, hiddenLandmarkTypes } =
     useMapStore();
   const { coordinates, isDrawingMode } = usePolygonMarkerStore();
 
@@ -40,14 +40,19 @@ const LandmarksLayer = () => {
     fetchCityLandmarks();
   }, [selectedCityId, setLandmarks]);
 
-  if (!landmarks?.length && !isDrawingMode) {
+  // Filter landmarks based on hidden types
+  const visibleLandmarks = landmarks?.filter(
+    (landmark) => !hiddenLandmarkTypes.has(landmark.type)
+  );
+
+  if (!visibleLandmarks?.length && !isDrawingMode) {
     return null;
   }
 
   return (
     <Group>
       {/* Render existing landmarks */}
-      {landmarks?.map((landmark: Landmark) => (
+      {visibleLandmarks?.map((landmark: Landmark) => (
         <LandmarkPin
           key={landmark.id}
           x={landmark.coordinates.x}
