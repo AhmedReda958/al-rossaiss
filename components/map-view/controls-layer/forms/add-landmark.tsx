@@ -119,7 +119,7 @@ const AddLandmarkForm = () => {
       setLandmarkTypeInDrawing(null);
       setInstructions(null);
       setMapType("default");
-      
+
       // Redirect to dashboard
       router.push("/dashboard");
     } catch (error) {

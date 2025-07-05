@@ -33,6 +33,32 @@ export type RegionApiResponse = {
   name: string;
 }[];
 
+export type Landmark = {
+  id: number;
+  name: string;
+  type: string;
+  coordinates: { lat: number; lng: number };
+  cityId: number;
+  city?: {
+    id: number;
+    name: string;
+    region?: {
+      id: number;
+      name: string;
+    } | null;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type LandmarksApiResponse = {
+  landmarks: Landmark[];
+  total: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+};
+
 export type Project = {
   id: number;
   name: string;
