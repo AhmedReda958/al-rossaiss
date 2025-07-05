@@ -9,6 +9,8 @@ import { useCitiesLayer } from "@/lib/hooks/useCitiesLayer";
 import ProjectsLayer from "./projects-layer";
 import DrawingPolygon from "../polygon/drawing-polygon";
 import LandmarksLayer from "./landmarks-layer";
+import { LANDMARK_TYPES } from "@/lib/constants";
+import LandmarkPin from "../polygon/landmark-pin";
 
 // Define a minimal city data type
 interface CityData {
@@ -103,13 +105,10 @@ const CityMap = () => {
       {isDrawingMode &&
         mapType === "add-landmark" &&
         coordinates.length === 2 && (
-          <Circle
+          <LandmarkPin
             x={coordinates[0]}
             y={coordinates[1]}
-            radius={8}
-            fill="#EA4335"
-            stroke="#ffffff"
-            strokeWidth={2}
+            type={LANDMARK_TYPES.LANDMARK}
           />
         )}
     </Layer>
