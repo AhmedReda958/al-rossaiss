@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LANDMARK_TYPES } from "@/lib/constants";
+import { LANDMARK_TYPES, LandmarkType } from "@/lib/constants";
 import {
   Form,
   FormControl,
@@ -31,7 +32,13 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const AddLandmarkForm = () => {
-  const { selectedCityId, setMapType } = useMapStore();
+  const router = useRouter();
+  const {
+    selectedCityId,
+    setMapType,
+    setLandmarkTypeInDrawing,
+    setInstructions,
+  } = useMapStore();
   const { coordinates, resetMarkers, setIsDrawingMode } =
     usePolygonMarkerStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,15 +48,39 @@ const AddLandmarkForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      type: undefined,
+      type: LANDMARK_TYPES.LANDMARK,
     },
   });
 
   useEffect(() => {
     if (selectedCityId) {
       setIsDrawingMode(true);
+      setLandmarkTypeInDrawing(LANDMARK_TYPES.LANDMARK);
+      setInstructions("Click on the map to set the landmark location");
     }
-  }, [selectedCityId, setIsDrawingMode]);
+  }, [
+    selectedCityId,
+    setIsDrawingMode,
+    setLandmarkTypeInDrawing,
+    setInstructions,
+  ]);
+
+  // Watch for changes in the landmark type field and update the drawing mode
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "type" && value.type) {
+        setLandmarkTypeInDrawing(value.type as LandmarkType);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, setLandmarkTypeInDrawing]);
+
+  // Update instructions when coordinates change
+  useEffect(() => {
+    if (coordinates.length === 2) {
+      setInstructions("Landmark location set! Ready to save.");
+    }
+  }, [coordinates, setInstructions]);
 
   const onSubmit = async (data: FormValues) => {
     if (!selectedCityId || coordinates.length !== 2) {
@@ -85,7 +116,12 @@ const AddLandmarkForm = () => {
       form.reset();
       resetMarkers();
       setIsDrawingMode(false);
+      setLandmarkTypeInDrawing(null);
+      setInstructions(null);
       setMapType("default");
+      
+      // Redirect to dashboard
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error creating landmark:", error);
     } finally {
@@ -97,6 +133,8 @@ const AddLandmarkForm = () => {
     form.reset();
     resetMarkers();
     setIsDrawingMode(false);
+    setLandmarkTypeInDrawing(null);
+    setInstructions(null);
     setMapType("default");
   };
 
@@ -105,7 +143,7 @@ const AddLandmarkForm = () => {
       <div className="mb-6">
         <h2 className="text-lg font-semibold">Add Landmark</h2>
         <p className="text-xs text-muted mb-1">
-          Click on the map to set the landmark location.
+          Fill in the landmark details below.
         </p>
       </div>
       <Form {...form}>
@@ -127,7 +165,6 @@ const AddLandmarkForm = () => {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="type"
@@ -145,8 +182,7 @@ const AddLandmarkForm = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
-
+          />{" "}
           <div className="flex justify-end gap-2 pt-4">
             <Button
               variant="ghost"
@@ -164,11 +200,6 @@ const AddLandmarkForm = () => {
               {isSubmitting ? "Saving..." : "Save"}
             </Button>
           </div>
-          {coordinates.length !== 2 && (
-            <p className="text-sm text-gray-500 mt-2 text-center">
-              Click on the map to set the landmark location
-            </p>
-          )}
         </form>
       </Form>
     </>

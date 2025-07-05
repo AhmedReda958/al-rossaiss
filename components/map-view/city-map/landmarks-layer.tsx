@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { Group } from "react-konva";
 import { useMapStore } from "@/lib/store";
+import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import LandmarkPin from "@/components/map-view/polygon/landmark-pin";
 import { LandmarkType } from "@/lib/constants";
 
@@ -17,7 +18,9 @@ interface Landmark {
 }
 
 const LandmarksLayer = () => {
-  const { selectedCityId, setLandmarks, landmarks } = useMapStore();
+  const { selectedCityId, setLandmarks, landmarks, landmarkTypeInDrawing } =
+    useMapStore();
+  const { coordinates, isDrawingMode } = usePolygonMarkerStore();
 
   useEffect(() => {
     const fetchCityLandmarks = async () => {
@@ -37,13 +40,14 @@ const LandmarksLayer = () => {
     fetchCityLandmarks();
   }, [selectedCityId, setLandmarks]);
 
-  if (!landmarks?.length) {
+  if (!landmarks?.length && !isDrawingMode) {
     return null;
   }
 
   return (
     <Group>
-      {landmarks.map((landmark: Landmark) => (
+      {/* Render existing landmarks */}
+      {landmarks?.map((landmark: Landmark) => (
         <LandmarkPin
           key={landmark.id}
           x={landmark.coordinates.x}
@@ -56,6 +60,16 @@ const LandmarksLayer = () => {
           }}
         />
       ))}
+
+      {/* Render dynamic landmark pin when in drawing mode */}
+      {isDrawingMode && landmarkTypeInDrawing && coordinates.length === 2 && (
+        <LandmarkPin
+          x={coordinates[0]}
+          y={coordinates[1]}
+          type={landmarkTypeInDrawing}
+          size={40}
+        />
+      )}
     </Group>
   );
 };

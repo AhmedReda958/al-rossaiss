@@ -46,7 +46,7 @@ interface LandmarkPinProps {
   x: number;
   y: number;
   type: LandmarkType;
-  name: string;
+  name?: string;
   size?: number;
   onClick?: () => void;
 }
@@ -69,7 +69,7 @@ const LandmarkPin = ({
   // Calculate tooltip dimensions
   const tooltipPadding = size / 3; // Dynamic padding based on size
   const tooltipHeight = size / 1.1;
-  const tooltipWidth = Math.max(name.length * 8 + tooltipPadding, 30);
+  const tooltipWidth = Math.max(name.length * 8 + tooltipPadding * 2, 30);
   const tooltipX = size / 2 + 10; // Position to the right of the circle
   const tooltipY = -tooltipHeight / 2; // Center vertically with the circle
 

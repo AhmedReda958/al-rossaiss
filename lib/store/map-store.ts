@@ -99,6 +99,10 @@ interface MapState {
 
   selectedLandmark: number | null;
   setSelectedLandmark: (landmarkId: number | null) => void;
+
+  // Landmark drawing mode state
+  landmarkTypeInDrawing: LandmarkType | null;
+  setLandmarkTypeInDrawing: (type: LandmarkType | null) => void;
 }
 
 const intialPosition = { x: -200, y: -500 };
@@ -125,6 +129,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   selectedCityId: null,
   landmarks: [],
   selectedLandmark: null,
+  landmarkTypeInDrawing: null,
 
   // Actions
   setSelectedRegion: (id) => set({ selectedRegion: id }),
@@ -145,6 +150,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   setSelectedCityId: (cityId) => set({ selectedCityId: cityId }),
   setLandmarks: (landmarks) => set({ landmarks }),
   setSelectedLandmark: (landmarkId) => set({ selectedLandmark: landmarkId }),
+  setLandmarkTypeInDrawing: (type) => set({ landmarkTypeInDrawing: type }),
 
   resetZoom: () => {
     const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion } =

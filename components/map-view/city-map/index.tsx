@@ -102,7 +102,7 @@ const CityMap = () => {
       <LandmarksLayer />
       {showDrawingPolygon && <DrawingPolygon />}
       {/* Show temporary landmark marker when placing */}
-      {isDrawingMode &&
+      {/* {isDrawingMode &&
         mapType === "add-landmark" &&
         coordinates.length === 2 && (
           <LandmarkPin
@@ -110,7 +110,7 @@ const CityMap = () => {
             y={coordinates[1]}
             type={LANDMARK_TYPES.LANDMARK}
           />
-        )}
+        )} */}
     </Layer>
   );
 };
