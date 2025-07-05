@@ -6,6 +6,7 @@ import { useMapStore } from "@/lib/store";
 import Polygon from "@/components/map-view/polygon/polygon";
 import { CityPolygon } from "@/lib/store/polygon-marker-store";
 import { Project } from "@/app/types";
+import colors from "@/lib/colors";
 
 const mapProjectToCityPolygon = (project: Project): CityPolygon => {
   const direction = project.labelDirection || "up";
@@ -50,7 +51,8 @@ const ProjectsLayer = () => {
         <Polygon
           key={project.id}
           polygon={mapProjectToCityPolygon(project)}
-          strokeColor="#fff"
+          strokeColor={colors.primary}
+          fillColor={colors.primary_400}
           type="project"
         />
       ))}
