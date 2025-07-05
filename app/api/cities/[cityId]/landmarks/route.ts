@@ -4,10 +4,11 @@ import { LandmarkType } from "@/lib/constants";
 
 export async function GET(
   request: Request,
-  { params }: { params: { cityId: string } }
+  { params }: { params: Promise<{ cityId: string }> }
 ) {
   try {
-    const cityId = parseInt(await params.cityId);
+    const { cityId: cityIdParam } = await params;
+    const cityId = parseInt(cityIdParam);
     const landmarks = await prisma.landmark.findMany({
       where: { cityId },
     });
@@ -24,10 +25,11 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { cityId: string } }
+  { params }: { params: Promise<{ cityId: string }> }
 ) {
   try {
-    const cityId = parseInt(await params.cityId);
+    const { cityId: cityIdParam } = await params;
+    const cityId = parseInt(cityIdParam);
     const data = await request.json();
 
     const landmark = await prisma.landmark.create({

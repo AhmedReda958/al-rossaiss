@@ -13,7 +13,7 @@ const regionNameMapping: { [key: string]: string } = {
 
 export async function GET(
   request: Request,
-  { params }: { params: { regionName: string } }
+  { params }: { params: Promise<{ regionName: string }> }
 ) {
   try {
     const { regionName } = await params;

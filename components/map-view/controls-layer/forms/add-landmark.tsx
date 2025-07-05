@@ -118,7 +118,7 @@ const AddLandmarkForm = () => {
       setIsDrawingMode(false);
       setLandmarkTypeInDrawing(null);
       setInstructions(null);
-      setMapType("default");
+      setMapType("main");
 
       // Redirect to dashboard
       router.push("/dashboard");
@@ -135,7 +135,7 @@ const AddLandmarkForm = () => {
     setIsDrawingMode(false);
     setLandmarkTypeInDrawing(null);
     setInstructions(null);
-    setMapType("default");
+    setMapType("main");
   };
 
   return (

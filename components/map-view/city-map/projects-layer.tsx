@@ -15,7 +15,7 @@ const mapProjectToCityPolygon = (project: Project): CityPolygon => {
     id: String(project.id),
     name: project.name,
     points: project.points,
-    regionId: String(project.city?.regionId || ""), // Use city's regionId
+    regionId: String(project.city?.region?.id || ""), // Use city's region id
     labelDirection: direction as CityPolygon["labelDirection"],
   };
 };

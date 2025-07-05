@@ -2,22 +2,13 @@ import { create } from "zustand";
 import { Tween, Easings } from "konva/lib/Tween";
 import { Layer } from "konva/lib/Layer";
 import { City as GlobalCity, Region, Project } from "@/app/types";
+import { TMapType } from "@/app/types/map";
 import { LandmarkType } from "@/lib/constants";
 
 // Duplicating the City type from Prisma schema
 export interface City extends GlobalCity {
   region?: Region;
 }
-
-export type TMapType =
-  | "main"
-  | "add-city"
-  | "edit-city"
-  | "add-project"
-  | "edit-project"
-  | "add-landmark"
-  | "edit-landmark"
-  | "default";
 
 interface MapState {
   mapSize: { width: number; height: number };

@@ -5,7 +5,7 @@ import path from "path";
 
 export async function GET(
   request: Request,
-  { params }: { params: { cityId: string } }
+  { params }: { params: Promise<{ cityId: string }> }
 ) {
   try {
     const { cityId } = await params;
@@ -39,7 +39,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { cityId: string } }
+  { params }: { params: Promise<{ cityId: string }> }
 ) {
   try {
     const { cityId } = await params;

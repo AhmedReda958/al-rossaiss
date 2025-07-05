@@ -1,10 +1,8 @@
 import colors from "@/lib/colors";
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { Line, Group, Text } from "react-konva";
 import { CityPolygon } from "@/lib/store/polygon-marker-store";
 import { useMapStore } from "@/lib/store";
-import { Tween, Easings } from "konva/lib/Tween";
-import Konva from "konva";
 
 const getPolygonCenter = (points: number[]) => {
   let x = 0;
@@ -57,20 +55,14 @@ const Polygon = ({
   polygon,
   fillColor = colors.primary_400,
   strokeColor = colors.primary,
-  labelColor = colors.primary,
   type = "city",
 }: {
   polygon: CityPolygon;
   fillColor?: string;
   strokeColor?: string;
-  labelColor?: string;
   type?: "city" | "project";
 }) => {
   const { setSelectedCity, setSelectedProject } = useMapStore();
-  const polygonRef = useRef<Konva.Line>(null);
-  const textRef = useRef<Konva.Text>(null);
-  const currentTween = useRef<Tween | null>(null);
-
   const handlePolygonClick = () => {
     if (type === "city") {
       setSelectedCity(polygon.id);
@@ -78,71 +70,6 @@ const Polygon = ({
       setSelectedProject(parseInt(polygon.id, 10));
     }
   };
-
-  const handleMouseEnter = () => {
-    // Stop any existing tween
-    if (currentTween.current) {
-      currentTween.current.destroy();
-    }
-
-    // Animate polygon opacity for projects
-    if (type === "project" && polygonRef.current) {
-      currentTween.current = new Tween({
-        node: polygonRef.current,
-        duration: 0.2,
-        easing: Easings.EaseInOut,
-        opacity: 1,
-      });
-      currentTween.current.play();
-    }
-
-    // Animate text color for both types
-    if (textRef.current) {
-      new Tween({
-        node: textRef.current,
-        duration: 0.15,
-        easing: Easings.EaseInOut,
-        fill: strokeColor, // Use stroke color on hover
-      }).play();
-    }
-  };
-
-  const handleMouseLeave = () => {
-    // Stop any existing tween
-    if (currentTween.current) {
-      currentTween.current.destroy();
-    }
-
-    // Animate polygon opacity for projects
-    if (type === "project" && polygonRef.current) {
-      currentTween.current = new Tween({
-        node: polygonRef.current,
-        duration: 0.1,
-        easing: Easings.EaseInOut,
-        opacity: 0.5,
-      });
-      currentTween.current.play();
-    }
-
-    // Animate text color back to original for both types
-    if (textRef.current) {
-      new Tween({
-        node: textRef.current,
-        duration: 0.15,
-        easing: Easings.EaseInOut,
-        fill: labelColor, // Back to original label color
-      }).play();
-    }
-  };
-
-  // Cleanup tweens on unmount
-  useEffect(() => {
-    return () => {
-      if (currentTween.current) {
-        currentTween.current.destroy();
-      }
-    };
-  }, []);
 
   const center = getPolygonCenter(polygon.points);
   const edgePoint = getEdgePoint(polygon.points, polygon.labelDirection || "");
@@ -196,36 +123,23 @@ const Polygon = ({
   return (
     <Group>
       <Line
-        ref={polygonRef}
         key={polygon.id}
         points={polygon.points}
         fill={fillColor}
-        stroke={strokeColor}
-        strokeWidth={1}
-        opacity={type === "project" ? 0.7 : 1}
         closed={true}
         onClick={handlePolygonClick}
         onTap={handlePolygonClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        listening={true}
-        cursor="pointer"
       />
       <Line points={linePoints} stroke={strokeColor} strokeWidth={1} />
       <Group x={labelPos.x} y={labelPos.y}>
         <Text
-          ref={textRef}
           text={polygon.name}
           fontSize={12}
           fontStyle="bold"
-          fill={labelColor}
+          fill={strokeColor}
           width={70}
           align="center"
           verticalAlign="middle"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          listening={true}
-          cursor="pointer"
         />
       </Group>
     </Group>
