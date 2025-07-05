@@ -2,9 +2,10 @@
   "name": "al-rossais",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma generate && node scripts/create-user.js && next build",
+    "build": "prisma generate && prisma migrate deploy && node scripts/create-user.js && next build",
     "start": "next start",
     "lint": "next lint",
     "create-user": "node scripts/create-user.js"

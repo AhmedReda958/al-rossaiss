@@ -13,6 +13,16 @@ async function main() {
     );
   }
 
+  // Check if user already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser) {
+    console.log("User already exists:", existingUser.email);
+    return;
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
