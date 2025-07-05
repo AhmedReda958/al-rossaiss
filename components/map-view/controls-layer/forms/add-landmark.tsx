@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
@@ -9,38 +9,49 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LANDMARK_TYPES } from "@/lib/constants";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface AddLandmarkFormData {
-  name: string;
-  type: string;
-}
+// Define form schema with Zod
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Landmark name must be at least 2 characters",
+  }),
+  type: z.enum(Object.values(LANDMARK_TYPES) as [string, ...string[]], {
+    required_error: "Please select a landmark type",
+  }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 const AddLandmarkForm = () => {
   const { selectedCityId, setMapType } = useMapStore();
   const { coordinates, resetMarkers, setIsDrawingMode } =
     usePolygonMarkerStore();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-    watch,
-  } = useForm<AddLandmarkFormData>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize react-hook-form with zod validation
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      type: undefined,
+    },
+  });
 
   useEffect(() => {
     if (selectedCityId) {
       setIsDrawingMode(true);
     }
-  }, [selectedCityId]);
+  }, [selectedCityId, setIsDrawingMode]);
 
-  const onSubmit = async (data: AddLandmarkFormData) => {
+  const onSubmit = async (data: FormValues) => {
     if (!selectedCityId || coordinates.length !== 2) {
       console.error("Missing required data:", {
         selectedCityId,
@@ -49,6 +60,7 @@ const AddLandmarkForm = () => {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const response = await fetch(`/api/cities/${selectedCityId}/landmarks`, {
         method: "POST",
@@ -70,66 +82,96 @@ const AddLandmarkForm = () => {
       }
 
       // Reset form and state
-      reset();
+      form.reset();
       resetMarkers();
       setIsDrawingMode(false);
       setMapType("default");
     } catch (error) {
       console.error("Error creating landmark:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const onCancel = () => {
+    form.reset();
+    resetMarkers();
+    setIsDrawingMode(false);
+    setMapType("default");
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Landmark Name</Label>
-        <Input
-          id="name"
-          {...register("name", { required: "Name is required" })}
-          placeholder="Enter landmark name"
-        />
-        {errors.name && (
-          <span className="text-red-500 text-sm">{errors.name.message}</span>
-        )}
+    <>
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold">Add Landmark</h2>
+        <p className="text-xs text-muted mb-1">
+          Click on the map to set the landmark location.
+        </p>
       </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <Label>Landmark Name</Label>
+                <FormControl>
+                  <Input
+                    className="w-full"
+                    placeholder="Enter landmark name"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      <div className="space-y-2">
-        <Label htmlFor="type">Landmark Type</Label>
-        <Select
-          onValueChange={(value) => setValue("type", value)}
-          defaultValue={watch("type")}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select landmark type" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(LANDMARK_TYPES).map(([key, value]) => (
-              <SelectItem key={value} value={value}>
-                {key.charAt(0) + key.slice(1).toLowerCase()}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.type && (
-          <span className="text-red-500 text-sm">{errors.type.message}</span>
-        )}
-      </div>
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <Label>Landmark Type</Label>
+                <select className="w-full border rounded px-2 py-2" {...field}>
+                  <option value="">Select landmark type</option>
+                  {Object.entries(LANDMARK_TYPES).map(([key, value]) => (
+                    <option key={value} value={value}>
+                      {key.charAt(0) + key.slice(1).toLowerCase()}
+                    </option>
+                  ))}
+                </select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      <div className="pt-4">
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={coordinates.length !== 2}
-        >
-          Add Landmark
-        </Button>
-        {coordinates.length !== 2 && (
-          <p className="text-sm text-gray-500 mt-2">
-            Click on the map to set the landmark location
-          </p>
-        )}
-      </div>
-    </form>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button
+              variant="ghost"
+              className="w-[114px]"
+              onClick={onCancel}
+              type="button"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="w-[114px]"
+              disabled={isSubmitting || coordinates.length !== 2}
+            >
+              {isSubmitting ? "Saving..." : "Save"}
+            </Button>
+          </div>
+          {coordinates.length !== 2 && (
+            <p className="text-sm text-gray-500 mt-2 text-center">
+              Click on the map to set the landmark location
+            </p>
+          )}
+        </form>
+      </Form>
+    </>
   );
 };
 
