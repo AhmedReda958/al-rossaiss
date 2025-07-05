@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   title: "Al-Rossais - Interactive Real Estate Map",
   description:
     "Explore cities, regions, real estate projects, and landmarks on our interactive mapping platform. Discover properties and developments across different regions.",
+  keywords: ["real estate", "map", "properties", "cities", "regions", "projects", "landmarks"],
+  authors: [{ name: "Al-Rossais" }],
+  creator: "Al-Rossais",
+  publisher: "Al-Rossais",
+  robots: "index, follow",
   icons: {
     icon: [
       {
@@ -27,8 +32,11 @@ export const metadata: Metadata = {
         type: "image/x-icon",
       },
     ],
-    apple: "/logo.png",
+    apple: "/logo_large.png",
   },
+  manifest: "/manifest.json",
+  viewport: "width=device-width, initial-scale=1",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
