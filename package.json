@@ -2,6 +2,7 @@
   "name": "al-rossais",
   "version": "0.1.0",
   "private": true,
+  "description": "Interactive real estate mapping platform for Al-Rossais - Explore cities, regions, projects, and landmarks",
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
