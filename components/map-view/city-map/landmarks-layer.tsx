@@ -49,7 +49,7 @@ const LandmarksLayer = () => {
           x={landmark.coordinates.x}
           y={landmark.coordinates.y}
           type={landmark.type}
-          size={24}
+          size={40}
           onClick={() => {
             console.log("Landmark clicked:", landmark.name);
           }}

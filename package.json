@@ -38,6 +38,7 @@
     "react-hook-form": "^7.55.0",
     "react-icons": "^5.5.0",
     "react-konva": "^19.0.3",
+    "react-konva-utils": "^1.1.0",
     "tailwind-merge": "^3.2.0",
     "tw-animate-css": "^1.2.5",
     "use-image": "^1.1.1",
