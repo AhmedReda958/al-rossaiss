@@ -43,10 +43,12 @@ const LandmarkFilter = () => {
     toggleLandmarkTypeVisibility,
     landmarks,
     selectedCity,
+    mapType,
   } = useMapStore();
 
   // Only show filter if there are landmarks and we're viewing a city
-  const shouldShowFilter = landmarks && landmarks.length > 0 && selectedCity;
+  const shouldShowFilter =
+    landmarks && landmarks.length > 0 && selectedCity && mapType === "main";
 
   if (!shouldShowFilter) {
     return null;

@@ -18,8 +18,13 @@ interface Landmark {
 }
 
 const LandmarksLayer = () => {
-  const { selectedCityId, setLandmarks, landmarks, landmarkTypeInDrawing, hiddenLandmarkTypes } =
-    useMapStore();
+  const {
+    selectedCityId,
+    setLandmarks,
+    landmarks,
+    landmarkTypeInDrawing,
+    hiddenLandmarkTypes,
+  } = useMapStore();
   const { coordinates, isDrawingMode } = usePolygonMarkerStore();
 
   useEffect(() => {
