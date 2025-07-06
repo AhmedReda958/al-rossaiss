@@ -57,7 +57,7 @@ const CitySlider = () => {
       opts={{
         align: "start",
       }}
-      className="max-w-md"
+      className="max-w-lg min-w-md"
     >
       <CarouselContent className="-ml-4">
         {cities.map((city) => {
