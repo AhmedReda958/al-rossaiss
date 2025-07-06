@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient, Prisma } from "@prisma/client";
-import path from "path";
-import { writeFile, mkdir } from "fs/promises";
+import { put } from "@vercel/blob";
 
 const prisma = new PrismaClient();
 
@@ -42,25 +41,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Region not found" }, { status: 404 });
     }
 
-    // Handle file upload
-    const uploadsDir = path.join(process.cwd(), "public", "uploads", "cities");
-    try {
-      await mkdir(uploadsDir, { recursive: true });
-    } catch (error) {
-      // Ignore error if directory already exists
-      if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
-        throw error;
-      }
-    }
-
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const fileExtension = path.extname(image.name);
-    const filename = `${uniqueSuffix}${fileExtension}`;
-    const imagePath = path.join(uploadsDir, filename);
-    const imageUrl = `/uploads/cities/${filename}`;
-
-    const buffer = Buffer.from(await image.arrayBuffer());
-    await writeFile(imagePath, buffer);
+    // Handle file upload to Vercel Blob
+    const fileExtension = image.name.split('.').pop();
+    const filename = `cities/${Date.now()}-${Math.round(Math.random() * 1e9)}.${fileExtension}`;
+    
+    const blob = await put(filename, image, {
+      access: 'public',
+    });
 
     const newCity = await prisma.city.create({
       data: {
@@ -68,7 +55,7 @@ export async function POST(request: Request) {
         labelDirection,
         points,
         regionId: region.id,
-        image: imageUrl,
+        image: blob.url,
       },
     });
 

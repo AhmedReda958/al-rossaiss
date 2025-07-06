@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 
 export async function GET(
   request: Request,
@@ -67,16 +66,14 @@ export async function PUT(
     };
 
     if (image && typeof image !== "string") {
-      const buffer = Buffer.from(await image.arrayBuffer());
-      const filename = Date.now() + image.name.replaceAll(" ", "_");
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "cities");
-
-      await mkdir(uploadDir, { recursive: true });
-
-      const imagePath = path.join(uploadDir, filename);
-
-      await writeFile(imagePath, buffer);
-      updateData.image = `/uploads/cities/${filename}`;
+      const fileExtension = image.name.split('.').pop();
+      const filename = `cities/${Date.now()}-${Math.round(Math.random() * 1e9)}.${fileExtension}`;
+      
+      const blob = await put(filename, image, {
+        access: 'public',
+      });
+      
+      updateData.image = blob.url;
     }
 
     const updatedCity = await prisma.city.update({

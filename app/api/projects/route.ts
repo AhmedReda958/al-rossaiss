@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import path from "path";
-import { writeFile, mkdir } from "fs/promises";
+import { put } from "@vercel/blob";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -110,30 +109,15 @@ export async function POST(req: Request) {
 
     let imageUrl = null;
     if (image) {
-      // Handle file upload
-      const uploadsDir = path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        "projects"
-      );
-      try {
-        await mkdir(uploadsDir, { recursive: true });
-      } catch (error) {
-        // Ignore error if directory already exists
-        if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
-          throw error;
-        }
-      }
-
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-      const fileExtension = path.extname(image.name);
-      const filename = `${uniqueSuffix}${fileExtension}`;
-      const imagePath = path.join(uploadsDir, filename);
-      imageUrl = `/uploads/projects/${filename}`;
-
-      const buffer = Buffer.from(await image.arrayBuffer());
-      await writeFile(imagePath, buffer);
+      // Handle file upload to Vercel Blob
+      const fileExtension = image.name.split('.').pop();
+      const filename = `projects/${Date.now()}-${Math.round(Math.random() * 1e9)}.${fileExtension}`;
+      
+      const blob = await put(filename, image, {
+        access: 'public',
+      });
+      
+      imageUrl = blob.url;
     }
 
     const project = await prisma.project.create({
