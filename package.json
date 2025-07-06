@@ -2,11 +2,10 @@
   "name": "al-rossais",
   "version": "0.1.0",
   "private": true,
-  "description": "Interactive real estate mapping platform for Al-Rossais - Explore cities, regions, projects, and landmarks",
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma generate && prisma migrate deploy && node scripts/create-user.js && next build",
+    "build": "prisma generate && prisma migrate deploy && prisma db seed && node scripts/create-user.js && next build",
     "start": "next start",
     "lint": "next lint",
     "create-user": "node scripts/create-user.js"
