@@ -6,6 +6,7 @@ import regions from "./regions";
 
 import colors from "@/lib/colors";
 import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
+import { useMapStore } from "@/lib/store/map-store";
 
 // Define region positions for labels
 const regionLabelPositions: Record<string, { x: number; y: number }> = {
@@ -27,6 +28,7 @@ const RegionsLayer = () => {
     handleRegionClick,
     assignPathRef,
   } = useRegionsLayer();
+  const { mapType } = useMapStore();
 
   const [regionCityCounts, setRegionCityCounts] = useState<Record<
     string,
@@ -63,7 +65,7 @@ const RegionsLayer = () => {
         const pathData = pathDataMap[id] || "";
         const labelPos = regionLabelPositions[id] || { x: 0, y: 0 };
         const cityCount = regionCityCounts ? regionCityCounts[id] : -1;
-        const isDisabled = cityCount === 0;
+        const isDisabled = cityCount === 0 && mapType === "main";
 
         if (!pathData) return null;
 
