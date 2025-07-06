@@ -53,6 +53,7 @@ const ProjectsLayer = () => {
           polygon={mapProjectToCityPolygon(project)}
           strokeColor={colors.primary}
           fillColor={colors.primary_400}
+          labelColor={colors.primaryHover}
           type="project"
         />
       ))}
