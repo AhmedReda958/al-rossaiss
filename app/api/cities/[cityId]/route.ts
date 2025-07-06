@@ -95,3 +95,76 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ cityId: string }> }
+) {
+  try {
+    const { cityId } = await params;
+    const cityIdNum = parseInt(cityId, 10);
+    
+    if (isNaN(cityIdNum)) {
+      return NextResponse.json(
+        { error: "Invalid city ID" },
+        { status: 400 }
+      );
+    }
+
+    // Check if the city exists
+    const existingCity = await prisma.city.findUnique({
+      where: { id: cityIdNum },
+      include: {
+        _count: {
+          select: {
+            projects: true,
+            landmarks: true,
+          },
+        },
+      },
+    });
+
+    if (!existingCity) {
+      return NextResponse.json(
+        { error: "City not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete related projects and landmarks first (cascade delete)
+    // Use transaction to ensure data consistency
+    await prisma.$transaction(async (tx) => {
+      // Delete projects associated with this city
+      await tx.project.deleteMany({
+        where: { cityId: cityIdNum },
+      });
+
+      // Delete landmarks associated with this city
+      await tx.landmark.deleteMany({
+        where: { cityId: cityIdNum },
+      });
+
+      // Delete the city
+      await tx.city.delete({
+        where: { id: cityIdNum },
+      });
+    });
+
+    return NextResponse.json(
+      { 
+        message: "City and all related data deleted successfully",
+        deletedCounts: {
+          projects: existingCity._count.projects,
+          landmarks: existingCity._count.landmarks,
+        }
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting city:", error);
+    return NextResponse.json(
+      { error: "Failed to delete city" },
+      { status: 500 }
+    );
+  }
+}

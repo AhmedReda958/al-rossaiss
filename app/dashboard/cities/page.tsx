@@ -101,7 +101,7 @@ export default function CitiesPage() {
         ) : cities.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {cities.map((city) => (
-              <CityCard key={city.id} city={city} />
+              <CityCard key={city.id} city={city} onCityDeleted={fetchCities} />
             ))}
           </div>
         ) : (
