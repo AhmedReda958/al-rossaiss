@@ -49,7 +49,7 @@ interface PolygonMarkerState {
     regionId: string,
     name: string,
     labelDirection: "up" | "down" | "left" | "right"
-  ) => void;
+  ) => boolean;
   toggleDrawingMode: (selectedRegion: string) => void;
 
   // New actions
@@ -158,8 +158,8 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
     } = get();
 
     if (currentPoints.length < 3) {
-      alert("A polygon needs at least 3 points");
-      return;
+      // Return false to indicate failure instead of showing alert
+      return false;
     }
 
     if (editingPolygonId) {
@@ -184,6 +184,7 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
     get().clearCurrentPoints();
     get().setEditingPolygonId(null);
     get().setIsDrawingMode(false);
+    return true;
   },
 
   toggleDrawingMode: (selectedRegion: string) => {

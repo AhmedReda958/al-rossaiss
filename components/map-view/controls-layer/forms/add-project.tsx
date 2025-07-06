@@ -27,6 +27,7 @@ import ArrowDown from "@/svgs/arrow-down";
 import ArrowLeft from "@/svgs/arrow-left";
 import ArrowRight from "@/svgs/arrow-right";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -140,15 +141,15 @@ const AddProjectForm: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     if (!selectedRegion) {
-      alert("Please select a region on the map.");
+      toast.error("Please select a region on the map.");
       return;
     }
     if (!selectedCity) {
-      alert("Please select a city in the selected region.");
+      toast.error("Please select a city in the selected region.");
       return;
     }
     if (currentPoints.length < 3) {
-      alert("A polygon needs at least 3 points.");
+      toast.error("A polygon needs at least 3 points.");
       return;
     }
     setIsSubmitting(true);
@@ -178,17 +179,17 @@ const AddProjectForm: React.FC = () => {
       });
 
       if (response.ok) {
-        alert("Project created successfully!");
+        toast.success("Project created successfully!");
         clearCurrentPoints();
         setIsDrawingMode(false);
         router.push("/dashboard/projects");
       } else {
         const errorData = await response.json();
-        alert(`Error: ${errorData.error}`);
+        toast.error(`Error: ${errorData.error}`);
       }
     } catch (error) {
       console.error("Failed to submit form:", error);
-      alert("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }

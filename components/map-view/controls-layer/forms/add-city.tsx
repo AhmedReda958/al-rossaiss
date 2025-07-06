@@ -23,6 +23,7 @@ import ArrowUp from "@/svgs/arrow-up";
 import ArrowDown from "@/svgs/arrow-down";
 import ArrowLeft from "@/svgs/arrow-left";
 import ArrowRight from "@/svgs/arrow-right";
+import { toast } from "sonner";
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -132,13 +133,12 @@ const AddCityForm: React.FC = () => {
   const onSubmit = async (values: FormValues) => {
     const regionForSubmit = isEditMode ? city?.regionId : selectedRegion;
     if (!regionForSubmit) {
-      // TODO: show a toast instead
-      alert("Please select a region on the map.");
+      toast.error("Please select a region on the map.");
       return;
     }
 
     if (currentPoints.length < 3) {
-      alert("A polygon needs at least 3 points.");
+      toast.error("A polygon needs at least 3 points.");
       return;
     }
 
@@ -165,20 +165,17 @@ const AddCityForm: React.FC = () => {
       });
 
       if (response.ok) {
-        // TODO: show a success toast
-        alert(`City ${isEditMode ? "updated" : "created"} successfully!`);
+        toast.success(`City ${isEditMode ? "updated" : "created"} successfully!`);
         clearCurrentPoints();
         setIsDrawingMode(false);
         router.push("/dashboard/cities");
       } else {
         const errorData = await response.json();
-        // TODO: show an error toast
-        alert(`Error: ${errorData.error}`);
+        toast.error(`Error: ${errorData.error}`);
       }
     } catch (error) {
       console.error("Failed to submit form:", error);
-      // TODO: show an error toast
-      alert("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }

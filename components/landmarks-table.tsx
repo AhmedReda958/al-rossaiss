@@ -23,6 +23,7 @@ import { MdMosque } from "react-icons/md";
 import { IoBagHandle } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface LandmarksTableProps {
   landmarks: Landmark[];
@@ -94,19 +95,18 @@ export default function LandmarksTable({
         });
 
         if (response.ok) {
+          toast.success("Landmark deleted successfully!");
           // Refresh the landmarks list
           if (onLandmarkDeleted) {
             onLandmarkDeleted();
           }
         } else {
           console.error("Failed to delete landmark");
-          alert("Failed to delete landmark. Please try again.");
+          toast.error("Failed to delete landmark. Please try again.");
         }
       } catch (error) {
         console.error("Error deleting landmark:", error);
-        alert(
-          "An error occurred while deleting the landmark. Please try again."
-        );
+        toast.error("An error occurred while deleting the landmark. Please try again.");
       } finally {
         setDeletingLandmarkId(null);
       }
