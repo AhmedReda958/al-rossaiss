@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -48,6 +48,8 @@ const ProjectsList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [total, setTotal] = useState(0);
   const debouncedSearch = useDebounce(searchQuery, 300);
+  const wasManuallyClosedRef = useRef(false);
+  const lastSelectedProjectRef = useRef<number | null>(null);
 
   const {
     selectedCityId,
@@ -56,7 +58,7 @@ const ProjectsList = () => {
     setSelectedProject,
   } = useMapStore();
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -67,6 +69,11 @@ const ProjectsList = () => {
       if (selectedCityId) params.append("cityId", selectedCityId.toString());
       if (selectedRegion) params.append("regionId", selectedRegion);
       if (debouncedSearch) params.append("search", debouncedSearch);
+      
+      // Include selected project if it exists
+      if (selectedProject) {
+        params.append("includeProject", selectedProject.toString());
+      }
 
       const response = await fetch(`/api/projects?${params}`);
       const data: ProjectsResponse = await response.json();
@@ -84,14 +91,61 @@ const ProjectsList = () => {
       console.error("Error fetching projects:", error);
       setLoading(false);
     }
-  };
+  }, [page, selectedCityId, selectedRegion, debouncedSearch, selectedProject]);
 
   useEffect(() => {
     if (isOpen) {
       setPage(1);
       fetchProjects();
     }
-  }, [isOpen, selectedCityId, selectedRegion, debouncedSearch]);
+  }, [isOpen, selectedCityId, selectedRegion, debouncedSearch, fetchProjects]);
+
+  // Auto-open projects list when a project is selected from map
+  useEffect(() => {
+    // Only auto-open if:
+    // 1. A project is selected
+    // 2. The list is not already open
+    // 3. It's a new project selection (different from the last one)
+    if (selectedProject && !isOpen && selectedProject !== lastSelectedProjectRef.current) {
+      setIsOpen(true);
+      wasManuallyClosedRef.current = false;
+    }
+    
+    // Update the last selected project reference
+    lastSelectedProjectRef.current = selectedProject;
+  }, [selectedProject, isOpen]);
+
+  // Handle manual close - mark as manually closed and clear selection
+  const handleClose = () => {
+    setIsOpen(false);
+    wasManuallyClosedRef.current = true;
+    // Clear the selected project when closing the list
+    setSelectedProject(null);
+  };
+
+  // Reset manual close flag when a new project is selected
+  useEffect(() => {
+    if (selectedProject && selectedProject !== lastSelectedProjectRef.current) {
+      wasManuallyClosedRef.current = false;
+    }
+  }, [selectedProject]);
+
+  // Scroll to selected project when projects list is updated
+  useEffect(() => {
+    if (selectedProject && projects.length > 0) {
+      const timer = setTimeout(() => {
+        const element = document.getElementById(`project-${selectedProject}`);
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [selectedProject, projects]);
 
   const loadMore = () => {
     if (!loading && hasMore) {
@@ -173,7 +227,7 @@ const ProjectsList = () => {
                 variant="secondary"
                 size="icon"
                 className="absolute -right-10 top-1/2 -translate-y-1/2 shadow-lg z-10"
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -219,12 +273,13 @@ const ProjectsList = () => {
                 >
                   <div className="space-y-4 pe-4">
                     {projects.map((project) => (
-                      <ProjectCard
-                        key={project.id}
-                        project={project}
-                        isSelected={selectedProject === project.id}
-                        onClick={() => handleProjectClick(project.id)}
-                      />
+                      <div key={project.id} id={`project-${project.id}`}>
+                        <ProjectCard
+                          project={project}
+                          isSelected={selectedProject === project.id}
+                          onClick={() => handleProjectClick(project.id)}
+                        />
+                      </div>
                     ))}
                     {loading && (
                       <div className="py-4 text-center text-gray-500">

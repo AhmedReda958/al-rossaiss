@@ -57,7 +57,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     <Card
       className={cn(
         "p-3 gap-2 cursor-pointer transition-all duration-200 hover:shadow-md",
-        isSelected && "border-1 border-primary"
+        isSelected && "border-2 border-primary shadow-lg bg-primary/5"
       )}
       onClick={onClick}
     >

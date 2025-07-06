@@ -15,6 +15,9 @@ export async function GET(req: Request) {
   const regionId = searchParams.get("regionId")
     ? parseInt(searchParams.get("regionId")!)
     : undefined;
+  const includeProject = searchParams.get("includeProject")
+    ? parseInt(searchParams.get("includeProject")!)
+    : undefined;
 
   const where: Prisma.ProjectWhereInput = {};
   if (search) {
@@ -29,6 +32,8 @@ export async function GET(req: Request) {
 
   const total = await prisma.project.count({ where });
   const totalPages = Math.ceil(total / pageSize);
+  
+  // Fetch the main projects based on pagination and filters
   const projects = await prisma.project.findMany({
     where,
     skip: (page - 1) * pageSize,
@@ -42,6 +47,32 @@ export async function GET(req: Request) {
       },
     },
   });
+
+  // If includeProject is specified, ensure it's included in the results
+  if (includeProject) {
+    const projectExists = projects.some(p => p.id === includeProject);
+    if (!projectExists) {
+      const specificProject = await prisma.project.findUnique({
+        where: { id: includeProject },
+        include: {
+          city: {
+            include: {
+              region: true,
+            },
+          },
+        },
+      });
+      
+      if (specificProject) {
+        // Add the specific project to the beginning of the results
+        projects.unshift(specificProject);
+        // Remove the last project to maintain page size
+        if (projects.length > pageSize) {
+          projects.pop();
+        }
+      }
+    }
+  }
 
   return NextResponse.json({ projects, total, totalPages });
 }
