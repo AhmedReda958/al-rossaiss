@@ -20,7 +20,8 @@ interface CityData {
 }
 
 const CityMap = () => {
-  const { mapSize, selectedCity, mapType, setSelectedCityId } = useMapStore();
+  const { mapSize, selectedCity, mapType, setSelectedCityId, addLoadingOperation, removeLoadingOperation } =
+    useMapStore();
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
 
@@ -52,27 +53,46 @@ const CityMap = () => {
     }
 
     const fetchCity = async () => {
-      const res = await fetch(`/api/cities/${selectedCity}`);
-      if (res.ok) {
-        const data = await res.json();
-        setCityData(data);
-        setSelectedCityId(data.id);
-        if (data.image) {
-          const img = new window.Image();
-          img.src = data.image;
-          img.onload = () => setCityImage(img);
+      addLoadingOperation('city-data'); // Start loading when fetching city data
+
+      try {
+        const res = await fetch(`/api/cities/${selectedCity}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCityData(data);
+          setSelectedCityId(data.id);
+          if (data.image) {
+            const img = new window.Image();
+            img.src = data.image;
+            img.onload = () => {
+              setCityImage(img);
+              removeLoadingOperation('city-data'); // Stop loading when image is loaded
+            };
+            img.onerror = () => {
+              setCityImage(null);
+              removeLoadingOperation('city-data'); // Stop loading even if image fails
+            };
+          } else {
+            setCityImage(null);
+            removeLoadingOperation('city-data'); // Stop loading if no image
+          }
         } else {
+          setCityData(null);
           setCityImage(null);
+          setSelectedCityId(null);
+          removeLoadingOperation('city-data'); // Stop loading on error
         }
-      } else {
+      } catch (error) {
+        console.error('Error fetching city data:', error);
         setCityData(null);
         setCityImage(null);
         setSelectedCityId(null);
+        removeLoadingOperation('city-data'); // Stop loading on error
       }
     };
 
     fetchCity();
-  }, [selectedCity, setSelectedCityId]);
+  }, [selectedCity, setSelectedCityId, addLoadingOperation, removeLoadingOperation]);
 
   if (!selectedCity || !cityData) return null;
 

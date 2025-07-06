@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { put } from "@vercel/blob";
-import prisma from "@/lib/prisma";
+
+const prisma = new PrismaClient();
 
 const regionNameMapping: { [key: string]: string } = {
   western: "Western Region",

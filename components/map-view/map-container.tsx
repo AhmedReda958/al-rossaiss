@@ -8,9 +8,10 @@ import { useMapStore } from "@/lib/store";
 import CountryMap from "./country-map";
 import CityMap from "./city-map";
 import ControlsLayer from "./controls-layer";
+import MapLoading from "./map-loading";
 
 const MapContainer = () => {
-  const { mapSize, mapType, selectedCity } = useMapStore();
+  const { mapSize, mapType, selectedCity, isLoading } = useMapStore();
   const stageRef = useRef<Konva.Stage>(null);
 
   const [stageSize, setStageSize] = React.useState({
@@ -58,6 +59,7 @@ const MapContainer = () => {
       className={`w-full h-full max-w-[${mapSize.width}px] max-h-[${mapSize.height}px] max-h-[100vh]  lg:aspect-video overflow-hidden bg-[#DBDCDC] relative`}
       id="map_view"
     >
+      <MapLoading isLoading={isLoading} />
       <ControlsLayer>
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
           {shouldShowCityMap ? <CityMap /> : <CountryMap />}

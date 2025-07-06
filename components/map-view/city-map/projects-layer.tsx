@@ -21,12 +21,14 @@ const mapProjectToCityPolygon = (project: Project): CityPolygon => {
 };
 
 const ProjectsLayer = () => {
-  const { projects, setProjects, selectedCityId } = useMapStore();
+  const { projects, setProjects, selectedCityId, addLoadingOperation, removeLoadingOperation } = useMapStore();
 
   useEffect(() => {
     const fetchCityProjects = async () => {
       if (!selectedCityId) return;
 
+      addLoadingOperation('projects-data'); // Start loading when fetching projects
+      
       try {
         const response = await fetch(`/api/cities/${selectedCityId}/projects`);
         if (!response.ok) throw new Error("Failed to fetch projects");
@@ -35,11 +37,13 @@ const ProjectsLayer = () => {
         setProjects(data);
       } catch (error) {
         console.error("Error fetching city projects:", error);
+      } finally {
+        removeLoadingOperation('projects-data'); // Stop loading after fetching
       }
     };
 
     fetchCityProjects();
-  }, [selectedCityId, setProjects]);
+  }, [selectedCityId, setProjects, addLoadingOperation, removeLoadingOperation]);
 
   if (!projects.length) {
     return null;

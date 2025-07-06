@@ -69,7 +69,7 @@ const ProjectsList = () => {
       if (selectedCityId) params.append("cityId", selectedCityId.toString());
       if (selectedRegion) params.append("regionId", selectedRegion);
       if (debouncedSearch) params.append("search", debouncedSearch);
-      
+
       // Include selected project if it exists
       if (selectedProject) {
         params.append("includeProject", selectedProject.toString());
@@ -106,11 +106,15 @@ const ProjectsList = () => {
     // 1. A project is selected
     // 2. The list is not already open
     // 3. It's a new project selection (different from the last one)
-    if (selectedProject && !isOpen && selectedProject !== lastSelectedProjectRef.current) {
+    if (
+      selectedProject &&
+      !isOpen &&
+      selectedProject !== lastSelectedProjectRef.current
+    ) {
       setIsOpen(true);
       wasManuallyClosedRef.current = false;
     }
-    
+
     // Update the last selected project reference
     lastSelectedProjectRef.current = selectedProject;
   }, [selectedProject, isOpen]);
@@ -136,13 +140,13 @@ const ProjectsList = () => {
       const timer = setTimeout(() => {
         const element = document.getElementById(`project-${selectedProject}`);
         if (element) {
-          element.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
           });
         }
       }, 100);
-      
+
       return () => clearTimeout(timer);
     }
   }, [selectedProject, projects]);
@@ -201,7 +205,7 @@ const ProjectsList = () => {
   };
 
   return (
-    <div className="absolute left-4 top-4 bottom-4 z-50 h-[calc(100vh-2rem)]">
+    <div className="absolute left-4 top-4 bottom-4 z-40 h-[calc(100vh-2rem)]">
       {/* Projects Panel */}
       <Button
         variant="secondary"

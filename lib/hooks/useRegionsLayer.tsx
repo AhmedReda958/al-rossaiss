@@ -30,6 +30,8 @@ export const useRegionsLayer = () => {
     zoomToRegion: storeZoomToRegion,
     resetZoom,
     setCities,
+    addLoadingOperation,
+    removeLoadingOperation,
   } = useMapStore();
 
   const effectiveMapWidth = mapSize.width; // Account for scaleX of the image
@@ -41,6 +43,19 @@ export const useRegionsLayer = () => {
       setLayerRef({ current: layerRef.current });
     }
   }, [setLayerRef]);
+
+  // Start initial loading
+  useLayoutEffect(() => {
+    addLoadingOperation('initial-map-load');
+  }, [addLoadingOperation]);
+
+  // Handle initial map loading
+  useEffect(() => {
+    if (mapImage && Object.keys(pathDataMap).length > 0) {
+      // Map image and regions are loaded, we can stop the initial loading
+      removeLoadingOperation('initial-map-load');
+    }
+  }, [mapImage, pathDataMap, removeLoadingOperation]);
 
   // Extract path data on client-side only
   useLayoutEffect(() => {
@@ -109,6 +124,7 @@ export const useRegionsLayer = () => {
 
   const handleRegionClick = async (id: string) => {
     setSelectedRegion(id);
+    addLoadingOperation('region-cities'); // Start loading when region is clicked
 
     try {
       const response = await fetch(`/api/cities/region/${id}`);
@@ -120,6 +136,8 @@ export const useRegionsLayer = () => {
     } catch (error) {
       console.error(error);
       setCities([]); // Clear cities in case of an error
+    } finally {
+      removeLoadingOperation('region-cities'); // Stop loading after data is fetched
     }
 
     storeZoomToRegion(id);

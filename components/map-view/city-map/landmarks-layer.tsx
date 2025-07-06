@@ -24,12 +24,16 @@ const LandmarksLayer = () => {
     landmarks,
     landmarkTypeInDrawing,
     hiddenLandmarkTypes,
+    addLoadingOperation,
+    removeLoadingOperation,
   } = useMapStore();
   const { coordinates, isDrawingMode } = usePolygonMarkerStore();
 
   useEffect(() => {
     const fetchCityLandmarks = async () => {
       if (!selectedCityId) return;
+
+      addLoadingOperation("landmarks-data"); // Start loading when fetching landmarks
 
       try {
         const response = await fetch(`/api/cities/${selectedCityId}/landmarks`);
@@ -39,11 +43,13 @@ const LandmarksLayer = () => {
         setLandmarks(data);
       } catch (error) {
         console.error("Error fetching city landmarks:", error);
+      } finally {
+        removeLoadingOperation("landmarks-data"); // Stop loading after fetching
       }
     };
 
     fetchCityLandmarks();
-  }, [selectedCityId, setLandmarks]);
+  }, [selectedCityId, setLandmarks, addLoadingOperation, removeLoadingOperation]);
 
   // Filter landmarks based on hidden types
   const visibleLandmarks = landmarks?.filter(

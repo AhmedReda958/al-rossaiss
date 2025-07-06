@@ -14,6 +14,13 @@ interface MapState {
   mapSize: { width: number; height: number };
   mapType: TMapType;
 
+  // Loading states
+  isLoading: boolean;
+  loadingOperations: Set<string>;
+  setIsLoading: (loading: boolean) => void;
+  addLoadingOperation: (operation: string) => void;
+  removeLoadingOperation: (operation: string) => void;
+
   // Region-related state
   selectedRegion: string | null;
   hoveredRegion: string | null;
@@ -107,6 +114,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   // Initial state
   mapSize: { width: 2048, height: 2048 },
   mapType: "main",
+  isLoading: true, // Start with loading state
+  loadingOperations: new Set(),
   selectedRegion: null,
   hoveredRegion: null,
   selectedCity: null,
@@ -161,7 +170,22 @@ export const useMapStore = create<MapState>((set, get) => ({
 
     set({ hiddenLandmarkTypes: newHiddenTypes });
   },
-
+  setIsLoading: (loading) => set({ isLoading: loading }),
+  addLoadingOperation: (operation) => {
+    const { loadingOperations } = get();
+    const newOperations = new Set(loadingOperations);
+    newOperations.add(operation);
+    set({ loadingOperations: newOperations, isLoading: true });
+  },
+  removeLoadingOperation: (operation) => {
+    const { loadingOperations } = get();
+    const newOperations = new Set(loadingOperations);
+    newOperations.delete(operation);
+    set({
+      loadingOperations: newOperations,
+      isLoading: newOperations.size > 0,
+    });
+  },
   resetZoom: () => {
     const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion } =
       get();
