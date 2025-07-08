@@ -24,6 +24,7 @@ import { IoBagHandle } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import ConfirmDeleteDialog from "@/components/ui/confirm-delete-dialog";
 
 interface LandmarksTableProps {
   landmarks: Landmark[];
@@ -79,6 +80,8 @@ export default function LandmarksTable({
   const [deletingLandmarkId, setDeletingLandmarkId] = useState<number | null>(
     null
   );
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [landmarkToDelete, setLandmarkToDelete] = useState<Landmark | null>(null);
 
   const handleViewLandmark = (landmark: Landmark) => {
     if (landmark.cityId) {
@@ -86,30 +89,37 @@ export default function LandmarksTable({
     }
   };
 
-  const handleDeleteLandmark = async (landmarkId: number) => {
-    if (window.confirm("Are you sure you want to delete this landmark?")) {
-      try {
-        setDeletingLandmarkId(landmarkId);
-        const response = await fetch(`/api/landmarks/${landmarkId}`, {
-          method: "DELETE",
-        });
+  const handleDeleteClick = (landmark: Landmark) => {
+    setLandmarkToDelete(landmark);
+    setDeleteDialogOpen(true);
+  };
 
-        if (response.ok) {
-          toast.success("Landmark deleted successfully!");
-          // Refresh the landmarks list
-          if (onLandmarkDeleted) {
-            onLandmarkDeleted();
-          }
-        } else {
-          console.error("Failed to delete landmark");
-          toast.error("Failed to delete landmark. Please try again.");
+  const handleDeleteConfirm = async () => {
+    if (!landmarkToDelete) return;
+    
+    try {
+      setDeletingLandmarkId(landmarkToDelete.id);
+      const response = await fetch(`/api/landmarks/${landmarkToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        toast.success("Landmark deleted successfully!");
+        setDeleteDialogOpen(false);
+        setLandmarkToDelete(null);
+        // Refresh the landmarks list
+        if (onLandmarkDeleted) {
+          onLandmarkDeleted();
         }
-      } catch (error) {
-        console.error("Error deleting landmark:", error);
-        toast.error("An error occurred while deleting the landmark. Please try again.");
-      } finally {
-        setDeletingLandmarkId(null);
+      } else {
+        console.error("Failed to delete landmark");
+        toast.error("Failed to delete landmark. Please try again.");
       }
+    } catch (error) {
+      console.error("Error deleting landmark:", error);
+      toast.error("An error occurred while deleting the landmark. Please try again.");
+    } finally {
+      setDeletingLandmarkId(null);
     }
   };
   if (isLoading) {
@@ -193,7 +203,8 @@ export default function LandmarksTable({
   }
 
   return (
-    <div className="rounded-md border bg-white">
+    <>
+      <div className="rounded-md border bg-white">
       <Table className="">
         <TableHeader>
           <TableRow className="hover:bg-gray-50">
@@ -246,7 +257,7 @@ export default function LandmarksTable({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteLandmark(landmark.id)}
+                      onClick={() => handleDeleteClick(landmark)}
                       disabled={deletingLandmarkId === landmark.id}
                       className="hover:bg-red-50 hover:text-red-600 text-red-400 p-2 disabled:opacity-50"
                       title="Delete landmark"
@@ -261,5 +272,15 @@ export default function LandmarksTable({
         </TableBody>
       </Table>
     </div>
+    
+    <ConfirmDeleteDialog
+      open={deleteDialogOpen}
+      onOpenChange={setDeleteDialogOpen}
+      onConfirm={handleDeleteConfirm}
+      title="Delete Landmark"
+      description={`Are you sure you want to delete "${landmarkToDelete?.name}"? This action cannot be undone.`}
+      isLoading={deletingLandmarkId !== null}
+    />
+  </>
   );
 }

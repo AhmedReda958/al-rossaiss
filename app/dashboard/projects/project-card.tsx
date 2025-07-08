@@ -21,22 +21,66 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { toast } from "sonner";
+import ConfirmDeleteDialog from "@/components/ui/confirm-delete-dialog";
 
 interface ProjectCardProps {
   project: Project;
-  onDelete?: () => void;
+  onProjectDeleted?: () => void;
 }
 
-export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
-  return (
-    <Card
-      className="shadow-md p-3 gap-2"
-      onClick={() => {
-        if (project.url) {
-          window.open(project.url, "_blank");
+export default function ProjectCard({ project, onProjectDeleted }: ProjectCardProps) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/projects/${project.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to delete project';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          errorMessage = response.statusText || errorMessage;
         }
-      }}
-    >
+        throw new Error(errorMessage);
+      }
+
+      toast.success('Project deleted successfully');
+      setIsDeleteDialogOpen(false);
+      onProjectDeleted?.();
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to delete project');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <Card
+        className="shadow-md p-3 gap-2"
+        onClick={() => {
+          if (project.url) {
+            window.open(project.url, "_blank");
+          }
+        }}
+      >
       <CardHeader className="p-0">
         <div className="relative h-40 w-full">
           <Image
@@ -71,12 +115,7 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onDelete) {
-                  onDelete();
-                }
-              }}
+              onClick={handleDeleteClick}
             >
               <Trash2 className="h-4 w-4 text-red-500" />
             </Button>
@@ -111,5 +150,15 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
         </div>
       </CardFooter>
     </Card>
-  );
+    
+    <ConfirmDeleteDialog
+      open={isDeleteDialogOpen}
+      onOpenChange={setIsDeleteDialogOpen}
+      onConfirm={handleDeleteConfirm}
+      title="Delete Project"
+      description={`Are you sure you want to delete "${project.name}"? This action cannot be undone.`}
+      isLoading={isDeleting}
+    />
+  </>
+);
 }
