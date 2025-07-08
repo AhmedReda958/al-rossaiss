@@ -58,6 +58,7 @@ const MapContainer = () => {
       ref={containerRef}
       className={`w-full h-full max-w-[${mapSize.width}px] max-h-[${mapSize.height}px] max-h-[100vh]  lg:aspect-video overflow-hidden bg-[#DBDCDC] relative`}
       id="map_view"
+      dir="ltr"
     >
       <MapLoading isLoading={isLoading} />
       <ControlsLayer>
