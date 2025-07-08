@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
   const total = await prisma.project.count({ where });
   const totalPages = Math.ceil(total / pageSize);
-  
+
   // Fetch the main projects based on pagination and filters
   const projects = await prisma.project.findMany({
     where,
@@ -49,7 +49,7 @@ export async function GET(req: Request) {
 
   // If includeProject is specified, ensure it's included in the results
   if (includeProject) {
-    const projectExists = projects.some(p => p.id === includeProject);
+    const projectExists = projects.some((p) => p.id === includeProject);
     if (!projectExists) {
       const specificProject = await prisma.project.findUnique({
         where: { id: includeProject },
@@ -61,7 +61,7 @@ export async function GET(req: Request) {
           },
         },
       });
-      
+
       if (specificProject) {
         // Add the specific project to the beginning of the results
         projects.unshift(specificProject);
@@ -80,7 +80,9 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const name = formData.get("name") as string;
+    const nameAr = formData.get("nameAr") as string;
     const description = formData.get("description") as string;
+    const descriptionAr = formData.get("descriptionAr") as string;
     const labelDirection = formData.get("labelDirection") as string;
     const points = JSON.parse(formData.get("points") as string) as number[];
     const cityId = parseInt(formData.get("cityId") as string, 10);
@@ -93,6 +95,7 @@ export async function POST(req: Request) {
 
     if (
       !name ||
+      !nameAr ||
       !points ||
       !cityId ||
       !unitType ||
@@ -110,20 +113,24 @@ export async function POST(req: Request) {
     let imageUrl = null;
     if (image) {
       // Handle file upload to Vercel Blob
-      const fileExtension = image.name.split('.').pop();
-      const filename = `projects/${Date.now()}-${Math.round(Math.random() * 1e9)}.${fileExtension}`;
-      
+      const fileExtension = image.name.split(".").pop();
+      const filename = `projects/${Date.now()}-${Math.round(
+        Math.random() * 1e9
+      )}.${fileExtension}`;
+
       const blob = await put(filename, image, {
-        access: 'public',
+        access: "public",
       });
-      
+
       imageUrl = blob.url;
     }
 
     const project = await prisma.project.create({
       data: {
         name,
+        nameAr,
         description,
+        descriptionAr,
         image: imageUrl,
         labelDirection,
         points,

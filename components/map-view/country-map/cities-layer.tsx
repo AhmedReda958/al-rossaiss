@@ -6,8 +6,13 @@ import { useMapStore, City } from "@/lib/store";
 import Polygon from "@/components/map-view/polygon/polygon";
 import { CityPolygon } from "@/lib/store/polygon-marker-store";
 import colors from "@/lib/colors";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
-const mapCityToCityPolygon = (city: City): CityPolygon => {
+const mapCityToCityPolygon = (
+  city: City,
+  currentLocale: string
+): CityPolygon => {
   let direction = city.labelDirection;
   if (direction === "up") {
     direction = "up";
@@ -19,9 +24,12 @@ const mapCityToCityPolygon = (city: City): CityPolygon => {
     direction = "right";
   }
 
+  // Get localized name
+  const localizedName = getLocalizedName(city, currentLocale);
+
   return {
     id: String(city.id),
-    name: city.name,
+    name: localizedName,
     points: city.points,
     regionId: String(city.regionId),
     labelDirection: direction as CityPolygon["labelDirection"],
@@ -30,6 +38,10 @@ const mapCityToCityPolygon = (city: City): CityPolygon => {
 
 const CitiesLayer = () => {
   const { cities } = useMapStore();
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
 
   if (!cities.length) {
     return null;
@@ -40,7 +52,7 @@ const CitiesLayer = () => {
       {cities.map((city) => (
         <Polygon
           key={city.id}
-          polygon={mapCityToCityPolygon(city)}
+          polygon={mapCityToCityPolygon(city, currentLocale)}
           type="city"
           fillColor={colors.primaryHover}
           strokeColor={colors.primary}

@@ -1,6 +1,94 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* RTL Support for Arabic */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row;
+}
+
+[dir="rtl"] .space-x-2 > * + * {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .space-x-3 > * + * {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+[dir="rtl"] .space-x-8 > * + * {
+  margin-left: 0;
+  margin-right: 2rem;
+}
+
+[dir="rtl"] .pl-10 {
+  padding-left: 0.75rem;
+  padding-right: 2.5rem;
+}
+
+[dir="rtl"] .pr-10 {
+  padding-right: 0.75rem;
+  padding-left: 2.5rem;
+}
+
+[dir="rtl"] .left-3 {
+  left: auto;
+  right: 0.75rem;
+}
+
+[dir="rtl"] .right-3 {
+  right: auto;
+  left: 0.75rem;
+}
+
+/* Table RTL Support */
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .justify-end {
+  justify-content: flex-start;
+}
+
+[dir="rtl"] .justify-start {
+  justify-content: flex-end;
+}
+
+[dir="rtl"] .items-end {
+  align-items: flex-start;
+}
+
+[dir="rtl"] .pr-2 {
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+[dir="rtl"] .ps-6 {
+  padding-inline-start: 1.5rem;
+}
+
+[dir="rtl"] .pe-2 {
+  padding-inline-end: 0.5rem;
+}
+
+/* Arabic Font Support */
+[lang="ar"] {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

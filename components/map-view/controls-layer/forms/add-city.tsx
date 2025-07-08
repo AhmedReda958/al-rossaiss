@@ -24,22 +24,27 @@ import ArrowDown from "@/svgs/arrow-down";
 import ArrowLeft from "@/svgs/arrow-left";
 import ArrowRight from "@/svgs/arrow-right";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
-// Define form schema with Zod
-const formSchema = z.object({
-  cityName: z.string().min(2, {
-    message: "City name must be at least 2 characters",
-  }),
-  cityImage: z
-    .instanceof(File)
-    .or(z.string())
-    .refine((val) => val !== undefined && val !== null && val !== "", {
-      message: "City image is required",
+// Define form schema function that takes translation function
+const createFormSchema = (t: (key: string) => string) =>
+  z.object({
+    cityName: z.string().min(2, {
+      message: t("cityNameRequired"),
     }),
-  labelDirection: z.enum(["up", "down", "left", "right"]),
-});
+    cityNameAr: z.string().min(2, {
+      message: t("cityNameArRequired"),
+    }),
+    cityImage: z
+      .instanceof(File)
+      .or(z.string())
+      .refine((val) => val !== undefined && val !== null && val !== "", {
+        message: t("cityImageRequired"),
+      }),
+    labelDirection: z.enum(["up", "down", "left", "right"]),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 const AddCityForm: React.FC = () => {
   const {
@@ -50,6 +55,9 @@ const AddCityForm: React.FC = () => {
   } = useMapStore();
   const isEditMode = !!city;
   const router = useRouter();
+  const t = useTranslations("Cities");
+  const tCommon = useTranslations("Common");
+  const tInstructions = useTranslations("Instructions");
 
   const [cityImagePreview, setCityImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,11 +70,15 @@ const AddCityForm: React.FC = () => {
     setPointsFromFlatArray,
   } = usePolygonMarkerStore();
 
+  // Create schema with translations
+  const formSchema = createFormSchema(t);
+
   // Initialize react-hook-form with zod validation
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       cityName: city?.name || "",
+      cityNameAr: city?.nameAr || "",
       cityImage: city?.image || undefined,
       labelDirection: city?.labelDirection || "up",
     },
@@ -84,7 +96,7 @@ const AddCityForm: React.FC = () => {
         setPointsFromFlatArray(city.points);
       }
       setIsDrawingMode(true);
-      setInstructions("You can edit the city polygon.");
+      setInstructions(tInstructions("editCityPolygon"));
       setSelectedRegion(city.regionId);
     } else {
       if (selectedRegion) {
@@ -93,9 +105,7 @@ const AddCityForm: React.FC = () => {
         setInstructions(null);
       } else {
         setIsDrawingMode(false);
-        setInstructions(
-          "Please select a region on the map to start adding a city."
-        );
+        setInstructions(tInstructions("selectRegionForCity"));
       }
     }
     return () => {
@@ -111,6 +121,7 @@ const AddCityForm: React.FC = () => {
     setInstructions,
     setPointsFromFlatArray,
     setSelectedRegion,
+    tInstructions,
   ]);
 
   const handleImageChange = (
@@ -133,12 +144,12 @@ const AddCityForm: React.FC = () => {
   const onSubmit = async (values: FormValues) => {
     const regionForSubmit = isEditMode ? city?.regionId : selectedRegion;
     if (!regionForSubmit) {
-      toast.error("Please select a region on the map.");
+      toast.error(tCommon("selectRegionFirst"));
       return;
     }
 
     if (currentPoints.length < 3) {
-      toast.error("A polygon needs at least 3 points.");
+      toast.error(tCommon("needThreePoints"));
       return;
     }
 
@@ -146,6 +157,7 @@ const AddCityForm: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append("name", values.cityName);
+      formData.append("nameAr", values.cityNameAr);
       if (values.cityImage instanceof File) {
         formData.append("image", values.cityImage);
       }
@@ -165,17 +177,21 @@ const AddCityForm: React.FC = () => {
       });
 
       if (response.ok) {
-        toast.success(`City ${isEditMode ? "updated" : "created"} successfully!`);
+        toast.success(
+          isEditMode
+            ? tCommon("cityUpdatedSuccess")
+            : tCommon("cityCreatedSuccess")
+        );
         clearCurrentPoints();
         setIsDrawingMode(false);
         router.push("/dashboard/cities");
       } else {
         const errorData = await response.json();
-        toast.error(`Error: ${errorData.error}`);
+        toast.error(`${tCommon("error")}: ${errorData.error}`);
       }
     } catch (error) {
       console.error("Failed to submit form:", error);
-      toast.error("An unexpected error occurred.");
+      toast.error(tCommon("unexpectedError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -189,11 +205,9 @@ const AddCityForm: React.FC = () => {
     <>
       <div className="mb-6">
         <h2 className="text-lg font-semibold">
-          {isEditMode ? "Edit City" : "Add City"}
+          {isEditMode ? t("editCity") : t("addCity")}
         </h2>
-        <p className="text-xs text-muted mb-1">
-          Select Mark Type and Pick it on City Map
-        </p>
+        <p className="text-xs text-muted mb-1">{t("selectMarkType")}</p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -202,10 +216,30 @@ const AddCityForm: React.FC = () => {
             name="cityName"
             render={({ field }) => (
               <FormItem>
+                <Label>{t("cityNameEn")}</Label>
                 <FormControl>
                   <Input
-                    placeholder="City Name"
+                    placeholder={t("cityNameEn")}
                     className="w-full"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="cityNameAr"
+            render={({ field }) => (
+              <FormItem>
+                <Label>{t("cityNameAr")}</Label>
+                <FormControl>
+                  <Input
+                    placeholder={t("cityNameAr")}
+                    className="w-full"
+                    dir="rtl"
                     {...field}
                   />
                 </FormControl>
@@ -235,10 +269,11 @@ const AddCityForm: React.FC = () => {
                     />
 
                     <div className="w-fit">
-                      <h3 className="text-sm font-medium">Upload City Image</h3>
+                      <h3 className="text-sm font-medium">
+                        {t("uploadCityImage")}
+                      </h3>
                       <p className="text-xs text-muted">
-                        Upload stunning images of your city to highlight its
-                        beauty and vibrance.
+                        {t("uploadImageDescription")}
                       </p>
                     </div>
                   </div>
@@ -255,7 +290,7 @@ const AddCityForm: React.FC = () => {
                           width={24}
                           height={24}
                         />
-                        Upload
+                        {tCommon("uploadImage")}
                       </Button>
                       <input
                         type="file"
@@ -324,7 +359,7 @@ const AddCityForm: React.FC = () => {
               onClick={onCancel}
               type="button"
             >
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button
               type="submit"
@@ -334,10 +369,10 @@ const AddCityForm: React.FC = () => {
               }
             >
               {isSubmitting
-                ? "Saving..."
+                ? tCommon("saving")
                 : isEditMode
-                ? "Save Changes"
-                : "Save"}
+                ? t("saveChanges")
+                : tCommon("save")}
             </Button>
           </div>
         </form>

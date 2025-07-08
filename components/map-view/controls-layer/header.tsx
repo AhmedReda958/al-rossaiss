@@ -2,14 +2,46 @@ import React from "react";
 import Image from "next/image";
 import { useMapStore } from "@/lib/store";
 import LandmarkFilter from "./landmark-filter";
+import { Button } from "@/components/ui/button";
+import { usePathname, useRouter } from "next/navigation";
+import { BsQuestionCircle } from "react-icons/bs";
 
 const ControlsLayerHeader = () => {
   const { mapType, instructions } = useMapStore();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
+  const isArabic = currentLocale === "ar";
+
+  const switchLanguage = () => {
+    const newLocale = isArabic ? "en" : "ar";
+    const pathWithoutLocale = pathname.split("/").slice(2).join("/");
+    const newPath = `/${newLocale}/${pathWithoutLocale}`;
+    router.push(newPath);
+  };
 
   return (
-    <nav className="flex items-start justify-between flex-row-reverse gap-4 z-10 absolute top-0 left-0 w-full h-16 p-5">
+    <nav className=" flex items-start justify-between  gap-2 z-10 absolute top-0 left-0 w-full h-16 p-5">
+      <div className="flex flex-col gap-3 order-2">
+        <Button
+          variant="light"
+          size={"icon-sm"}
+          className="text-xs text-muted-foreground"
+          onClick={switchLanguage}
+        >
+          {isArabic ? "EN" : "ع"}
+        </Button>
+        <Button variant="light" size={"icon-sm"}>
+          <BsQuestionCircle className="w-3 h-3" />
+        </Button>
+      </div>
       {/* logo */}
-      <div className="bg-white rounded-sm p-1 " hidden={mapType !== "main"}>
+      <div
+        className="bg-white rounded-sm p-1 order-1"
+        hidden={mapType !== "main"}
+      >
         <Image
           src={"/logo_large.png"}
           alt="Logo"
@@ -39,21 +71,6 @@ const ControlsLayerHeader = () => {
           <p className="text-sm">{instructions}</p>
         </div>
       )}
-
-      {/* controls */}
-      {/* <div className="flex flex-col gap-3">
-        <Button variant="light" size={"icon-sm"}>
-          <BsQuestionCircle className="w-3 h-3" />
-        </Button>
-
-        <Button
-          variant="light"
-          size={"icon-sm"}
-          className=" text-xs text-muted-foreground"
-        >
-          EN
-        </Button>
-      </div> */}
     </nav>
   );
 };

@@ -18,18 +18,23 @@ import {
 } from "@/components/ui/form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 
-// Define form schema with Zod
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Landmark name must be at least 2 characters",
-  }),
-  type: z.enum(Object.values(LANDMARK_TYPES) as [string, ...string[]], {
-    required_error: "Please select a landmark type",
-  }),
-});
+// Define form schema function that takes translation function
+const createFormSchema = (t: (key: string) => string) =>
+  z.object({
+    name: z.string().min(2, {
+      message: t("landmarkNameRequired"),
+    }),
+    nameAr: z.string().min(2, {
+      message: t("landmarkNameArRequired"),
+    }),
+    type: z.enum(Object.values(LANDMARK_TYPES) as [string, ...string[]], {
+      required_error: t("landmarkTypeRequired"),
+    }),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 const AddLandmarkForm = () => {
   const router = useRouter();
@@ -42,12 +47,20 @@ const AddLandmarkForm = () => {
   const { coordinates, resetMarkers, setIsDrawingMode } =
     usePolygonMarkerStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const t = useTranslations("Landmarks");
+  const tCommon = useTranslations("Common");
+  const tInstructions = useTranslations("Instructions");
+  const tLandmarkTypes = useTranslations("LandmarkTypes");
+
+  // Create schema with translations
+  const formSchema = createFormSchema(t);
 
   // Initialize react-hook-form with zod validation
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      nameAr: "",
       type: LANDMARK_TYPES.LANDMARK,
     },
   });
@@ -56,13 +69,14 @@ const AddLandmarkForm = () => {
     if (selectedCityId) {
       setIsDrawingMode(true);
       setLandmarkTypeInDrawing(LANDMARK_TYPES.LANDMARK);
-      setInstructions("Click on the map to set the landmark location");
+      setInstructions(tInstructions("addLandmark"));
     }
   }, [
     selectedCityId,
     setIsDrawingMode,
     setLandmarkTypeInDrawing,
     setInstructions,
+    tInstructions,
   ]);
 
   // Watch for changes in the landmark type field and update the drawing mode
@@ -78,9 +92,9 @@ const AddLandmarkForm = () => {
   // Update instructions when coordinates change
   useEffect(() => {
     if (coordinates.length === 2) {
-      setInstructions("Landmark location set! Ready to save.");
+      setInstructions(tInstructions("landmarkLocationSet"));
     }
-  }, [coordinates, setInstructions]);
+  }, [coordinates, setInstructions, tInstructions]);
 
   const onSubmit = async (data: FormValues) => {
     if (!selectedCityId || coordinates.length !== 2) {
@@ -141,10 +155,8 @@ const AddLandmarkForm = () => {
   return (
     <>
       <div className="mb-6">
-        <h2 className="text-lg font-semibold">Add Landmark</h2>
-        <p className="text-xs text-muted mb-1">
-          Fill in the landmark details below.
-        </p>
+        <h2 className="text-lg font-semibold">{t("addLandmark")}</h2>
+        <p className="text-xs text-muted mb-1">{t("fillLandmarkDetails")}</p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -153,11 +165,29 @@ const AddLandmarkForm = () => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <Label>Landmark Name</Label>
+                <Label>{t("landmarkNameEn")}</Label>
                 <FormControl>
                   <Input
                     className="w-full"
-                    placeholder="Enter landmark name"
+                    placeholder={t("enterLandmarkName")}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="nameAr"
+            render={({ field }) => (
+              <FormItem>
+                <Label>{t("landmarkNameAr")}</Label>
+                <FormControl>
+                  <Input
+                    className="w-full"
+                    placeholder={t("enterLandmarkNameAr")}
+                    dir="rtl"
                     {...field}
                   />
                 </FormControl>
@@ -170,12 +200,12 @@ const AddLandmarkForm = () => {
             name="type"
             render={({ field }) => (
               <FormItem>
-                <Label>Landmark Type</Label>
+                <Label>{t("landmarkType")}</Label>
                 <select className="w-full border rounded px-2 py-2" {...field}>
-                  <option value="">Select landmark type</option>
+                  <option value="">{t("selectLandmarkType")}</option>
                   {Object.entries(LANDMARK_TYPES).map(([key, value]) => (
                     <option key={value} value={value}>
-                      {key.charAt(0) + key.slice(1).toLowerCase()}
+                      {tLandmarkTypes(key)}
                     </option>
                   ))}
                 </select>
@@ -190,14 +220,14 @@ const AddLandmarkForm = () => {
               onClick={onCancel}
               type="button"
             >
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button
               type="submit"
               className="w-[114px]"
               disabled={isSubmitting || coordinates.length !== 2}
             >
-              {isSubmitting ? "Saving..." : "Save"}
+              {isSubmitting ? tCommon("saving") : tCommon("save")}
             </Button>
           </div>
         </form>

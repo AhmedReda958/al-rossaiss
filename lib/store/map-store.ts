@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { Tween, Easings } from "konva/lib/Tween";
 import { Layer } from "konva/lib/Layer";
-import { City as GlobalCity, Region, Project } from "@/app/types";
-import { TMapType } from "@/app/types/map";
+import { City as GlobalCity, Region, Project } from "@/types";
+import { TMapType } from "@/types/map";
 import { LandmarkType } from "@/lib/constants";
 
 // Duplicating the City type from Prisma schema

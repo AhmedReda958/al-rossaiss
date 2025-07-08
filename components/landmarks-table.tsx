@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Landmark } from "@/app/types";
+import { Landmark } from "@/types";
 import { LANDMARK_TYPES } from "@/lib/constants";
 import {
   LandmarkIcon,
@@ -25,6 +25,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import ConfirmDeleteDialog from "@/components/ui/confirm-delete-dialog";
+import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
 interface LandmarksTableProps {
   landmarks: Landmark[];
@@ -77,11 +80,19 @@ export default function LandmarksTable({
   onLandmarkDeleted,
 }: LandmarksTableProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [landmarkToDelete, setLandmarkToDelete] = useState<Landmark | null>(
+    null
+  );
   const [deletingLandmarkId, setDeletingLandmarkId] = useState<number | null>(
     null
   );
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [landmarkToDelete, setLandmarkToDelete] = useState<Landmark | null>(null);
+  const t = useTranslations("Landmarks");
+  const tCommon = useTranslations("Common");
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
 
   const handleViewLandmark = (landmark: Landmark) => {
     if (landmark.cityId) {
@@ -96,7 +107,7 @@ export default function LandmarksTable({
 
   const handleDeleteConfirm = async () => {
     if (!landmarkToDelete) return;
-    
+
     try {
       setDeletingLandmarkId(landmarkToDelete.id);
       const response = await fetch(`/api/landmarks/${landmarkToDelete.id}`, {
@@ -104,7 +115,7 @@ export default function LandmarksTable({
       });
 
       if (response.ok) {
-        toast.success("Landmark deleted successfully!");
+        toast.success(tCommon("landmarkDeletedSuccess"));
         setDeleteDialogOpen(false);
         setLandmarkToDelete(null);
         // Refresh the landmarks list
@@ -113,11 +124,11 @@ export default function LandmarksTable({
         }
       } else {
         console.error("Failed to delete landmark");
-        toast.error("Failed to delete landmark. Please try again.");
+        toast.error(tCommon("deleteFailed"));
       }
     } catch (error) {
       console.error("Error deleting landmark:", error);
-      toast.error("An error occurred while deleting the landmark. Please try again.");
+      toast.error(tCommon("deleteError"));
     } finally {
       setDeletingLandmarkId(null);
     }
@@ -128,12 +139,18 @@ export default function LandmarksTable({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-gray-50">
-              <TableHead className="font-semibold">Name</TableHead>
-              <TableHead className="font-semibold">Type</TableHead>
-              <TableHead className="font-semibold">City</TableHead>
-              <TableHead className="font-semibold">Region</TableHead>
-              <TableHead className="font-semibold text-right">
-                Actions
+              <TableHead className="font-semibold ps-6">
+                {t("landmarkName")}
+              </TableHead>
+              <TableHead className="font-semibold">
+                {t("landmarkType")}
+              </TableHead>
+              <TableHead className="font-semibold">{tCommon("city")}</TableHead>
+              <TableHead className="font-semibold">
+                {tCommon("region")}
+              </TableHead>
+              <TableHead className="font-semibold text-right rtl:text-left">
+                {tCommon("actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -172,12 +189,18 @@ export default function LandmarksTable({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-gray-50">
-              <TableHead className="font-semibold">Name</TableHead>
-              <TableHead className="font-semibold">Type</TableHead>
-              <TableHead className="font-semibold">City</TableHead>
-              <TableHead className="font-semibold">Region</TableHead>
+              <TableHead className="font-semibold">
+                {t("landmarkName")}
+              </TableHead>
+              <TableHead className="font-semibold">
+                {t("landmarkType")}
+              </TableHead>
+              <TableHead className="font-semibold">{tCommon("city")}</TableHead>
+              <TableHead className="font-semibold">
+                {tCommon("region")}
+              </TableHead>
               <TableHead className="font-semibold text-right">
-                Actions
+                {tCommon("actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -191,8 +214,8 @@ export default function LandmarksTable({
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                     <span className="text-2xl">📍</span>
                   </div>
-                  <p className="text-lg font-medium">No landmarks found</p>
-                  <p className="text-sm">Try adjusting your search criteria</p>
+                  <p className="text-lg font-medium">{t("noLandmarksFound")}</p>
+                  <p className="text-sm">{tCommon("tryAdjustingCriteria")}</p>
                 </div>
               </TableCell>
             </TableRow>
@@ -205,82 +228,95 @@ export default function LandmarksTable({
   return (
     <>
       <div className="rounded-md border bg-white">
-      <Table className="">
-        <TableHeader>
-          <TableRow className="hover:bg-gray-50">
-            <TableHead className="font-semibold ps-6">Name</TableHead>
-            <TableHead className="font-semibold">Type</TableHead>
-            <TableHead className="font-semibold">City</TableHead>
-            <TableHead className="font-semibold">Region</TableHead>
-            <TableHead className="font-semibold text-right pe-8">
-              Actions
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {landmarks.map((landmark) => {
-            const IconComponent = getLandmarkIcon(landmark.type);
-            const typeStyle = getLandmarkTypeStyle(landmark.type);
+        <Table className="">
+          <TableHeader>
+            <TableRow className="hover:bg-gray-50">
+              <TableHead className="font-semibold ps-6">
+                {t("landmarkName")}
+              </TableHead>
+              <TableHead className="font-semibold">
+                {t("landmarkType")}
+              </TableHead>
+              <TableHead className="font-semibold">{tCommon("city")}</TableHead>
+              <TableHead className="font-semibold">
+                {tCommon("region")}
+              </TableHead>
+              <TableHead className="font-semibold text-right rtl:text-left pe-8">
+                {tCommon("actions")}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {landmarks.map((landmark) => {
+              const IconComponent = getLandmarkIcon(landmark.type);
+              const typeStyle = getLandmarkTypeStyle(landmark.type);
 
-            return (
-              <TableRow key={landmark.id} className="hover:bg-gray-50">
-                <TableCell className="font-medium ps-6">
-                  {landmark.name}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <IconComponent
-                      size={16}
-                      style={{ color: typeStyle.color }}
-                    />
-                    <span className="border-0" style={typeStyle}>
-                      {landmark.type.charAt(0).toUpperCase() +
-                        landmark.type.slice(1)}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>{landmark.city?.name || "Unknown"}</TableCell>
-                <TableCell>
-                  {landmark.city?.region?.name || "Unknown"}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end ">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewLandmark(landmark)}
-                      className="hover:bg-blue-50 hover:text-blue-600 text-blue-400 p-2"
-                      title="View landmark on map"
-                    >
-                      <Eye size={16} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteClick(landmark)}
-                      disabled={deletingLandmarkId === landmark.id}
-                      className="hover:bg-red-50 hover:text-red-600 text-red-400 p-2 disabled:opacity-50"
-                      title="Delete landmark"
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
-    
-    <ConfirmDeleteDialog
-      open={deleteDialogOpen}
-      onOpenChange={setDeleteDialogOpen}
-      onConfirm={handleDeleteConfirm}
-      title="Delete Landmark"
-      description={`Are you sure you want to delete "${landmarkToDelete?.name}"? This action cannot be undone.`}
-      isLoading={deletingLandmarkId !== null}
-    />
-  </>
+              // Get localized names
+              const landmarkName = getLocalizedName(landmark, currentLocale);
+              const cityName = landmark.city
+                ? getLocalizedName(landmark.city, currentLocale)
+                : tCommon("unknown");
+              const regionName = landmark.city?.region
+                ? getLocalizedName(landmark.city.region, currentLocale)
+                : tCommon("unknown");
+
+              return (
+                <TableRow key={landmark.id} className="hover:bg-gray-50">
+                  <TableCell className="font-medium ps-6">
+                    {landmarkName}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <IconComponent
+                        size={16}
+                        style={{ color: typeStyle.color }}
+                      />
+                      <span className="border-0" style={typeStyle}>
+                        {landmark.type.charAt(0).toUpperCase() +
+                          landmark.type.slice(1)}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{cityName}</TableCell>
+                  <TableCell>{regionName}</TableCell>
+                  <TableCell className="text-right rtl:text-left">
+                    <div className="flex items-center justify-end rtl:justify-start ">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewLandmark(landmark)}
+                        className="hover:bg-blue-50 hover:text-blue-600 text-blue-400 p-2"
+                        title={t("Common.view")}
+                      >
+                        <Eye size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(landmark)}
+                        disabled={deletingLandmarkId === landmark.id}
+                        className="hover:bg-red-50 hover:text-red-600 text-red-400 p-2 disabled:opacity-50"
+                        title={t("Common.delete")}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title={t("Dialogs.deleteLandmark")}
+        description={t("Dialogs.deleteLandmarkConfirmation")}
+        isLoading={deletingLandmarkId !== null}
+      />
+    </>
   );
 }

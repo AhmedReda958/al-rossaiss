@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Project } from "./projects-list";
-import { cn } from "@/lib/utils";
+import { cn, getLocalizedName, getLocalizedText } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { UNIT_TYPES } from "@/lib/constants";
+import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 
 interface ProjectCardProps {
   project: Project;
@@ -53,6 +55,19 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onClick,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const t = useTranslations("Common");
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
+
+  // Get localized names
+  const projectName = getLocalizedName(project, currentLocale);
+  const projectDescription = getLocalizedText(
+    project.description || "",
+    project.descriptionAr,
+    currentLocale
+  );
   return (
     <Card
       className={cn(
@@ -65,14 +80,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="relative h-40 w-full">
           <Image
             src={project.image || "/logo.svg"}
-            alt={project.name}
+            alt={projectName}
             fill
             objectFit="cover"
             className="rounded-lg"
           />
           {project.soldOut && (
             <div className="absolute top-2 right-2">
-              <Badge variant="destructive">Sold Out</Badge>
+              <Badge variant="destructive">{t("soldOut")}</Badge>
             </div>
           )}
         </div>
@@ -81,7 +96,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <div className="">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold">{project.name}</h3>
+            <h3 className="text-lg font-semibold">{projectName}</h3>
           </div>
           <div className="flex items-center gap-1 text-md font-thin text-primary">
             {getUnitTypeIcon(project.unitType)}
@@ -93,12 +108,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <div className="mb-2 flex gap-4 text-sm text-gray-500">
         <div className="flex items-center gap-1">
           <SnowflakeIcon className="h-4 w-4 text-primary" strokeWidth={1.2} />
-          <span className="font-normal text-accent-foreground">Units:</span>
+          <span className="font-normal text-accent-foreground">
+            {t("units")}:
+          </span>
           <span className="font-thin">{project.unitsCount}</span>
         </div>
         <div className="flex items-center gap-1">
           <Grid2x2Icon className="h-4 w-4 text-primary" strokeWidth={1.2} />
-          <span className="font-normal text-accent-foreground">Space:</span>
+          <span className="font-normal text-accent-foreground">
+            {t("space")}:
+          </span>
           <span className="font-thin">{project.space} m²</span>
         </div>
       </div>
@@ -117,7 +136,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               rel="noopener noreferrer"
               className="flex items-center gap-2"
             >
-              Visit Website
+              {t("visitWebsite")}
             </Link>
           </Button>
         )}
@@ -129,16 +148,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               setIsExpanded(true);
             }}
           >
-            Read More
+            {t("showDetails")}
             <ChevronDown className="w-4 h-4" />
           </Button>
         )}
       </div>
 
-      {isExpanded && project.description && (
+      {isExpanded && projectDescription && (
         <div>
           <p className="text-gray-500 my-2 leading-5 text-xs ">
-            {project.description}
+            {projectDescription}
           </p>
           <div
             className="flex justify-center"

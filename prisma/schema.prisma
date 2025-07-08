@@ -18,6 +18,7 @@ model User {
 model City {
   id             Int      @id @default(autoincrement())
   name           String
+  nameAr         String?
   image          String
   labelDirection String
   points         Float[]
@@ -32,6 +33,7 @@ model City {
 model Region {
   id       Int       @id @default(autoincrement())
   name     String    @unique
+  nameAr   String?
   key      String    @unique
   cities   City[]
 }
@@ -39,7 +41,9 @@ model Region {
 model Project {
   id             Int      @id @default(autoincrement())
   name           String
+  nameAr         String?
   description    String?
+  descriptionAr  String?
   image          String?
   labelDirection String?
   points         Float[]
@@ -57,6 +61,7 @@ model Project {
 model Landmark {
   id          Int      @id @default(autoincrement())
   name        String
+  nameAr      String?
   type        String
   coordinates Json
   cityId      Int

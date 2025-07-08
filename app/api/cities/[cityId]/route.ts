@@ -49,6 +49,7 @@ export async function PUT(
 
     const formData = await request.formData();
     const name = formData.get("name") as string;
+    const nameAr = formData.get("nameAr") as string;
     const image = formData.get("image") as File | string;
     const labelDirection = formData.get("labelDirection") as string;
     const points = formData.get("points") as string;
@@ -56,23 +57,27 @@ export async function PUT(
 
     const updateData: {
       name: string;
+      nameAr: string;
       labelDirection: string;
       points: number[];
       image?: string;
     } = {
       name,
+      nameAr,
       labelDirection,
       points: JSON.parse(points),
     };
 
     if (image && typeof image !== "string") {
-      const fileExtension = image.name.split('.').pop();
-      const filename = `cities/${Date.now()}-${Math.round(Math.random() * 1e9)}.${fileExtension}`;
-      
+      const fileExtension = image.name.split(".").pop();
+      const filename = `cities/${Date.now()}-${Math.round(
+        Math.random() * 1e9
+      )}.${fileExtension}`;
+
       const blob = await put(filename, image, {
-        access: 'public',
+        access: "public",
       });
-      
+
       updateData.image = blob.url;
     }
 
@@ -103,12 +108,9 @@ export async function DELETE(
   try {
     const { cityId } = await params;
     const cityIdNum = parseInt(cityId, 10);
-    
+
     if (isNaN(cityIdNum)) {
-      return NextResponse.json(
-        { error: "Invalid city ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid city ID" }, { status: 400 });
     }
 
     // Check if the city exists
@@ -125,10 +127,7 @@ export async function DELETE(
     });
 
     if (!existingCity) {
-      return NextResponse.json(
-        { error: "City not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "City not found" }, { status: 404 });
     }
 
     // Delete related projects and landmarks first (cascade delete)
@@ -151,12 +150,12 @@ export async function DELETE(
     });
 
     return NextResponse.json(
-      { 
+      {
         message: "City and all related data deleted successfully",
         deletedCounts: {
           projects: existingCity._count.projects,
           landmarks: existingCity._count.landmarks,
-        }
+        },
       },
       { status: 200 }
     );

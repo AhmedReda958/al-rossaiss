@@ -6,10 +6,12 @@ import { GoZoomOut } from "react-icons/go";
 import Image from "next/image";
 import { useMapStore } from "@/lib/store";
 import CitySlider from "./city-slider";
+import { useTranslations } from "next-intl";
 
 const ControlsLayerFooter = () => {
   const { resetZoom, setSelectedCity, selectedRegion, selectedCity } =
     useMapStore();
+  const t = useTranslations("Common");
 
   const openFullScreen = useCallback(() => {
     const element = document.getElementById("map_view");
@@ -27,7 +29,7 @@ const ControlsLayerFooter = () => {
   }, []);
 
   return (
-    <nav className="flex items-end justify-between z-10 absolute bottom-0 left-0 w-full h-16 p-5 ">
+    <footer className=" flex items-bottom justify-between z-10 absolute bottom-0 left-0 w-full  p-5 pointer-events-auto">
       <div></div>
       <div
         className="absolute left-1/2 -translate-x-1/2 bottom-5 md:block hidden"
@@ -37,16 +39,16 @@ const ControlsLayerFooter = () => {
       </div>
       {/* controls */}
 
-      <div className="flex items-end gap-20">
+      <div className="flex items-bottom gap-20">
         {selectedRegion && !selectedCity && (
           <Button
             variant="light"
             size={"lg"}
-            className="bg-[#EAFBFF] hover:bg-white !p-2 !py-1 rounded-sm"
+            className="bg-[#EAFBFF] hover:bg-white  rounded-sm"
             onClick={resetZoom}
           >
             <GoZoomOut className="w-6 h-6" />
-            Zoom out
+            {t("zoomOut")}
           </Button>
         )}
 
@@ -65,7 +67,7 @@ const ControlsLayerFooter = () => {
           <BiSolidGridAlt className="w-3 h-3" />
         </Button>
       </div>
-    </nav>
+    </footer>
   );
 };
 

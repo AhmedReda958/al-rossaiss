@@ -1,11 +1,7 @@
-import MapView from "@/components/map-view";
+import { redirect } from "next/navigation";
+import { routing } from "@/src/i18n/routing";
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between ">
-      <div className="container mx-auto " id="map-container">
-        <MapView />
-      </div>
-    </main>
-  );
+export default function RootPage() {
+  // Redirect to the default locale
+  redirect(`/${routing.defaultLocale}`);
 }

@@ -9,27 +9,61 @@ import CityIcon from "@/svgs/city";
 import BoxIcon from "@/svgs/box";
 import LandMarkIcon from "@/svgs/landmark";
 import { useState } from "react";
-
-const navigationLinks = [
-  { name: "Home", href: "/dashboard", icon: HomeIcon },
-  { name: "Cities", href: "/dashboard/cities", icon: CityIcon },
-  { name: "Projects", href: "/dashboard/projects", icon: BoxIcon },
-  { name: "Landmarks", href: "/dashboard/landmarks", icon: LandMarkIcon },
-];
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const t = useTranslations("Navigation");
+  const router = useRouter();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
+  const isArabic = currentLocale === "ar";
+
+  // Function to get navigation links with translations
+  const getNavigationLinks = () => [
+    { name: t("home"), href: `/${currentLocale}/dashboard`, icon: HomeIcon },
+    {
+      name: t("cities"),
+      href: `/${currentLocale}/dashboard/cities`,
+      icon: CityIcon,
+    },
+    {
+      name: t("projects"),
+      href: `/${currentLocale}/dashboard/projects`,
+      icon: BoxIcon,
+    },
+    {
+      name: t("landmarks"),
+      href: `/${currentLocale}/dashboard/landmarks`,
+      icon: LandMarkIcon,
+    },
+  ];
+
+  const navigationLinks = getNavigationLinks();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const switchLanguage = () => {
+    const newLocale = isArabic ? "en" : "ar";
+    const pathWithoutLocale = pathname.split("/").slice(2).join("/");
+    const newPath = `/${newLocale}/${pathWithoutLocale}`;
+    router.push(newPath);
   };
 
   return (
     <nav className="container bg-white mx-auto mt-8 mb-8 px-5 rounded-lg">
       <div className="flex justify-between md:justify-start items-center gap-16 h-16">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
+        <Link
+          href={`/${currentLocale}`}
+          className="flex items-center space-x-2"
+        >
           <Image
             src="/logo.svg"
             alt="Al Rossais Logo"
@@ -39,7 +73,7 @@ export function Navbar() {
           />
         </Link>{" "}
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-8 flex-1">
           {navigationLinks.map((link) => {
             const isActive = pathname === link.href;
             const IconComponent = link.icon;
@@ -60,13 +94,28 @@ export function Navbar() {
             );
           })}
         </div>
+        {/* Language Toggle Button */}
+        <div className="hidden md:flex items-center ">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={switchLanguage}
+            className="ml-4"
+          >
+            {isArabic ? "English" : "العربية"}
+          </Button>
+        </div>
         {/* Mobile menu button */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
+          {/* Mobile Language Toggle */}
+          <Button variant="ghost" size="sm" onClick={switchLanguage}>
+            {isArabic ? "English" : "العربية"}
+          </Button>
           <button
             type="button"
             onClick={toggleMenu}
             className="text-muted-foreground hover:text-primary focus:outline-none focus:text-primary"
-            aria-label="Toggle menu"
+            aria-label={"toggleMenu"}
             aria-expanded={isMenuOpen}
           >
             <svg

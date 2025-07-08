@@ -9,11 +9,16 @@ import { UnitType } from "@/lib/constants";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
 export interface Project {
   id: number;
   name: string;
+  nameAr?: string;
   description?: string;
+  descriptionAr?: string;
   image?: string;
   labelDirection: string;
   points: number[];
@@ -26,9 +31,11 @@ export interface Project {
   city?: {
     id: number;
     name: string;
+    nameAr?: string;
     region?: {
       id: number;
       name: string;
+      nameAr?: string;
     };
   };
 }
@@ -50,6 +57,27 @@ const ProjectsList = () => {
   const debouncedSearch = useDebounce(searchQuery, 300);
   const wasManuallyClosedRef = useRef(false);
   const lastSelectedProjectRef = useRef<number | null>(null);
+
+  const t = useTranslations("Projects");
+  const tCommon = useTranslations("Common");
+  const tRegions = useTranslations("Regions");
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
+
+  // Helper function to get translated region name
+  const getRegionName = (regionId: number) => {
+    const regionIdToKey: Record<number, string> = {
+      1: "western",
+      2: "eastern",
+      3: "northern",
+      4: "southern",
+      5: "central",
+    };
+    const key = regionIdToKey[regionId];
+    return key ? tRegions(key) : `Region ${regionId}`;
+  };
 
   const {
     selectedCityId,
@@ -166,15 +194,20 @@ const ProjectsList = () => {
 
   const getHeaderTitle = () => {
     if (selectedCityId && currentCity) {
+      const cityName = getLocalizedName(currentCity, currentLocale);
+      const regionName = currentRegion?.id
+        ? getRegionName(currentRegion.id)
+        : currentRegion?.name;
+
       return (
         <div>
-          <h2 className="text-xl font-semibold mb-2">{currentCity.name}</h2>
+          <h2 className="text-xl font-semibold mb-2">{cityName}</h2>
           <div className="flex items-center gap-2 text-md text-gray-400">
             <MapPin className="h-4 w-4 text-primary" />
-            <span>{currentRegion?.name}</span>
+            <span>{regionName}</span>
             <span className="text-md font-bold text-primary">•</span>
             <span>
-              {total} {total === 1 ? "Project" : "Projects"}
+              {total} {total === 1 ? t("title").slice(0, -1) : t("title")}
             </span>
           </div>
         </div>
@@ -182,10 +215,14 @@ const ProjectsList = () => {
     } else if (selectedRegion && currentRegion) {
       return (
         <div>
-          <h2 className="text-xl font-semibold mb-2">{currentRegion.name}</h2>
+          <h2 className="text-xl font-semibold mb-2">
+            {currentRegion?.id
+              ? getRegionName(currentRegion.id)
+              : currentRegion?.name}
+          </h2>
           <div className="flex items-center gap-2 text-md text-gray-400">
             <span>
-              {total} {total === 1 ? "Project" : "Projects"}
+              {total} {total === 1 ? t("title").slice(0, -1) : t("title")}
             </span>
           </div>
         </div>
@@ -193,10 +230,12 @@ const ProjectsList = () => {
     } else {
       return (
         <div>
-          <h2 className="text-xl font-semibold mb-2">All Projects</h2>
+          <h2 className="text-xl font-semibold mb-2">
+            {tCommon("allProjects")}
+          </h2>
           <div className="flex items-center gap-2 text-md text-gray-400">
             <span>
-              {total} {total === 1 ? "Project" : "Projects"}
+              {total} {total === 1 ? t("title").slice(0, -1) : t("title")}
             </span>
           </div>
         </div>
@@ -213,7 +252,7 @@ const ProjectsList = () => {
         onClick={() => setIsOpen(true)}
         hidden={isOpen}
       >
-        All Projects
+        {tCommon("allProjects")}
         <ChevronRight className="h-4 w-4" />
       </Button>
       <AnimatePresence>
@@ -253,7 +292,7 @@ const ProjectsList = () => {
                   <div className="relative">
                     <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
-                      placeholder="Search on Projects"
+                      placeholder={tCommon("searchOnProjects")}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-8 pr-4 py-2 bg-gray-100/50"
@@ -287,7 +326,7 @@ const ProjectsList = () => {
                     ))}
                     {loading && (
                       <div className="py-4 text-center text-gray-500">
-                        Loading...
+                        {tCommon("loading")}
                       </div>
                     )}
                   </div>
