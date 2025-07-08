@@ -7,6 +7,8 @@ import regions from "./regions";
 import colors from "@/lib/colors";
 import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
 import { useMapStore } from "@/lib/store/map-store";
+import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 
 // Define region positions for labels
 const regionLabelPositions: Record<string, { x: number; y: number }> = {
@@ -29,6 +31,11 @@ const RegionsLayer = () => {
     assignPathRef,
   } = useRegionsLayer();
   const { mapType } = useMapStore();
+  const tRegions = useTranslations("Regions");
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
 
   const [regionCityCounts, setRegionCityCounts] = useState<Record<
     string,
@@ -61,11 +68,14 @@ const RegionsLayer = () => {
 
   return (
     <Group x={369} y={664} scaleX={1} scaleY={1}>
-      {regions.map(({ id, name }) => {
+      {regions.map(({ id }) => {
         const pathData = pathDataMap[id] || "";
         const labelPos = regionLabelPositions[id] || { x: 0, y: 0 };
         const cityCount = regionCityCounts ? regionCityCounts[id] : -1;
         const isDisabled = cityCount === 0 && mapType === "main";
+
+        // Get translated region name
+        const translatedName = tRegions(id);
 
         if (!pathData) return null;
 
@@ -144,7 +154,7 @@ const RegionsLayer = () => {
 
                 {/* Region name */}
                 <Text
-                  text={name}
+                  text={translatedName}
                   x={8}
                   y={16}
                   fontSize={14}

@@ -25,6 +25,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import ConfirmDeleteDialog from "@/components/ui/confirm-delete-dialog";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { getLocalizedName, getLocalizedText } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: Project;
@@ -37,8 +39,26 @@ export default function ProjectCard({
 }: ProjectCardProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const pathname = usePathname();
   const t = useTranslations("Common");
   const tDialogs = useTranslations("Dialogs");
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
+
+  // Get localized names and descriptions
+  const projectName = getLocalizedName(project, currentLocale);
+  const projectDescription = getLocalizedText(
+    project.description || "",
+    project.descriptionAr,
+    currentLocale
+  );
+  const cityName = project.city
+    ? getLocalizedName(project.city, currentLocale)
+    : "N/A";
+  const regionName = project.city?.region
+    ? getLocalizedName(project.city.region, currentLocale)
+    : "N/A";
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -93,7 +113,7 @@ export default function ProjectCard({
           <div className="relative h-40 w-full">
             <Image
               src={project.image || "/logo.svg"}
-              alt={project.name}
+              alt={projectName}
               fill
               objectFit="cover"
               className="rounded-lg"
@@ -108,9 +128,7 @@ export default function ProjectCard({
         <CardContent className="px-0">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2">
-              <CardTitle className="text-xl font-bold">
-                {project.name}
-              </CardTitle>
+              <CardTitle className="text-xl font-bold">{projectName}</CardTitle>
             </div>
             <div className="flex items-center space-x-1">
               <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
@@ -133,20 +151,18 @@ export default function ProjectCard({
           </div>
 
           <p className="text-gray-600 mt-2 line-clamp-1">
-            {project.description}
+            {projectDescription}
           </p>
         </CardContent>
 
         <CardFooter className="py-2 ps-0 pe-2 grid grid-cols-2 gap-2 text-sm text-gray-500">
           <div className="flex items-center space-x-2">
             <Map className="h-5 w-5 text-primary" />
-            <span className="font-semibold">
-              {project.city?.region?.name ?? "N/A"}
-            </span>
+            <span className="font-semibold">{regionName}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Landmark className="h-5 w-5 text-primary" />
-            <span className="font-semibold">{project.city?.name ?? "N/A"}</span>
+            <span className="font-semibold">{cityName}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Home className="h-5 w-5 text-primary" />

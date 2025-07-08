@@ -3,6 +3,7 @@ import { UNIT_TYPES } from "@/lib/constants";
 export type Region = {
   id: string;
   name: string;
+  nameAr?: string;
   key: string;
   lat: number;
   lng: number;
@@ -15,6 +16,7 @@ export type Region = {
 export type City = {
   id: number;
   name: string;
+  nameAr?: string;
   image: string;
   labelDirection: "up" | "down" | "left" | "right";
   points: number[];
@@ -36,15 +38,18 @@ export type RegionApiResponse = {
 export type Landmark = {
   id: number;
   name: string;
+  nameAr?: string;
   type: string;
   coordinates: { lat: number; lng: number };
   cityId: number;
   city?: {
     id: number;
     name: string;
+    nameAr?: string;
     region?: {
       id: number;
       name: string;
+      nameAr?: string;
     } | null;
   } | null;
   createdAt: string;
@@ -62,7 +67,9 @@ export type LandmarksApiResponse = {
 export type Project = {
   id: number;
   name: string;
+  nameAr?: string;
   description?: string | null;
+  descriptionAr?: string | null;
   image?: string | null;
   labelDirection?: string | null;
   points: number[];
@@ -70,9 +77,11 @@ export type Project = {
   city?: {
     id: number;
     name: string;
+    nameAr?: string;
     region?: {
       id: number;
       name: string;
+      nameAr?: string;
     } | null;
   } | null;
   unitType: (typeof UNIT_TYPES)[keyof typeof UNIT_TYPES];

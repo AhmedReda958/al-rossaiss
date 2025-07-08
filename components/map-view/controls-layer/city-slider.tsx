@@ -9,14 +9,18 @@ import {
 import { useMapStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
 interface City {
   id: string;
   name: string;
+  nameAr?: string;
   regionId: string;
   region: {
     id: string;
     name: string;
+    nameAr?: string;
   };
 }
 
@@ -29,6 +33,10 @@ interface CitiesResponse {
 const CitySlider = () => {
   const { setSelectedCity, selectedCity } = useMapStore();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
   const [cities, setCities] = React.useState<City[]>([]);
 
   React.useEffect(() => {
@@ -61,6 +69,8 @@ const CitySlider = () => {
     >
       <CarouselContent className="-ml-4">
         {cities.map((city) => {
+          const cityName = getLocalizedName(city, currentLocale);
+
           return (
             <CarouselItem key={city.id} className="pl-4 basis-1/4">
               <Button
@@ -68,7 +78,7 @@ const CitySlider = () => {
                 onClick={() => handleCityClick(city.id)}
                 className="w-full rounded-sm border-none"
               >
-                {city.name}
+                {cityName}
               </Button>
             </CarouselItem>
           );

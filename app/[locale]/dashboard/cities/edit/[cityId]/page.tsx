@@ -5,15 +5,21 @@ import { useEffect, useState } from "react";
 import { useMapStore } from "@/lib/store";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
 const Page = () => {
   const params = useParams();
+  const pathname = usePathname();
   const cityId = params.cityId as string;
   const { setEditingCity, editingCity } = useMapStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations("Cities");
   const tCommon = useTranslations("Common");
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
 
   useEffect(() => {
     if (!cityId) {
@@ -62,6 +68,8 @@ const Page = () => {
     return <div>{t("noCitiesFound")}</div>;
   }
 
+  const cityName = getLocalizedName(editingCity, currentLocale);
+
   return (
     <>
       <PageHeader
@@ -69,7 +77,7 @@ const Page = () => {
         breadcrumbs={[
           { label: t("allCities"), href: "/dashboard/cities" },
           {
-            label: `${t("editCity")} ${editingCity.name}`,
+            label: `${t("editCity")} ${cityName}`,
             isCurrentPage: true,
           },
         ]}

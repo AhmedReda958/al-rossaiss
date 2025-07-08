@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Project } from "./projects-list";
-import { cn } from "@/lib/utils";
+import { cn, getLocalizedName, getLocalizedText } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import { UNIT_TYPES } from "@/lib/constants";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 
 interface ProjectCardProps {
   project: Project;
@@ -55,6 +56,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const t = useTranslations("Common");
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
+
+  // Get localized names
+  const projectName = getLocalizedName(project, currentLocale);
+  const projectDescription = getLocalizedText(
+    project.description || "",
+    project.descriptionAr,
+    currentLocale
+  );
   return (
     <Card
       className={cn(
@@ -67,7 +80,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="relative h-40 w-full">
           <Image
             src={project.image || "/logo.svg"}
-            alt={project.name}
+            alt={projectName}
             fill
             objectFit="cover"
             className="rounded-lg"
@@ -83,7 +96,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <div className="">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold">{project.name}</h3>
+            <h3 className="text-lg font-semibold">{projectName}</h3>
           </div>
           <div className="flex items-center gap-1 text-md font-thin text-primary">
             {getUnitTypeIcon(project.unitType)}
@@ -141,10 +154,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         )}
       </div>
 
-      {isExpanded && project.description && (
+      {isExpanded && projectDescription && (
         <div>
           <p className="text-gray-500 my-2 leading-5 text-xs ">
-            {project.description}
+            {projectDescription}
           </p>
           <div
             className="flex justify-center"

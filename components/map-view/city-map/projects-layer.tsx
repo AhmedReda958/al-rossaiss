@@ -7,13 +7,21 @@ import Polygon from "@/components/map-view/polygon/polygon";
 import { CityPolygon } from "@/lib/store/polygon-marker-store";
 import { Project } from "@/types";
 import colors from "@/lib/colors";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
-const mapProjectToCityPolygon = (project: Project): CityPolygon => {
+const mapProjectToCityPolygon = (
+  project: Project,
+  currentLocale: string
+): CityPolygon => {
   const direction = project.labelDirection || "up";
+
+  // Get localized name
+  const localizedName = getLocalizedName(project, currentLocale);
 
   return {
     id: String(project.id),
-    name: project.name,
+    name: localizedName,
     points: project.points,
     regionId: String(project.city?.region?.id || ""), // Use city's region id
     labelDirection: direction as CityPolygon["labelDirection"],
@@ -28,6 +36,11 @@ const ProjectsLayer = () => {
     addLoadingOperation,
     removeLoadingOperation,
   } = useMapStore();
+
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
 
   useEffect(() => {
     const fetchCityProjects = async () => {
@@ -65,7 +78,7 @@ const ProjectsLayer = () => {
       {projects.map((project) => (
         <Polygon
           key={project.id}
-          polygon={mapProjectToCityPolygon(project)}
+          polygon={mapProjectToCityPolygon(project, currentLocale)}
           strokeColor={colors.primary}
           fillColor={colors.primary_400}
           labelColor={colors.primary}

@@ -26,6 +26,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import ConfirmDeleteDialog from "@/components/ui/confirm-delete-dialog";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
 interface LandmarksTableProps {
   landmarks: Landmark[];
@@ -78,6 +80,7 @@ export default function LandmarksTable({
   onLandmarkDeleted,
 }: LandmarksTableProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [landmarkToDelete, setLandmarkToDelete] = useState<Landmark | null>(
     null
@@ -87,6 +90,9 @@ export default function LandmarksTable({
   );
   const t = useTranslations("Landmarks");
   const tCommon = useTranslations("Common");
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
 
   const handleViewLandmark = (landmark: Landmark) => {
     if (landmark.cityId) {
@@ -245,10 +251,19 @@ export default function LandmarksTable({
               const IconComponent = getLandmarkIcon(landmark.type);
               const typeStyle = getLandmarkTypeStyle(landmark.type);
 
+              // Get localized names
+              const landmarkName = getLocalizedName(landmark, currentLocale);
+              const cityName = landmark.city
+                ? getLocalizedName(landmark.city, currentLocale)
+                : tCommon("unknown");
+              const regionName = landmark.city?.region
+                ? getLocalizedName(landmark.city.region, currentLocale)
+                : tCommon("unknown");
+
               return (
                 <TableRow key={landmark.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium ps-6">
-                    {landmark.name}
+                    {landmarkName}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -262,12 +277,8 @@ export default function LandmarksTable({
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    {landmark.city?.name || tCommon("unknown")}
-                  </TableCell>
-                  <TableCell>
-                    {landmark.city?.region?.name || tCommon("unknown")}
-                  </TableCell>
+                  <TableCell>{cityName}</TableCell>
+                  <TableCell>{regionName}</TableCell>
                   <TableCell className="text-right rtl:text-left">
                     <div className="flex items-center justify-end rtl:justify-start ">
                       <Button

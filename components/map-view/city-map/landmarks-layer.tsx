@@ -6,10 +6,13 @@ import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import LandmarkPin from "@/components/map-view/polygon/landmark-pin";
 import { LandmarkType } from "@/lib/constants";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
 interface Landmark {
   id: number;
   name: string;
+  nameAr?: string;
   type: LandmarkType;
   coordinates: {
     x: number;
@@ -28,6 +31,10 @@ const LandmarksLayer = () => {
     removeLoadingOperation,
   } = useMapStore();
   const { coordinates, isDrawingMode } = usePolygonMarkerStore();
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
 
   useEffect(() => {
     const fetchCityLandmarks = async () => {
@@ -49,7 +56,12 @@ const LandmarksLayer = () => {
     };
 
     fetchCityLandmarks();
-  }, [selectedCityId, setLandmarks, addLoadingOperation, removeLoadingOperation]);
+  }, [
+    selectedCityId,
+    setLandmarks,
+    addLoadingOperation,
+    removeLoadingOperation,
+  ]);
 
   // Filter landmarks based on hidden types
   const visibleLandmarks = landmarks?.filter(
@@ -63,19 +75,23 @@ const LandmarksLayer = () => {
   return (
     <Group>
       {/* Render existing landmarks */}
-      {visibleLandmarks?.map((landmark: Landmark) => (
-        <LandmarkPin
-          key={landmark.id}
-          x={landmark.coordinates.x}
-          y={landmark.coordinates.y}
-          type={landmark.type}
-          name={landmark.name}
-          size={40}
-          onClick={() => {
-            console.log("Landmark clicked:", landmark.name);
-          }}
-        />
-      ))}
+      {visibleLandmarks?.map((landmark: Landmark) => {
+        const landmarkName = getLocalizedName(landmark, currentLocale);
+
+        return (
+          <LandmarkPin
+            key={landmark.id}
+            x={landmark.coordinates.x}
+            y={landmark.coordinates.y}
+            type={landmark.type}
+            name={landmarkName}
+            size={40}
+            onClick={() => {
+              console.log("Landmark clicked:", landmarkName);
+            }}
+          />
+        );
+      })}
 
       {/* Render dynamic landmark pin when in drawing mode */}
       {isDrawingMode && landmarkTypeInDrawing && coordinates.length === 2 && (

@@ -37,6 +37,9 @@ const createFormSchema = (t: (key: string) => string) =>
     name: z.string().min(2, {
       message: t("projectNameRequired"),
     }),
+    nameAr: z.string().min(2, {
+      message: t("projectNameArRequired"),
+    }),
     unitType: z.enum(Object.values(UNIT_TYPES) as [string, ...string[]]),
     space: z.number().min(1, { message: t("spaceRequired") }),
     unitsCount: z.number().min(1, { message: t("unitsRequired") }),
@@ -47,6 +50,7 @@ const createFormSchema = (t: (key: string) => string) =>
       .or(z.literal("")),
     image: z.instanceof(File).or(z.string()).optional(),
     description: z.string().optional(),
+    descriptionAr: z.string().optional(),
     labelDirection: z.enum(["up", "down", "left", "right"]),
     soldOut: z.boolean(),
   });
@@ -81,8 +85,10 @@ const AddProjectForm: React.FC = () => {
     defaultValues: {
       cityId: selectedCity || "",
       name: "",
+      nameAr: "",
       url: "",
       description: "",
+      descriptionAr: "",
       image: undefined,
       labelDirection: "up",
       soldOut: false,
@@ -127,7 +133,13 @@ const AddProjectForm: React.FC = () => {
       setIsDrawingMode(false);
       setInstructions(null);
     };
-  }, [selectedRegion, selectedCity, setIsDrawingMode, setInstructions, tInstructions]);
+  }, [
+    selectedRegion,
+    selectedCity,
+    setIsDrawingMode,
+    setInstructions,
+    tInstructions,
+  ]);
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -162,6 +174,7 @@ const AddProjectForm: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append("name", values.name);
+      formData.append("nameAr", values.nameAr);
       formData.append("cityId", values.cityId);
       formData.append("unitType", values.unitType);
       formData.append("space", String(values.space));
@@ -169,6 +182,8 @@ const AddProjectForm: React.FC = () => {
       if (values.url) formData.append("url", values.url);
       if (values.description)
         formData.append("description", values.description);
+      if (values.descriptionAr)
+        formData.append("descriptionAr", values.descriptionAr);
       if (values.image instanceof File) {
         formData.append("image", values.image);
       }
@@ -248,9 +263,23 @@ const AddProjectForm: React.FC = () => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <Label>{t("projectName")}</Label>
+                <Label>{t("projectNameEn")}</Label>
                 <FormControl>
                   <Input className="w-full" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="nameAr"
+            render={({ field }) => (
+              <FormItem>
+                <Label>{t("projectNameAr")}</Label>
+                <FormControl>
+                  <Input className="w-full" dir="rtl" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -416,11 +445,30 @@ const AddProjectForm: React.FC = () => {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <Label>{t("description")}</Label>
+                <Label>{t("descriptionEn")}</Label>
                 <FormControl>
                   <Textarea
                     placeholder={t("descriptionPlaceholder")}
                     className="w-full"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="descriptionAr"
+            render={({ field }) => (
+              <FormItem>
+                <Label>{t("descriptionAr")}</Label>
+                <FormControl>
+                  <Textarea
+                    placeholder={t("descriptionArPlaceholder")}
+                    className="w-full"
+                    dir="rtl"
                     {...field}
                   />
                 </FormControl>

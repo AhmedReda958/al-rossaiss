@@ -18,6 +18,8 @@ import { Search } from "lucide-react";
 import { PaginationWithNumbers } from "@/components/ui/pagination-with-numbers";
 import { LANDMARK_TYPES } from "@/lib/constants";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
 export default function LandmarksPage() {
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
@@ -35,6 +37,10 @@ export default function LandmarksPage() {
   const tCommon = useTranslations("Common");
   const tRegions = useTranslations("Regions");
   const tLandmarkTypes = useTranslations("LandmarkTypes");
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
 
   // Helper function to get translated region name
   const getRegionName = (regionId: number) => {
@@ -174,11 +180,14 @@ export default function LandmarksPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{tCommon("allCities")}</SelectItem>
-              {cities.map((city) => (
-                <SelectItem key={city.id} value={city.id.toString()}>
-                  {city.name}
-                </SelectItem>
-              ))}
+              {cities.map((city) => {
+                const cityName = getLocalizedName(city, currentLocale);
+                return (
+                  <SelectItem key={city.id} value={city.id.toString()}>
+                    {cityName}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
 

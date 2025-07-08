@@ -10,11 +10,15 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { getLocalizedName } from "@/lib/utils";
 
 export interface Project {
   id: number;
   name: string;
+  nameAr?: string;
   description?: string;
+  descriptionAr?: string;
   image?: string;
   labelDirection: string;
   points: number[];
@@ -27,9 +31,11 @@ export interface Project {
   city?: {
     id: number;
     name: string;
+    nameAr?: string;
     region?: {
       id: number;
       name: string;
+      nameAr?: string;
     };
   };
 }
@@ -55,6 +61,10 @@ const ProjectsList = () => {
   const t = useTranslations("Projects");
   const tCommon = useTranslations("Common");
   const tRegions = useTranslations("Regions");
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
 
   // Helper function to get translated region name
   const getRegionName = (regionId: number) => {
@@ -184,16 +194,17 @@ const ProjectsList = () => {
 
   const getHeaderTitle = () => {
     if (selectedCityId && currentCity) {
+      const cityName = getLocalizedName(currentCity, currentLocale);
+      const regionName = currentRegion?.id
+        ? getRegionName(currentRegion.id)
+        : currentRegion?.name;
+
       return (
         <div>
-          <h2 className="text-xl font-semibold mb-2">{currentCity.name}</h2>
+          <h2 className="text-xl font-semibold mb-2">{cityName}</h2>
           <div className="flex items-center gap-2 text-md text-gray-400">
             <MapPin className="h-4 w-4 text-primary" />
-            <span>
-              {currentRegion?.id
-                ? getRegionName(currentRegion.id)
-                : currentRegion?.name}
-            </span>
+            <span>{regionName}</span>
             <span className="text-md font-bold text-primary">•</span>
             <span>
               {total} {total === 1 ? t("title").slice(0, -1) : t("title")}

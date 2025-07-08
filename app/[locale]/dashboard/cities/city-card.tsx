@@ -12,11 +12,12 @@ import { Button } from "@/components/ui/button";
 import { City } from "@/types";
 import { Pencil, Trash2, Map, LayoutGrid } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import ConfirmDeleteDialog from "@/components/ui/confirm-delete-dialog";
 import { useTranslations } from "next-intl";
+import { getLocalizedName } from "@/lib/utils";
 
 interface CityCardProps {
   city: City;
@@ -26,11 +27,21 @@ interface CityCardProps {
 export default function CityCard({ city, onCityDeleted }: CityCardProps) {
   const projectCount = city?.region?._count?.projects ?? 0;
   const router = useRouter();
+  const pathname = usePathname();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const t = useTranslations("Cities");
   const tDialogs = useTranslations("Dialogs");
   const tCommon = useTranslations("Common");
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
+
+  // Get localized names
+  const cityName = getLocalizedName(city, currentLocale);
+  const regionName = city?.region
+    ? getLocalizedName(city.region, currentLocale)
+    : "N/A";
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -111,7 +122,7 @@ export default function CityCard({ city, onCityDeleted }: CityCardProps) {
           <div className="relative h-40 w-full">
             <Image
               src={city.image || "/map.jpg"}
-              alt={city.name}
+              alt={cityName}
               fill
               objectFit="cover"
               className="rounded-lg"
@@ -120,7 +131,7 @@ export default function CityCard({ city, onCityDeleted }: CityCardProps) {
         </CardHeader>
         <CardContent className="px-0">
           <div className="flex justify-between items-start">
-            <CardTitle className="text-xl font-bold">{city.name}</CardTitle>
+            <CardTitle className="text-xl font-bold">{cityName}</CardTitle>
             <div className="flex items-center space-x-1">
               <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
                 <Link href={`/dashboard/cities/edit/${city.id}`}>
@@ -142,7 +153,7 @@ export default function CityCard({ city, onCityDeleted }: CityCardProps) {
           <div className="flex items-center space-x-2">
             <Map className="h-5 w-5 text-primary" />
             <span>{t("region")}: </span>
-            <span className="font-semibold">{city?.region?.name ?? "N/A"}</span>
+            <span className="font-semibold">{regionName}</span>
           </div>
           <div className="flex items-center space-x-2">
             <LayoutGrid className="h-5 w-5 text-primary" />

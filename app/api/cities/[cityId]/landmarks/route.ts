@@ -35,6 +35,7 @@ export async function POST(
     const landmark = await prisma.landmark.create({
       data: {
         name: data.name,
+        nameAr: data.nameAr,
         type: data.type as LandmarkType,
         coordinates: data.coordinates,
         cityId,

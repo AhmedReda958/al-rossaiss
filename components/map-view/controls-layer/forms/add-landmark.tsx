@@ -26,6 +26,9 @@ const createFormSchema = (t: (key: string) => string) =>
     name: z.string().min(2, {
       message: t("landmarkNameRequired"),
     }),
+    nameAr: z.string().min(2, {
+      message: t("landmarkNameArRequired"),
+    }),
     type: z.enum(Object.values(LANDMARK_TYPES) as [string, ...string[]], {
       required_error: t("landmarkTypeRequired"),
     }),
@@ -57,6 +60,7 @@ const AddLandmarkForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      nameAr: "",
       type: LANDMARK_TYPES.LANDMARK,
     },
   });
@@ -161,11 +165,29 @@ const AddLandmarkForm = () => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <Label>{t("landmarkName")}</Label>
+                <Label>{t("landmarkNameEn")}</Label>
                 <FormControl>
                   <Input
                     className="w-full"
                     placeholder={t("enterLandmarkName")}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="nameAr"
+            render={({ field }) => (
+              <FormItem>
+                <Label>{t("landmarkNameAr")}</Label>
+                <FormControl>
+                  <Input
+                    className="w-full"
+                    placeholder={t("enterLandmarkNameAr")}
+                    dir="rtl"
                     {...field}
                   />
                 </FormControl>

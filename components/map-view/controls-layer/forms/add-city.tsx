@@ -32,6 +32,9 @@ const createFormSchema = (t: (key: string) => string) =>
     cityName: z.string().min(2, {
       message: t("cityNameRequired"),
     }),
+    cityNameAr: z.string().min(2, {
+      message: t("cityNameArRequired"),
+    }),
     cityImage: z
       .instanceof(File)
       .or(z.string())
@@ -75,6 +78,7 @@ const AddCityForm: React.FC = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       cityName: city?.name || "",
+      cityNameAr: city?.nameAr || "",
       cityImage: city?.image || undefined,
       labelDirection: city?.labelDirection || "up",
     },
@@ -153,6 +157,7 @@ const AddCityForm: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append("name", values.cityName);
+      formData.append("nameAr", values.cityNameAr);
       if (values.cityImage instanceof File) {
         formData.append("image", values.cityImage);
       }
@@ -211,10 +216,30 @@ const AddCityForm: React.FC = () => {
             name="cityName"
             render={({ field }) => (
               <FormItem>
+                <Label>{t("cityNameEn")}</Label>
                 <FormControl>
                   <Input
-                    placeholder={t("cityName")}
+                    placeholder={t("cityNameEn")}
                     className="w-full"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="cityNameAr"
+            render={({ field }) => (
+              <FormItem>
+                <Label>{t("cityNameAr")}</Label>
+                <FormControl>
+                  <Input
+                    placeholder={t("cityNameAr")}
+                    className="w-full"
+                    dir="rtl"
                     {...field}
                   />
                 </FormControl>

@@ -16,12 +16,20 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const name = formData.get("name") as string;
+    const nameAr = formData.get("nameAr") as string;
     const labelDirection = formData.get("labelDirection") as string;
     const points = JSON.parse(formData.get("points") as string) as number[];
     const regionIdString = formData.get("regionId") as string;
     const image = formData.get("image") as File;
 
-    if (!name || !labelDirection || !points || !regionIdString || !image) {
+    if (
+      !name ||
+      !nameAr ||
+      !labelDirection ||
+      !points ||
+      !regionIdString ||
+      !image
+    ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -42,16 +50,19 @@ export async function POST(request: Request) {
     }
 
     // Handle file upload to Vercel Blob
-    const fileExtension = image.name.split('.').pop();
-    const filename = `cities/${Date.now()}-${Math.round(Math.random() * 1e9)}.${fileExtension}`;
-    
+    const fileExtension = image.name.split(".").pop();
+    const filename = `cities/${Date.now()}-${Math.round(
+      Math.random() * 1e9
+    )}.${fileExtension}`;
+
     const blob = await put(filename, image, {
-      access: 'public',
+      access: "public",
     });
 
     const newCity = await prisma.city.create({
       data: {
         name,
+        nameAr,
         labelDirection,
         points,
         regionId: region.id,
