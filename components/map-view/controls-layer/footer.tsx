@@ -29,7 +29,7 @@ const ControlsLayerFooter = () => {
   }, []);
 
   return (
-    <footer className="flex items-bottom justify-between z-10 absolute bottom-0 left-0 w-full  p-5 ">
+    <footer className=" flex items-bottom justify-between z-10 absolute bottom-0 left-0 w-full  p-5 pointer-events-auto">
       <div></div>
       <div
         className="absolute left-1/2 -translate-x-1/2 bottom-5 md:block hidden"
