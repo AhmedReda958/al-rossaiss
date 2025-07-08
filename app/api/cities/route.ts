@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { put } from "@vercel/blob";
-
-const prisma = new PrismaClient();
+import prisma, { safeExecute } from "@/lib/prisma";
 
 const regionNameMapping: { [key: string]: string } = {
   western: "Western Region",
@@ -98,9 +97,9 @@ export async function GET(request: Request) {
     }
 
     if (regionName && regionName !== "all") {
-      const region = await prisma.region.findUnique({
+      const region = await safeExecute(() => prisma.region.findUnique({
         where: { name: regionName },
-      });
+      }));
       if (region) {
         where.regionId = region.id;
       } else {
@@ -108,10 +107,10 @@ export async function GET(request: Request) {
       }
     }
 
-    const total = await prisma.city.count({ where });
+    const total = await safeExecute(() => prisma.city.count({ where }));
     const totalPages = Math.ceil(total / limit);
 
-    const cities = await prisma.city.findMany({
+    const cities = await safeExecute(() => prisma.city.findMany({
       where,
       include: {
         region: {
@@ -129,7 +128,7 @@ export async function GET(request: Request) {
       orderBy: {
         createdAt: "desc",
       },
-    });
+    }));
 
     return NextResponse.json({ cities, total, totalPages });
   } catch (error) {

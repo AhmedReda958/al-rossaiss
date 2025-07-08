@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma, { safeExecute } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const regions = await prisma.region.findMany();
+    const regions = await safeExecute(() => prisma.region.findMany());
     return NextResponse.json(regions);
   } catch (error) {
     console.error("Error fetching regions:", error);
