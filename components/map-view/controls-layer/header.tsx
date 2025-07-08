@@ -2,9 +2,24 @@ import React from "react";
 import Image from "next/image";
 import { useMapStore } from "@/lib/store";
 import LandmarkFilter from "./landmark-filter";
+import { Button } from "@/components/ui/button";
+import { usePathname, useRouter } from "next/navigation";
 
 const ControlsLayerHeader = () => {
   const { mapType, instructions } = useMapStore();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
+  const isArabic = currentLocale === "ar";
+
+  const switchLanguage = () => {
+    const newLocale = isArabic ? "en" : "ar";
+    const pathWithoutLocale = pathname.split("/").slice(2).join("/");
+    const newPath = `/${newLocale}/${pathWithoutLocale}`;
+    router.push(newPath);
+  };
 
   return (
     <nav className="flex items-start justify-between flex-row-reverse gap-4 z-10 absolute top-0 left-0 w-full h-16 p-5">
@@ -40,20 +55,17 @@ const ControlsLayerHeader = () => {
         </div>
       )}
 
-      {/* controls */}
-      {/* <div className="flex flex-col gap-3">
-        <Button variant="light" size={"icon-sm"}>
-          <BsQuestionCircle className="w-3 h-3" />
-        </Button>
-
+      {/* Language Toggle Button */}
+      <div className="flex flex-col gap-3">
         <Button
           variant="light"
           size={"icon-sm"}
-          className=" text-xs text-muted-foreground"
+          className="text-xs text-muted-foreground"
+          onClick={switchLanguage}
         >
-          EN
+          {isArabic ? "EN" : "عر"}
         </Button>
-      </div> */}
+      </div>
     </nav>
   );
 };

@@ -28,35 +28,38 @@ import ArrowLeft from "@/svgs/arrow-left";
 import ArrowRight from "@/svgs/arrow-right";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
-// Define form schema with Zod
-const formSchema = z.object({
-  cityId: z.string().min(1, { message: "City is required" }),
-  name: z.string().min(2, {
-    message: "Project name must be at least 2 characters",
-  }),
-  unitType: z.enum(Object.values(UNIT_TYPES) as [string, ...string[]]),
-  space: z.number().min(1, { message: "Space must be greater than 0" }),
-  unitsCount: z
-    .number()
-    .min(1, { message: "Number of units must be greater than 0" }),
-  url: z
-    .string()
-    .url({ message: "Please enter a valid URL" })
-    .optional()
-    .or(z.literal("")),
-  image: z.instanceof(File).or(z.string()).optional(),
-  description: z.string().optional(),
-  labelDirection: z.enum(["up", "down", "left", "right"]),
-  soldOut: z.boolean(),
-});
+// Define form schema function that takes translation function
+const createFormSchema = (t: (key: string) => string) =>
+  z.object({
+    cityId: z.string().min(1, { message: t("cityRequired") }),
+    name: z.string().min(2, {
+      message: t("projectNameRequired"),
+    }),
+    unitType: z.enum(Object.values(UNIT_TYPES) as [string, ...string[]]),
+    space: z.number().min(1, { message: t("spaceRequired") }),
+    unitsCount: z.number().min(1, { message: t("unitsRequired") }),
+    url: z
+      .string()
+      .url({ message: t("validURLRequired") })
+      .optional()
+      .or(z.literal("")),
+    image: z.instanceof(File).or(z.string()).optional(),
+    description: z.string().optional(),
+    labelDirection: z.enum(["up", "down", "left", "right"]),
+    soldOut: z.boolean(),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 const AddProjectForm: React.FC = () => {
   const { selectedRegion, selectedCity, setInstructions, setSelectedCity } =
     useMapStore();
   const router = useRouter();
+  const t = useTranslations("Projects");
+  const tCommon = useTranslations("Common");
+  const tInstructions = useTranslations("Instructions");
 
   const [cityImagePreview, setCityImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,6 +71,9 @@ const AddProjectForm: React.FC = () => {
     currentPoints,
     pointsToFlatArray,
   } = usePolygonMarkerStore();
+
+  // Create schema with translations
+  const formSchema = createFormSchema(t);
 
   // Initialize react-hook-form with zod validation
   const form = useForm<FormValues>({
@@ -108,20 +114,20 @@ const AddProjectForm: React.FC = () => {
   useEffect(() => {
     if (selectedRegion && selectedCity) {
       setIsDrawingMode(true);
-      setInstructions("Draw the project polygon on the city map.");
+      setInstructions(tInstructions("drawProjectPolygon"));
     } else {
       setIsDrawingMode(false);
       setInstructions(
         !selectedRegion
-          ? "Please select a region on the map to start adding a project."
-          : "Please select a city in the selected region."
+          ? tInstructions("selectRegionForProject")
+          : tInstructions("selectCityForProject")
       );
     }
     return () => {
       setIsDrawingMode(false);
       setInstructions(null);
     };
-  }, [selectedRegion, selectedCity, setIsDrawingMode, setInstructions]);
+  }, [selectedRegion, selectedCity, setIsDrawingMode, setInstructions, tInstructions]);
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -141,15 +147,15 @@ const AddProjectForm: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     if (!selectedRegion) {
-      toast.error("Please select a region on the map.");
+      toast.error(tCommon("selectRegionFirst"));
       return;
     }
     if (!selectedCity) {
-      toast.error("Please select a city in the selected region.");
+      toast.error(tCommon("selectCityFirst"));
       return;
     }
     if (currentPoints.length < 3) {
-      toast.error("A polygon needs at least 3 points.");
+      toast.error(tCommon("needThreePoints"));
       return;
     }
     setIsSubmitting(true);
@@ -179,17 +185,17 @@ const AddProjectForm: React.FC = () => {
       });
 
       if (response.ok) {
-        toast.success("Project created successfully!");
+        toast.success(tCommon("projectCreatedSuccess"));
         clearCurrentPoints();
         setIsDrawingMode(false);
         router.push("/dashboard/projects");
       } else {
         const errorData = await response.json();
-        toast.error(`Error: ${errorData.error}`);
+        toast.error(`${tCommon("error")}: ${errorData.error}`);
       }
     } catch (error) {
       console.error("Failed to submit form:", error);
-      toast.error("An unexpected error occurred.");
+      toast.error(tCommon("unexpectedError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -205,10 +211,8 @@ const AddProjectForm: React.FC = () => {
   return (
     <>
       <div className="mb-6">
-        <h2 className="text-lg font-semibold">Add Project</h2>
-        <p className="text-xs text-muted mb-1">
-          Draw the project polygon on the city map
-        </p>
+        <h2 className="text-lg font-semibold">{t("addProject")}</h2>
+        <p className="text-xs text-muted mb-1">{t("drawProjectPolygon")}</p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -217,7 +221,7 @@ const AddProjectForm: React.FC = () => {
             name="cityId"
             render={({ field }) => (
               <FormItem>
-                <Label>City</Label>
+                <Label>{tCommon("city")}</Label>
                 <select
                   className="w-full border rounded px-2 py-2"
                   {...field}
@@ -227,7 +231,7 @@ const AddProjectForm: React.FC = () => {
                   }}
                   value={field.value}
                 >
-                  <option value="">Select a city</option>
+                  <option value="">{t("selectCity")}</option>
                   {cities.map((city) => (
                     <option key={city.id} value={city.id}>
                       {city.name}
@@ -244,7 +248,7 @@ const AddProjectForm: React.FC = () => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <Label>Project Name</Label>
+                <Label>{t("projectName")}</Label>
                 <FormControl>
                   <Input className="w-full" {...field} />
                 </FormControl>
@@ -258,7 +262,7 @@ const AddProjectForm: React.FC = () => {
             name="unitType"
             render={({ field }) => (
               <FormItem>
-                <Label>Unit Type</Label>
+                <Label>{t("unitType")}</Label>
                 <select className="w-full border rounded px-2 py-2" {...field}>
                   {Object.entries(UNIT_TYPES).map(([key, value]) => (
                     <option key={key} value={value}>
@@ -276,13 +280,13 @@ const AddProjectForm: React.FC = () => {
             name="space"
             render={({ field: { onChange, ...field } }) => (
               <FormItem>
-                <Label>Space (m²)</Label>
+                <Label>{t("space")}</Label>
                 <FormControl>
                   <Input
                     type="number"
                     min="1"
                     step="0.01"
-                    placeholder="Enter space in square meters"
+                    placeholder={t("enterSpaceInSquareMeters")}
                     className="w-full"
                     onChange={(e) => onChange(parseFloat(e.target.value))}
                     {...field}
@@ -298,13 +302,13 @@ const AddProjectForm: React.FC = () => {
             name="unitsCount"
             render={({ field: { onChange, ...field } }) => (
               <FormItem>
-                <Label>Number of Units</Label>
+                <Label>{t("numberOfUnits")}</Label>
                 <FormControl>
                   <Input
                     type="number"
                     min="1"
                     step="1"
-                    placeholder="Enter number of units"
+                    placeholder={t("enterNumberOfUnits")}
                     className="w-full"
                     onChange={(e) => onChange(parseInt(e.target.value, 10))}
                     {...field}
@@ -320,17 +324,17 @@ const AddProjectForm: React.FC = () => {
             name="url"
             render={({ field }) => (
               <FormItem>
-                <Label>Project Website URL</Label>
+                <Label>{t("projectWebsiteURL")}</Label>
                 <FormControl>
                   <Input
                     type="url"
-                    placeholder="https://example.com"
+                    placeholder={t("urlPlaceholder")}
                     className="w-full"
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Optional link to the project&apos;s website or landing page
+                  {t("optionalWebsiteDescription")}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -357,10 +361,10 @@ const AddProjectForm: React.FC = () => {
                     />
                     <div className="w-fit">
                       <h3 className="text-sm font-medium">
-                        Upload Project Image
+                        {t("uploadProjectImage")}
                       </h3>
                       <p className="text-xs text-muted">
-                        Upload an image to represent your project (optional).
+                        {t("uploadImageDescription")}
                       </p>
                     </div>
                   </div>
@@ -377,7 +381,7 @@ const AddProjectForm: React.FC = () => {
                           width={24}
                           height={24}
                         />
-                        Upload
+                        {tCommon("uploadImage")}
                       </Button>
                       <input
                         type="file"
@@ -412,10 +416,10 @@ const AddProjectForm: React.FC = () => {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <Label>Description</Label>
+                <Label>{t("description")}</Label>
                 <FormControl>
                   <Textarea
-                    placeholder="Description (optional)"
+                    placeholder={t("descriptionPlaceholder")}
                     className="w-full"
                     {...field}
                   />
@@ -430,7 +434,7 @@ const AddProjectForm: React.FC = () => {
             name="labelDirection"
             render={({ field }) => (
               <FormItem>
-                <Label>Label Direction</Label>
+                <Label>{t("labelDirection")}</Label>
                 <ToggleGroup
                   type="single"
                   defaultValue={field.value}
@@ -461,7 +465,7 @@ const AddProjectForm: React.FC = () => {
             name="soldOut"
             render={({ field }) => (
               <FormItem className="flex items-center justify-between">
-                <Label>Sold Out</Label>
+                <Label>{t("soldOut")}</Label>
                 <FormControl>
                   <Switch
                     checked={field.value}
@@ -480,10 +484,10 @@ const AddProjectForm: React.FC = () => {
               onClick={onCancel}
               type="button"
             >
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" className="w-[114px]" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save"}
+              {isSubmitting ? t("saving") : tCommon("save")}
             </Button>
           </div>
         </form>

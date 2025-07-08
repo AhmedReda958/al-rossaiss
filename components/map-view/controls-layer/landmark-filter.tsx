@@ -8,15 +8,7 @@ import { cn } from "@/lib/utils";
 import { LandmarkIcon, GraduationCap, Hospital, TreePine } from "lucide-react";
 import { MdMosque } from "react-icons/md";
 import { IoBagHandle } from "react-icons/io5";
-
-const landmarkLabels = {
-  [LANDMARK_TYPES.LANDMARK]: "Landmarks",
-  [LANDMARK_TYPES.SHOP]: "Shop",
-  [LANDMARK_TYPES.EDUCATION]: "Education",
-  [LANDMARK_TYPES.HOSPITAL]: "Hospitals",
-  [LANDMARK_TYPES.PARK]: "Parks",
-  [LANDMARK_TYPES.MOSQUE]: "Mosques",
-} as const;
+import { useTranslations } from "next-intl";
 
 // Function to get the appropriate icon based on landmark type (same as landmark pin)
 const getLandmarkIcon = (type: LandmarkType) => {
@@ -45,6 +37,21 @@ const LandmarkFilter = () => {
     selectedCity,
     mapType,
   } = useMapStore();
+
+  const tLandmarkTypes = useTranslations("LandmarkTypes");
+
+  // Helper function to get translated landmark type label
+  const getLandmarkLabel = (type: LandmarkType) => {
+    const typeMap: Record<LandmarkType, string> = {
+      [LANDMARK_TYPES.LANDMARK]: tLandmarkTypes("LANDMARK"),
+      [LANDMARK_TYPES.SHOP]: tLandmarkTypes("SHOP"),
+      [LANDMARK_TYPES.EDUCATION]: tLandmarkTypes("EDUCATION"),
+      [LANDMARK_TYPES.HOSPITAL]: tLandmarkTypes("HOSPITAL"),
+      [LANDMARK_TYPES.PARK]: tLandmarkTypes("PARK"),
+      [LANDMARK_TYPES.MOSQUE]: tLandmarkTypes("MOSQUE"),
+    };
+    return typeMap[type] || type;
+  };
 
   // Only show filter if there are landmarks and we're viewing a city
   const shouldShowFilter =
@@ -76,8 +83,7 @@ const LandmarkFilter = () => {
             )}
           >
             <IconComponent size={16} />
-
-            {landmarkLabels[type]}
+            {getLandmarkLabel(type)}
           </Button>
         );
       })}

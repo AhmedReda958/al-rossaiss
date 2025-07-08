@@ -6,10 +6,12 @@ import { GoZoomOut } from "react-icons/go";
 import Image from "next/image";
 import { useMapStore } from "@/lib/store";
 import CitySlider from "./city-slider";
+import { useTranslations } from "next-intl";
 
 const ControlsLayerFooter = () => {
   const { resetZoom, setSelectedCity, selectedRegion, selectedCity } =
     useMapStore();
+  const t = useTranslations("Common");
 
   const openFullScreen = useCallback(() => {
     const element = document.getElementById("map_view");
@@ -46,7 +48,7 @@ const ControlsLayerFooter = () => {
             onClick={resetZoom}
           >
             <GoZoomOut className="w-6 h-6" />
-            Zoom out
+            {t("zoomOut")}
           </Button>
         )}
 

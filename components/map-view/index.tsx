@@ -3,7 +3,7 @@
 import { useMapStore } from "@/lib/store";
 import dynamic from "next/dynamic";
 import { useLayoutEffect } from "react";
-import { TMapType } from "@/app/types/map";
+import { TMapType } from "@/types/map";
 
 const MapContainer = dynamic(
   () => import("@/components/map-view/map-container"),

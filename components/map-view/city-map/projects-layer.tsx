@@ -5,7 +5,7 @@ import { Group } from "react-konva";
 import { useMapStore } from "@/lib/store";
 import Polygon from "@/components/map-view/polygon/polygon";
 import { CityPolygon } from "@/lib/store/polygon-marker-store";
-import { Project } from "@/app/types";
+import { Project } from "@/types";
 import colors from "@/lib/colors";
 
 const mapProjectToCityPolygon = (project: Project): CityPolygon => {
@@ -21,14 +21,20 @@ const mapProjectToCityPolygon = (project: Project): CityPolygon => {
 };
 
 const ProjectsLayer = () => {
-  const { projects, setProjects, selectedCityId, addLoadingOperation, removeLoadingOperation } = useMapStore();
+  const {
+    projects,
+    setProjects,
+    selectedCityId,
+    addLoadingOperation,
+    removeLoadingOperation,
+  } = useMapStore();
 
   useEffect(() => {
     const fetchCityProjects = async () => {
       if (!selectedCityId) return;
 
-      addLoadingOperation('projects-data'); // Start loading when fetching projects
-      
+      addLoadingOperation("projects-data"); // Start loading when fetching projects
+
       try {
         const response = await fetch(`/api/cities/${selectedCityId}/projects`);
         if (!response.ok) throw new Error("Failed to fetch projects");
@@ -38,12 +44,17 @@ const ProjectsLayer = () => {
       } catch (error) {
         console.error("Error fetching city projects:", error);
       } finally {
-        removeLoadingOperation('projects-data'); // Stop loading after fetching
+        removeLoadingOperation("projects-data"); // Stop loading after fetching
       }
     };
 
     fetchCityProjects();
-  }, [selectedCityId, setProjects, addLoadingOperation, removeLoadingOperation]);
+  }, [
+    selectedCityId,
+    setProjects,
+    addLoadingOperation,
+    removeLoadingOperation,
+  ]);
 
   if (!projects.length) {
     return null;
