@@ -73,7 +73,7 @@ export function Navbar() {
           />
         </Link>{" "}
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-8 flex-1">
           {navigationLinks.map((link) => {
             const isActive = pathname === link.href;
             const IconComponent = link.icon;
@@ -95,27 +95,27 @@ export function Navbar() {
           })}
         </div>
         {/* Language Toggle Button */}
-        <div className="hidden md:flex items-center">
+        <div className="hidden md:flex items-center ">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={switchLanguage}
             className="ml-4"
           >
-            {isArabic ? "EN" : "عر"}
+            {isArabic ? "English" : "العربية"}
           </Button>
         </div>
         {/* Mobile menu button */}
         <div className="md:hidden flex items-center gap-2">
           {/* Mobile Language Toggle */}
-          <Button variant="outline" size="sm" onClick={switchLanguage}>
-            {isArabic ? "EN" : "عر"}
+          <Button variant="ghost" size="sm" onClick={switchLanguage}>
+            {isArabic ? "English" : "العربية"}
           </Button>
           <button
             type="button"
             onClick={toggleMenu}
             className="text-muted-foreground hover:text-primary focus:outline-none focus:text-primary"
-            aria-label={t("toggleMenu")}
+            aria-label={"toggleMenu"}
             aria-expanded={isMenuOpen}
           >
             <svg
