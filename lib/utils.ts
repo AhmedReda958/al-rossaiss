@@ -47,6 +47,14 @@ export function getLocalizedRegionName(
   tRegions: (key: string) => string
 ): string {
   // Convert region id to string for translation key lookup
-  const key = REGION_ID_TO_KEY[regionId];
+  const regionIdToKey: Record<number, string> = {
+    1: "western",
+    2: "eastern",
+    3: "northern",
+    4: "southern",
+    5: "central",
+  };
+
+  const key = regionIdToKey[regionId];
   return key ? tRegions(key) : `Region ${regionId}`;
 }
