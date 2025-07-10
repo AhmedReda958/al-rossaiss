@@ -33,6 +33,7 @@ export const useRegionsLayer = () => {
     setCities,
     addLoadingOperation,
     removeLoadingOperation,
+    updateInitialPosition,
   } = useMapStore();
 
   const effectiveMapWidth = mapSize.width; // Account for scaleX of the image
@@ -42,8 +43,16 @@ export const useRegionsLayer = () => {
   useLayoutEffect(() => {
     if (layerRef.current) {
       setLayerRef({ current: layerRef.current });
+      
+      // Update initial position based on screen size
+      const stage = layerRef.current.getStage();
+      if (stage) {
+        const stageWidth = stage.width();
+        const stageHeight = stage.height();
+        updateInitialPosition(stageWidth, stageHeight);
+      }
     }
-  }, [setLayerRef]);
+  }, [setLayerRef, updateInitialPosition]);
 
   // Start initial loading
   useLayoutEffect(() => {
