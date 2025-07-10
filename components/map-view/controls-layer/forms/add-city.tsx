@@ -25,6 +25,7 @@ import ArrowLeft from "@/svgs/arrow-left";
 import ArrowRight from "@/svgs/arrow-right";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import DrawingControls from "../drawing-controls";
 
 // Define form schema function that takes translation function
 const createFormSchema = (t: (key: string) => string) =>
@@ -100,7 +101,7 @@ const AddCityForm: React.FC = () => {
       setSelectedRegion(city.regionId);
     } else {
       if (selectedRegion) {
-        setIsDrawingMode(true);
+        // Don't automatically start drawing mode for new cities, let user control it
         clearCurrentPoints();
         setInstructions(null);
       } else {
@@ -325,7 +326,7 @@ const AddCityForm: React.FC = () => {
             name="labelDirection"
             render={({ field }) => (
               <FormItem className="mt-6">
-                <Label className="mb-2">Label Direction</Label>
+                <Label className="mb-2">{t("labelDirection")}</Label>
                 <ToggleGroup
                   type="single"
                   defaultValue={field.value}
@@ -333,16 +334,16 @@ const AddCityForm: React.FC = () => {
                   variant="outline"
                   className="text-primary"
                 >
-                  <ToggleGroupItem value="up" aria-label="Up">
+                  <ToggleGroupItem value="up" aria-label={tCommon("up")}>
                     <ArrowUp width={20} height={20} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="down" aria-label="Down">
+                  <ToggleGroupItem value="down" aria-label={tCommon("down")}>
                     <ArrowDown width={20} height={20} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="left" aria-label="Left">
+                  <ToggleGroupItem value="left" aria-label={tCommon("left")}>
                     <ArrowLeft width={20} height={20} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="right" aria-label="Right">
+                  <ToggleGroupItem value="right" aria-label={tCommon("right")}>
                     <ArrowRight width={20} height={20} />
                   </ToggleGroupItem>
                 </ToggleGroup>
@@ -351,6 +352,16 @@ const AddCityForm: React.FC = () => {
               </FormItem>
             )}
           />
+
+          {/* Drawing Controls */}
+          {(selectedRegion || (isEditMode && city)) && (
+            <div className="border-t pt-4">
+              <DrawingControls
+                translationNamespace="Cities"
+                showWhenReady={true}
+              />
+            </div>
+          )}
 
           <div className="flex justify-end gap-2 mt-8">
             <Button

@@ -64,6 +64,10 @@ interface PolygonMarkerState {
   clearMarkers: () => void;
 
   setCoordinates: (x: number, y: number) => void;
+
+  // Drawing convenience functions
+  startDrawing: () => void;
+  clearDrawing: () => void;
 }
 
 export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
@@ -246,4 +250,13 @@ export const usePolygonMarkerStore = create<PolygonMarkerState>((set, get) => ({
     })),
 
   clearMarkers: () => set({ markers: [], coordinates: [] }),
+
+  // Drawing convenience functions
+  startDrawing: () => {
+    set({ isDrawingMode: true });
+  },
+
+  clearDrawing: () => {
+    set({ currentPoints: [], markers: [], coordinates: [] });
+  },
 }));

@@ -70,7 +70,11 @@
     "networkError": "Network error occurred",
     "serverError": "Server error occurred",
     "operationCompleted": "Operation completed successfully",
-    "operationFailed": "Operation failed"
+    "operationFailed": "Operation failed",
+    "up": "Up",
+    "down": "Down",
+    "left": "Left",
+    "right": "Right"
   },
   "Navigation": {
     "home": "Home",
@@ -109,7 +113,18 @@
     "projectsCount": "Projects",
     "landmarksCount": "Landmarks",
     "cityNameRequired": "City name must be at least 2 characters",
-    "cityImageRequired": "City image is required"
+    "cityImageRequired": "City image is required",
+    "labelDirection": "Label Direction",
+    "startDrawing": "Start Drawing",
+    "clearDrawing": "Clear Drawing",
+    "drawingInstructions": "Click on the map to add points for your polygon. Click 'Clear Drawing' to start over.",
+    "drawingActive": "Drawing Mode Active - Click on the map to add points",
+    "polygonDrawingControls": "Polygon Drawing Controls",
+    "drawingHelpText": "Click on the map to add points for your project polygon. Ensure you have at least 3 points to form a valid polygon.",
+    "needMorePointsPlural": "Polygon needs at least {count} points.",
+    "pointsAdded": "Points added: {count}",
+    "needMorePoints": "Polygon needs at least {count} points.",
+    "readyToSave": "Ready to save"
   },
   "Projects": {
     "title": "Projects",
@@ -153,7 +168,17 @@
     "spaceRequired": "Space must be greater than 0",
     "unitsRequired": "Number of units must be greater than 0",
     "validURLRequired": "Please enter a valid URL",
-    "urlPlaceholder": "https://example.com"
+    "urlPlaceholder": "https://example.com",
+    "startDrawing": "Start Drawing",
+    "clearDrawing": "Clear Drawing",
+    "drawingInstructions": "Click on the map to add points for your polygon. Click 'Clear Drawing' to start over.",
+    "drawingActive": "Drawing Mode Active - Click on the map to add points",
+    "polygonDrawingControls": "Polygon Drawing Controls",
+    "drawingHelpText": "Click on the map to add points for your project polygon. Ensure you have at least 3 points to form a valid polygon.",
+    "needMorePointsPlural": "Polygon needs at least {count} points.",
+    "pointsAdded": "Points added: {count}",
+    "needMorePoints": "Polygon needs at least {count} points.",
+    "readyToSave": "Ready to save"
   },
   "Landmarks": {
     "title": "Landmarks",

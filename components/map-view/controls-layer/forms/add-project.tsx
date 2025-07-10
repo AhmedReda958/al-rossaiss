@@ -29,6 +29,7 @@ import ArrowRight from "@/svgs/arrow-right";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import DrawingControls from "../drawing-controls";
 
 // Define form schema function that takes translation function
 const createFormSchema = (t: (key: string) => string) =>
@@ -119,7 +120,7 @@ const AddProjectForm: React.FC = () => {
 
   useEffect(() => {
     if (selectedRegion && selectedCity) {
-      setIsDrawingMode(true);
+      // Don't automatically start drawing mode, let user control it
       setInstructions(tInstructions("drawProjectPolygon"));
     } else {
       setIsDrawingMode(false);
@@ -490,16 +491,16 @@ const AddProjectForm: React.FC = () => {
                   variant="outline"
                   className="text-primary"
                 >
-                  <ToggleGroupItem value="up" aria-label="Up">
+                  <ToggleGroupItem value="up" aria-label={tCommon("up")}>
                     <ArrowUp width={20} height={20} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="down" aria-label="Down">
+                  <ToggleGroupItem value="down" aria-label={tCommon("down")}>
                     <ArrowDown width={20} height={20} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="left" aria-label="Left">
+                  <ToggleGroupItem value="left" aria-label={tCommon("left")}>
                     <ArrowLeft width={20} height={20} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="right" aria-label="Right">
+                  <ToggleGroupItem value="right" aria-label={tCommon("right")}>
                     <ArrowRight width={20} height={20} />
                   </ToggleGroupItem>
                 </ToggleGroup>
@@ -524,6 +525,16 @@ const AddProjectForm: React.FC = () => {
               </FormItem>
             )}
           />
+
+          {/* Drawing Controls */}
+          {selectedRegion && selectedCity && (
+            <div className="border-t pt-4">
+              <DrawingControls
+                translationNamespace="Projects"
+                showWhenReady={true}
+              />
+            </div>
+          )}
 
           <div className="flex justify-end gap-2 pt-4">
             <Button
