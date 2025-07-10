@@ -234,7 +234,7 @@ const AddCityForm: React.FC = () => {
             control={form.control}
             name="cityNameAr"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="mt-4">
                 <Label>{t("cityNameAr")}</Label>
                 <FormControl>
                   <Input
@@ -325,7 +325,7 @@ const AddCityForm: React.FC = () => {
             control={form.control}
             name="labelDirection"
             render={({ field }) => (
-              <FormItem className="mt-6">
+              <FormItem className="mt-6 mb-4">
                 <Label className="mb-2">{t("labelDirection")}</Label>
                 <ToggleGroup
                   type="single"
