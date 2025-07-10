@@ -5,9 +5,15 @@ import AddCityForm from "./add-city";
 import AddProjectForm from "./add-project";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import AddLandmarkForm from "./add-landmark";
+import { usePathname } from "next/navigation";
 
 const MapForms = () => {
   const { mapType, selectedRegion, selectedCity } = useMapStore();
+  const pathname = usePathname();
+
+  // Get current locale from pathname
+  const currentLocale = pathname.split("/")[1] || "en";
+  const isArabic = currentLocale === "ar";
 
   // Hide forms if mapType is main or if no region/city is selected when required
   const shouldHide =
@@ -20,7 +26,9 @@ const MapForms = () => {
 
   return (
     <div
-      className="absolute left-4 top-4 z-20 bg-white rounded-lg shadow-md w-80 max-h-[calc(100vh-2rem)]"
+      className={`absolute ${
+        isArabic ? "right-4" : "left-4"
+      } top-4 z-20 bg-white rounded-lg shadow-md w-80 max-h-[calc(100vh-2rem)]`}
       id="map-forms"
       hidden={shouldHide}
     >
