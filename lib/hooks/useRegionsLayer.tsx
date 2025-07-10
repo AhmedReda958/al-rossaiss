@@ -23,6 +23,7 @@ export const useRegionsLayer = () => {
     regionBounds,
     selectedRegion,
     mapSize,
+    mapType,
     editingCity,
     setRegionBounds,
     setSelectedRegion,
@@ -123,6 +124,11 @@ export const useRegionsLayer = () => {
   }, [selectedRegion, regionBounds, storeZoomToRegion]);
 
   const handleRegionClick = async (id: string) => {
+    // Prevent region changes when in edit-city mode
+    if (mapType === "edit-city") {
+      return;
+    }
+
     setSelectedRegion(id);
     // Don't show loading when selecting a region
 

@@ -125,7 +125,8 @@
     "needMorePointsPlural": "Polygon needs at least {count} points.",
     "pointsAdded": "Points added: {count}",
     "needMorePoints": "Polygon needs at least {count} points.",
-    "readyToSave": "Ready to save"
+    "readyToSave": "Ready to save",
+    "saveChanges": "Save Changes"
   },
   "Projects": {
     "title": "Projects",

@@ -120,7 +120,7 @@ const AddProjectForm: React.FC = () => {
   useEffect(() => {
     if (isEditMode && project) {
       // Only set region and city if they're not already set (to avoid triggering fetches)
-      if (project.city?.region && !selectedRegion) {
+      if (project.city?.region) {
         setSelectedRegion(project.city.region.id.toString());
       }
       if (project.city && !selectedCity) {

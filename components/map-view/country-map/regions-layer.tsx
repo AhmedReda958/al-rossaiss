@@ -8,7 +8,6 @@ import colors from "@/lib/colors";
 import { useRegionsLayer } from "@/lib/hooks/useRegionsLayer";
 import { useMapStore } from "@/lib/store/map-store";
 import { useTranslations } from "next-intl";
-import { usePathname } from "next/navigation";
 
 // Define region positions for labels
 const regionLabelPositions: Record<string, { x: number; y: number }> = {
@@ -32,11 +31,6 @@ const RegionsLayer = () => {
   } = useRegionsLayer();
   const { mapType } = useMapStore();
   const tRegions = useTranslations("Regions");
-  const pathname = usePathname();
-
-  // Get current locale from pathname
-  const currentLocale = pathname.split("/")[1] || "en";
-
   const [regionCityCounts, setRegionCityCounts] = useState<Record<
     string,
     number
@@ -72,7 +66,12 @@ const RegionsLayer = () => {
         const pathData = pathDataMap[id] || "";
         const labelPos = regionLabelPositions[id] || { x: 0, y: 0 };
         const cityCount = regionCityCounts ? regionCityCounts[id] : -1;
-        const isDisabled = cityCount === 0 && mapType === "main";
+
+        // In edit-city mode, disable all regions except the currently selected one
+        const isDisabled =
+          mapType === "edit-city"
+            ? selectedRegion !== id
+            : cityCount === 0 && mapType === "main";
 
         // Get translated region name
         const translatedName = tRegions(id);

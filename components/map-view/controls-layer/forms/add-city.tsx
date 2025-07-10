@@ -105,12 +105,14 @@ const AddCityForm: React.FC = () => {
 
   useEffect(() => {
     if (isEditMode && city) {
+      // Use the region key, not the regionId
+      setSelectedRegion(city.region?.key || city.regionId);
+
       if (city.points) {
         setPointsFromFlatArray(city.points);
       }
       setIsDrawingMode(true);
       setInstructions(tInstructions("editCityPolygon"));
-      setSelectedRegion(city.regionId);
     } else {
       if (selectedRegion) {
         // Don't automatically start drawing mode for new cities, let user control it
@@ -155,7 +157,8 @@ const AddCityForm: React.FC = () => {
   };
 
   const onSubmit = async (values: FormValues) => {
-    const regionForSubmit = isEditMode ? city?.regionId : selectedRegion;
+    // Use selectedRegion for both edit and add modes, since user can change region during edit
+    const regionForSubmit = selectedRegion;
     if (!regionForSubmit) {
       toast.error(tCommon("selectRegionFirst"));
       return;
