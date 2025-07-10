@@ -80,7 +80,7 @@ const AddCityForm: React.FC = () => {
     defaultValues: {
       cityName: city?.name || "",
       cityNameAr: city?.nameAr || "",
-      cityImage: city?.image || undefined,
+      cityImage: city?.image || "",
       labelDirection: city?.labelDirection || "up",
     },
   });
@@ -90,6 +90,18 @@ const AddCityForm: React.FC = () => {
       setCityImagePreview(city.image);
     }
   }, [city?.image]);
+
+  // Reset form when city changes
+  useEffect(() => {
+    if (isEditMode && city) {
+      form.reset({
+        cityName: city.name || "",
+        cityNameAr: city.nameAr || "",
+        cityImage: city.image || "",
+        labelDirection: city.labelDirection || "up",
+      });
+    }
+  }, [city, isEditMode, form]);
 
   useEffect(() => {
     if (isEditMode && city) {

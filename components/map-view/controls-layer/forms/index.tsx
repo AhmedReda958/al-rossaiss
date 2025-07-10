@@ -34,7 +34,7 @@ const MapForms = () => {
             case "add-project":
               return <AddProjectForm />;
             case "edit-project":
-              return <div>Edit Project Form (TODO)</div>;
+              return <AddProjectForm />;
             case "add-landmark":
               return <AddLandmarkForm />;
             // case "edit-landmark":

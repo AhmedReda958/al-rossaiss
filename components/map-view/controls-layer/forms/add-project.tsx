@@ -59,13 +59,21 @@ const createFormSchema = (t: (key: string) => string) =>
 type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 const AddProjectForm: React.FC = () => {
-  const { selectedRegion, selectedCity, setInstructions, setSelectedCity } =
-    useMapStore();
+  const {
+    selectedRegion,
+    selectedCity,
+    setInstructions,
+    setSelectedCity,
+    editingProject: project,
+    setSelectedRegion,
+    setSelectedCityId,
+  } = useMapStore();
   const router = useRouter();
   const t = useTranslations("Projects");
   const tCommon = useTranslations("Common");
   const tInstructions = useTranslations("Instructions");
 
+  const isEditMode = !!project;
   const [cityImagePreview, setCityImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
@@ -75,6 +83,7 @@ const AddProjectForm: React.FC = () => {
     clearCurrentPoints,
     currentPoints,
     pointsToFlatArray,
+    setPointsFromFlatArray,
   } = usePolygonMarkerStore();
 
   // Create schema with translations
@@ -84,17 +93,79 @@ const AddProjectForm: React.FC = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      cityId: selectedCity || "",
-      name: "",
-      nameAr: "",
-      url: "",
-      description: "",
-      descriptionAr: "",
-      image: undefined,
-      labelDirection: "up",
-      soldOut: false,
+      cityId: project?.cityId?.toString() || selectedCity || "",
+      name: project?.name || "",
+      nameAr: project?.nameAr || "",
+      unitType: project?.unitType || UNIT_TYPES.APARTMENT,
+      space: project?.space || 0,
+      unitsCount: project?.unitsCount || 0,
+      url: project?.url || "",
+      description: project?.description || "",
+      descriptionAr: project?.descriptionAr || "",
+      image: project?.image || undefined,
+      labelDirection:
+        (project?.labelDirection as "up" | "down" | "left" | "right") || "up",
+      soldOut: project?.soldOut || false,
     },
   });
+
+  // Set image preview if project has image
+  useEffect(() => {
+    if (project?.image) {
+      setCityImagePreview(project.image);
+    }
+  }, [project?.image]);
+
+  // Set up edit mode data
+  useEffect(() => {
+    if (isEditMode && project) {
+      // Only set region and city if they're not already set (to avoid triggering fetches)
+      if (project.city?.region && !selectedRegion) {
+        setSelectedRegion(project.city.region.id.toString());
+      }
+      if (project.city && !selectedCity) {
+        setSelectedCity(project.city.id.toString());
+        setSelectedCityId(project.city.id);
+      }
+
+      // Set polygon points if they exist
+      if (project.points) {
+        setPointsFromFlatArray(project.points);
+      }
+
+      setIsDrawingMode(true);
+      setInstructions(tInstructions("editProjectPolygon"));
+    } else {
+      // Reset for add mode
+      if (selectedRegion && selectedCity) {
+        setInstructions(tInstructions("drawProjectPolygon"));
+      } else {
+        setIsDrawingMode(false);
+        setInstructions(
+          !selectedRegion
+            ? tInstructions("selectRegionForProject")
+            : tInstructions("selectCityForProject")
+        );
+      }
+    }
+
+    return () => {
+      setIsDrawingMode(false);
+      setInstructions(null);
+    };
+  }, [
+    isEditMode,
+    project,
+    selectedRegion,
+    selectedCity,
+    setIsDrawingMode,
+    setInstructions,
+    setSelectedRegion,
+    setSelectedCity,
+    setSelectedCityId,
+    setPointsFromFlatArray,
+    tInstructions,
+  ]);
 
   // Fetch cities for the selected region
   useEffect(() => {
@@ -118,30 +189,6 @@ const AddProjectForm: React.FC = () => {
     }
   }, [selectedCity, form]);
 
-  useEffect(() => {
-    if (selectedRegion && selectedCity) {
-      // Don't automatically start drawing mode, let user control it
-      setInstructions(tInstructions("drawProjectPolygon"));
-    } else {
-      setIsDrawingMode(false);
-      setInstructions(
-        !selectedRegion
-          ? tInstructions("selectRegionForProject")
-          : tInstructions("selectCityForProject")
-      );
-    }
-    return () => {
-      setIsDrawingMode(false);
-      setInstructions(null);
-    };
-  }, [
-    selectedRegion,
-    selectedCity,
-    setIsDrawingMode,
-    setInstructions,
-    tInstructions,
-  ]);
-
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     onChange: (value: File) => void
@@ -159,11 +206,18 @@ const AddProjectForm: React.FC = () => {
   };
 
   const onSubmit = async (values: FormValues) => {
-    if (!selectedRegion) {
+    const regionForSubmit = isEditMode
+      ? project?.city?.region?.id?.toString()
+      : selectedRegion;
+    const cityForSubmit = isEditMode
+      ? project?.city?.id?.toString()
+      : selectedCity;
+
+    if (!regionForSubmit) {
       toast.error(tCommon("selectRegionFirst"));
       return;
     }
-    if (!selectedCity) {
+    if (!cityForSubmit) {
       toast.error(tCommon("selectCityFirst"));
       return;
     }
@@ -195,13 +249,20 @@ const AddProjectForm: React.FC = () => {
         JSON.stringify(pointsToFlatArray(currentPoints))
       );
 
-      const response = await fetch("/api/projects", {
-        method: "POST",
+      const url = isEditMode ? `/api/projects/${project.id}` : "/api/projects";
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
         body: formData,
       });
 
       if (response.ok) {
-        toast.success(tCommon("projectCreatedSuccess"));
+        toast.success(
+          isEditMode
+            ? tCommon("projectUpdatedSuccess")
+            : tCommon("projectCreatedSuccess")
+        );
         clearCurrentPoints();
         setIsDrawingMode(false);
         router.push("/dashboard/projects");
@@ -221,14 +282,18 @@ const AddProjectForm: React.FC = () => {
     router.push("/dashboard/projects");
   };
 
-  // Only show form if both region and city are selected
-  if (!selectedRegion || !selectedCity) return null;
+  // Only show form if both region and city are selected, or if in edit mode
+  if (!isEditMode && (!selectedRegion || !selectedCity)) return null;
 
   return (
     <>
       <div className="mb-6">
-        <h2 className="text-lg font-semibold">{t("addProject")}</h2>
-        <p className="text-xs text-muted mb-1">{t("drawProjectPolygon")}</p>
+        <h2 className="text-lg font-semibold">
+          {isEditMode ? t("editProject") : t("addProject")}
+        </h2>
+        <p className="text-xs text-muted mb-1">
+          {isEditMode ? t("editProjectPolygon") : t("drawProjectPolygon")}
+        </p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -527,7 +592,7 @@ const AddProjectForm: React.FC = () => {
           />
 
           {/* Drawing Controls */}
-          {selectedRegion && selectedCity && (
+          {((selectedRegion && selectedCity) || isEditMode) && (
             <div className="border-t pt-4">
               <DrawingControls
                 translationNamespace="Projects"
@@ -546,7 +611,11 @@ const AddProjectForm: React.FC = () => {
               {tCommon("cancel")}
             </Button>
             <Button type="submit" className="w-[114px]" disabled={isSubmitting}>
-              {isSubmitting ? t("saving") : tCommon("save")}
+              {isSubmitting
+                ? tCommon("saving")
+                : isEditMode
+                ? t("saveChanges")
+                : tCommon("save")}
             </Button>
           </div>
         </form>
