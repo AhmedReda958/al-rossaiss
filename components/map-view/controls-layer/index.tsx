@@ -3,6 +3,7 @@ import ControlsLayerHeader from "./header";
 import ControlsLayerFooter from "./footer";
 import MapForms from "./forms";
 import ProjectsList from "./projects-list";
+import InstructionLayer from "../instruction-layer";
 import { useMapStore } from "@/lib/store/map-store";
 
 const MapControlsLayer = ({ children }: { children: React.ReactNode }) => {
@@ -15,6 +16,7 @@ const MapControlsLayer = ({ children }: { children: React.ReactNode }) => {
       {children}
       <MapForms />
       <ControlsLayerFooter />
+      <InstructionLayer />
     </>
   );
 };

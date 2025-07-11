@@ -62,6 +62,7 @@ const CitySlider = () => {
 
   return (
     <Carousel
+      id="city-slider"
       opts={{
         align: "start",
       }}

@@ -7,7 +7,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { BsQuestionCircle } from "react-icons/bs";
 
 const ControlsLayerHeader = () => {
-  const { mapType, instructions } = useMapStore();
+  const {
+    mapType,
+    instructions,
+    showInstructionLayer,
+    setShowInstructionLayer,
+  } = useMapStore();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -22,10 +27,15 @@ const ControlsLayerHeader = () => {
     router.push(newPath);
   };
 
+  const toggleInstructionLayer = () => {
+    setShowInstructionLayer(!showInstructionLayer);
+  };
+
   return (
     <nav className=" flex items-start justify-between  gap-2 z-10 absolute top-0 left-0 w-full h-16 p-5">
       <div className="flex flex-col gap-3 order-2">
         <Button
+          id="language-switch-btn"
           variant="light"
           size={"icon-sm"}
           className="text-xs text-muted-foreground"
@@ -33,12 +43,24 @@ const ControlsLayerHeader = () => {
         >
           {isArabic ? "EN" : "ع"}
         </Button>
-        <Button variant="light" size={"icon-sm"}>
-          <BsQuestionCircle className="w-3 h-3" />
+        <Button
+          id="help-button"
+          variant="light"
+          size={"icon-sm"}
+          onClick={toggleInstructionLayer}
+          className={
+            showInstructionLayer ? "bg-blue-50 border-blue-200 shadow-md" : ""
+          }
+          hidden={mapType !== "main"}
+        >
+          <BsQuestionCircle
+            className={`w-3 h-3 ${showInstructionLayer ? "text-blue-600" : ""}`}
+          />
         </Button>
       </div>
       {/* logo */}
       <div
+        id="logo-container"
         className="bg-white rounded-sm p-1 order-1"
         hidden={mapType !== "main"}
       >
@@ -61,7 +83,10 @@ const ControlsLayerHeader = () => {
       </div>
 
       {/* Landmark Filter - Center */}
-      <div className="flex-1 hidden lg:flex justify-center -me-30">
+      <div
+        id="landmark-filter"
+        className="flex-1 hidden lg:flex justify-center -me-30"
+      >
         <LandmarkFilter />
       </div>
 
