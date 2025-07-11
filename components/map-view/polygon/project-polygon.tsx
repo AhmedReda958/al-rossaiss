@@ -226,8 +226,8 @@ const ProjectPolygon = ({
     polygon.name.length * 8 + tooltipPadding * 2,
     80
   );
-  const tooltipX = logoSize / 2 + 10; // Position to the right of the logo
-  const tooltipY = -tooltipHeight / 2; // Center vertically with the logo
+  const tooltipX = logoSize / 2 + 28; // Position to the right of the logo
+  const tooltipY = -tooltipHeight / 2 + logoSize / 2; // Center vertically with the logo
 
   return (
     <Group>
@@ -254,31 +254,11 @@ const ProjectPolygon = ({
         <Line points={linePoints} stroke={strokeColor} strokeWidth={1} />
       )}
 
-      {/* Label with project name (positioned outside polygon based on labelDirection) */}
-      {polygon.labelDirection && (
-        <Group x={labelPos.x} y={labelPos.y}>
-          <Text
-            ref={textRef}
-            text={polygon.name}
-            fontSize={12}
-            fontStyle="bold"
-            fill={strokeColor}
-            width={70}
-            align="center"
-            verticalAlign="middle"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            listening={true}
-            cursor="pointer"
-          />
-        </Group>
-      )}
-
       {/* Logo or Default Icon */}
       <Group
         ref={logoGroupRef}
-        x={logoX}
-        y={logoY}
+        x={labelPos.x - logoSize / 2}
+        y={labelPos.y - logoSize / 2}
         onClick={handlePolygonClick}
         onTap={handlePolygonClick}
         onMouseEnter={handleMouseEnter}
@@ -303,6 +283,8 @@ const ProjectPolygon = ({
               fill="white"
               stroke={strokeColor}
               strokeWidth={2}
+              x={logoSize / 2}
+              y={logoSize / 2}
             />
             {defaultLogoImage && (
               <Image

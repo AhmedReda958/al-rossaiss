@@ -91,7 +91,7 @@ const AddProjectForm: React.FC = () => {
   // Helper function to transform stored points to drawing coordinates
   const transformPointsForEditing = (storedPoints: number[]) => {
     if (!storedPoints || storedPoints.length === 0) return [];
-    
+
     // Convert flat array to Point objects
     // The stored points should now be in the correct coordinate system
     const points: { x: number; y: number }[] = [];

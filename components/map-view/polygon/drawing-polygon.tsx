@@ -62,12 +62,14 @@ const DrawingPolygon = () => {
       // For city map, we need to get the relative position within the layer
       // since the layer itself is positioned at (position.x, position.y)
       let adjustedPoint;
-      
+
       if (selectedCity) {
         // For city map, get the relative position within the layer
-        const layer = stage.findOne('.city-layer') || stage.find('Layer')[0];
-        const layerPointerPosition = layer ? layer.getRelativePointerPosition() : null;
-        
+        const layer = stage.findOne(".city-layer") || stage.find("Layer")[0];
+        const layerPointerPosition = layer
+          ? layer.getRelativePointerPosition()
+          : null;
+
         if (layerPointerPosition) {
           adjustedPoint = {
             x: layerPointerPosition.x,
