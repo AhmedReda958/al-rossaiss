@@ -45,14 +45,45 @@ export const useRegionsLayer = () => {
       setLayerRef({ current: layerRef.current });
       
       // Update initial position based on screen size
+      // Use a timeout to ensure the stage is fully initialized
       const stage = layerRef.current.getStage();
       if (stage) {
-        const stageWidth = stage.width();
-        const stageHeight = stage.height();
-        updateInitialPosition(stageWidth, stageHeight);
+        const updatePosition = () => {
+          const stageWidth = stage.width();
+          const stageHeight = stage.height();
+          
+          // Only update if we have valid dimensions
+          if (stageWidth > 0 && stageHeight > 0) {
+            updateInitialPosition(stageWidth, stageHeight);
+          } else {
+            // If dimensions are not ready, try again after a short delay
+            setTimeout(updatePosition, 100);
+          }
+        };
+        
+        // Initial attempt
+        updatePosition();
       }
     }
   }, [setLayerRef, updateInitialPosition]);
+
+  // Add resize listener to handle window resizing
+  useEffect(() => {
+    const handleResize = () => {
+      const stage = layerRef.current?.getStage();
+      if (stage && scale === 1) { // Only recenter if not zoomed
+        const stageWidth = stage.width();
+        const stageHeight = stage.height();
+        
+        if (stageWidth > 0 && stageHeight > 0) {
+          updateInitialPosition(stageWidth, stageHeight);
+        }
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [updateInitialPosition, scale]);
 
   // Start initial loading
   useLayoutEffect(() => {
@@ -64,8 +95,19 @@ export const useRegionsLayer = () => {
     if (mapImage && Object.keys(pathDataMap).length > 0) {
       // Map image and regions are loaded, we can stop the initial loading
       removeLoadingOperation("initial-map-load");
+      
+      // Ensure proper centering after map is loaded
+      const stage = layerRef.current?.getStage();
+      if (stage) {
+        const stageWidth = stage.width();
+        const stageHeight = stage.height();
+        
+        if (stageWidth > 0 && stageHeight > 0) {
+          updateInitialPosition(stageWidth, stageHeight);
+        }
+      }
     }
-  }, [mapImage, pathDataMap, removeLoadingOperation]);
+  }, [mapImage, pathDataMap, removeLoadingOperation, updateInitialPosition]);
 
   // Extract path data on client-side only
   useLayoutEffect(() => {

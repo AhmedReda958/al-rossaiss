@@ -223,6 +223,35 @@ export const useMapStore = create<MapState>((set, get) => ({
     const stage = layerRef?.current?.getStage();
     const stageWidth = stage?.width() || 0;
     const stageHeight = stage?.height() || 0;
+    
+    // Ensure we have valid dimensions before calculating position
+    if (stageWidth === 0 || stageHeight === 0) {
+      // If dimensions are not available, try to get them from the container
+      const container = stage?.container();
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        const containerWidth = rect.width;
+        const containerHeight = rect.height;
+        
+        if (containerWidth > 0 && containerHeight > 0) {
+          const newPos = getInitialPosition(
+            containerWidth,
+            containerHeight,
+            mapSize.width,
+            mapSize.height
+          );
+          
+          // Update position immediately without animation if stage dimensions are not ready
+          setScale(newScale);
+          setPosition(newPos);
+          setIsZooming(false);
+          setSelectedRegion(null);
+          set({ cities: [] });
+          return;
+        }
+      }
+    }
+    
     const newPos = getInitialPosition(
       stageWidth,
       stageHeight,
@@ -368,8 +397,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   updateInitialPosition: (screenWidth, screenHeight) => {
     const { mapSize, scale, setPosition } = get();
 
-    // Only update position if we're at initial scale (not zoomed)
-    if (scale === 1) {
+    // Only update position if we're at initial scale (not zoomed) and have valid dimensions
+    if (scale === 1 && screenWidth > 0 && screenHeight > 0) {
       const newPosition = getInitialPosition(
         screenWidth,
         screenHeight,
