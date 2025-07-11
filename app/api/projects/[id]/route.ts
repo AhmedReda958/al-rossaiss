@@ -70,6 +70,7 @@ export async function PUT(
     const description = formData.get("description") as string;
     const descriptionAr = formData.get("descriptionAr") as string;
     const image = formData.get("image") as File | string;
+    const logo = formData.get("logo") as File | string;
     const labelDirection = formData.get("labelDirection") as string;
     const soldOut = formData.get("soldOut") as string;
     const points = formData.get("points") as string;
@@ -88,6 +89,7 @@ export async function PUT(
       soldOut: boolean;
       points: number[];
       image?: string;
+      logo?: string;
     } = {
       name,
       nameAr,
@@ -114,6 +116,19 @@ export async function PUT(
       });
 
       updateData.image = blob.url;
+    }
+
+    if (logo && typeof logo !== "string") {
+      const fileExtension = logo.name.split(".").pop();
+      const filename = `projects/logos/${Date.now()}-${Math.round(
+        Math.random() * 1e9
+      )}.${fileExtension}`;
+
+      const blob = await put(filename, logo, {
+        access: "public",
+      });
+
+      updateData.logo = blob.url;
     }
 
     const updatedProject = await prisma.project.update({

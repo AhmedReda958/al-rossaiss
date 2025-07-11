@@ -50,6 +50,7 @@ const createFormSchema = (t: (key: string) => string) =>
       .optional()
       .or(z.literal("")),
     image: z.instanceof(File).or(z.string()).optional(),
+    logo: z.instanceof(File).or(z.string()).optional(),
     description: z.string().optional(),
     descriptionAr: z.string().optional(),
     labelDirection: z.enum(["up", "down", "left", "right"]),
@@ -75,6 +76,7 @@ const AddProjectForm: React.FC = () => {
 
   const isEditMode = !!project;
   const [cityImagePreview, setCityImagePreview] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
 
@@ -103,6 +105,7 @@ const AddProjectForm: React.FC = () => {
       description: project?.description || "",
       descriptionAr: project?.descriptionAr || "",
       image: project?.image || undefined,
+      logo: project?.logo || undefined,
       labelDirection:
         (project?.labelDirection as "up" | "down" | "left" | "right") || "up",
       soldOut: project?.soldOut || false,
@@ -115,6 +118,13 @@ const AddProjectForm: React.FC = () => {
       setCityImagePreview(project.image);
     }
   }, [project?.image]);
+
+  // Set logo preview if project has logo
+  useEffect(() => {
+    if (project?.logo) {
+      setLogoPreview(project.logo);
+    }
+  }, [project?.logo]);
 
   // Set up edit mode data
   useEffect(() => {
@@ -205,6 +215,22 @@ const AddProjectForm: React.FC = () => {
     }
   };
 
+  const handleLogoChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    onChange: (value: File) => void
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onChange(file); // Update form value
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setLogoPreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const onSubmit = async (values: FormValues) => {
     const regionForSubmit = isEditMode
       ? project?.city?.region?.id?.toString()
@@ -241,6 +267,9 @@ const AddProjectForm: React.FC = () => {
         formData.append("descriptionAr", values.descriptionAr);
       if (values.image instanceof File) {
         formData.append("image", values.image);
+      }
+      if (values.logo instanceof File) {
+        formData.append("logo", values.logo);
       }
       formData.append("labelDirection", values.labelDirection);
       formData.append("soldOut", String(values.soldOut));
@@ -494,6 +523,76 @@ const AddProjectForm: React.FC = () => {
                       <Image
                         src={cityImagePreview}
                         alt="Preview"
+                        width={200}
+                        height={200}
+                        className="max-w-full h-auto rounded-md"
+                      />
+                    </div>
+                  )}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="logo"
+            render={({ field: { onChange, onBlur, name, ref } }) => (
+              <FormItem>
+                <div className="border rounded-lg px-3 py-2.5">
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <Image
+                      src="/icons/image-icon.svg"
+                      alt="Upload"
+                      width={44}
+                      height={44}
+                      className="w-14 h-14 rounded-[6px]"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWltYWdlIj48cmVjdCB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHg9IjMiIHk9IjMiIHJ4PSIyIiByeT0iMiIvPjxjaXJjbGUgY3g9IjguNSIgY3k9IjguNSIgcj0iMS41Ii8+PHBvbHlsaW5lIHBvaW50cz0iMjEgMTUgMTYgMTAgNSAyMSIvPjwvc3ZnPg==";
+                      }}
+                    />
+                    <div className="w-fit">
+                      <h3 className="text-sm font-medium">
+                        {t("uploadProjectLogo")}
+                      </h3>
+                      <p className="text-xs text-muted">
+                        {t("uploadLogoDescription")}
+                      </p>
+                    </div>
+                  </div>
+                  <FormControl>
+                    <div className="relative">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full text-base"
+                      >
+                        <Image
+                          src="/icons/upload-icon.svg"
+                          alt="Upload"
+                          width={24}
+                          height={24}
+                        />
+                        {tCommon("uploadImage")}
+                      </Button>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleLogoChange(e, onChange)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        name={name}
+                        ref={ref}
+                        onBlur={onBlur}
+                      />
+                    </div>
+                  </FormControl>
+                  {logoPreview && (
+                    <div className="mt-2">
+                      <Image
+                        src={logoPreview}
+                        alt="Logo Preview"
                         width={200}
                         height={200}
                         className="max-w-full h-auto rounded-md"

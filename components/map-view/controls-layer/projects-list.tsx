@@ -20,6 +20,7 @@ export interface Project {
   description?: string;
   descriptionAr?: string;
   image?: string;
+  logo?: string;
   labelDirection: string;
   points: number[];
   cityId: number;

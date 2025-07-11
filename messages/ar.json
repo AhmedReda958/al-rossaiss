@@ -146,6 +146,8 @@
     "optionalWebsiteDescription": "رابط اختياري لموقع المشروع أو الصفحة المقصودة",
     "uploadProjectImage": "تحميل صورة المشروع",
     "uploadImageDescription": "قم بتحميل صورة لتمثيل مشروعك (اختياري).",
+    "uploadProjectLogo": "تحميل شعار المشروع",
+    "uploadLogoDescription": "قم بتحميل شعار لعرضه على مضلع المشروع (اختياري).",
     "description": "الوصف",
     "descriptionEn": "الوصف (بالإنجليزية)",
     "descriptionAr": "الوصف (بالعربية)",

@@ -45,6 +45,7 @@ model Project {
   description    String?
   descriptionAr  String?
   image          String?
+  logo           String?  // Project logo for display on polygon
   labelDirection String?
   points         Float[]
   cityId         Int     // Foreign key to City

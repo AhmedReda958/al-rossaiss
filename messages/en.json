@@ -146,6 +146,8 @@
     "optionalWebsiteDescription": "Optional link to the project's website or landing page",
     "uploadProjectImage": "Upload Project Image",
     "uploadImageDescription": "Upload an image to represent your project (optional).",
+    "uploadProjectLogo": "Upload Project Logo",
+    "uploadLogoDescription": "Upload a logo to display on the project polygon (optional).",
     "description": "Description",
     "descriptionEn": "Description (English)",
     "descriptionAr": "Description (Arabic)",

@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { Group } from "react-konva";
 import { useMapStore } from "@/lib/store";
-import Polygon from "@/components/map-view/polygon/polygon";
+import ProjectPolygon from "@/components/map-view/polygon/project-polygon";
 import { CityPolygon } from "@/lib/store/polygon-marker-store";
 import { Project } from "@/types";
 import colors from "@/lib/colors";
@@ -94,13 +94,12 @@ const ProjectsLayer = () => {
           );
         })
         .map((project) => (
-          <Polygon
+          <ProjectPolygon
             key={project.id}
             polygon={mapProjectToCityPolygon(project, currentLocale)}
             strokeColor={colors.primary}
             fillColor={colors.primary_400}
-            labelColor={colors.primary}
-            type="project"
+            logoUrl={project.logo}
           />
         ))}
     </Group>
