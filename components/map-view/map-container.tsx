@@ -11,7 +11,8 @@ import ControlsLayer from "./controls-layer";
 import MapLoading from "./map-loading";
 
 const MapContainer = () => {
-  const { mapSize, mapType, selectedCity, isLoading, updateInitialPosition } = useMapStore();
+  const { mapSize, mapType, selectedCity, isLoading, updateInitialPosition } =
+    useMapStore();
   const stageRef = useRef<Konva.Stage>(null);
 
   const [stageSize, setStageSize] = React.useState({
@@ -31,6 +32,24 @@ const MapContainer = () => {
       return () => clearTimeout(timer);
     }
   }, [stageSize.width, stageSize.height, updateInitialPosition]);
+
+  // Additional effect to handle stage readiness
+  useEffect(() => {
+    if (stageRef.current) {
+      const stage = stageRef.current;
+
+      // Ensure stage is properly initialized
+      const checkStageReady = () => {
+        if (stage.width() > 0 && stage.height() > 0) {
+          updateInitialPosition(stage.width(), stage.height());
+        } else {
+          setTimeout(checkStageReady, 50);
+        }
+      };
+
+      checkStageReady();
+    }
+  }, [updateInitialPosition]);
 
   // Update stage dimensions when the window or container resizes
   useEffect(() => {

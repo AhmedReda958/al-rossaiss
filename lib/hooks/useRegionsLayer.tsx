@@ -43,7 +43,7 @@ export const useRegionsLayer = () => {
   useLayoutEffect(() => {
     if (layerRef.current) {
       setLayerRef({ current: layerRef.current });
-      
+
       // Update initial position based on screen size
       // Use a timeout to ensure the stage is fully initialized
       const stage = layerRef.current.getStage();
@@ -51,7 +51,7 @@ export const useRegionsLayer = () => {
         const updatePosition = () => {
           const stageWidth = stage.width();
           const stageHeight = stage.height();
-          
+
           // Only update if we have valid dimensions
           if (stageWidth > 0 && stageHeight > 0) {
             updateInitialPosition(stageWidth, stageHeight);
@@ -60,7 +60,7 @@ export const useRegionsLayer = () => {
             setTimeout(updatePosition, 100);
           }
         };
-        
+
         // Initial attempt
         updatePosition();
       }
@@ -71,10 +71,11 @@ export const useRegionsLayer = () => {
   useEffect(() => {
     const handleResize = () => {
       const stage = layerRef.current?.getStage();
-      if (stage && scale === 1) { // Only recenter if not zoomed
+      if (stage && scale === 1) {
+        // Only recenter if not zoomed
         const stageWidth = stage.width();
         const stageHeight = stage.height();
-        
+
         if (stageWidth > 0 && stageHeight > 0) {
           updateInitialPosition(stageWidth, stageHeight);
         }
@@ -95,13 +96,13 @@ export const useRegionsLayer = () => {
     if (mapImage && Object.keys(pathDataMap).length > 0) {
       // Map image and regions are loaded, we can stop the initial loading
       removeLoadingOperation("initial-map-load");
-      
+
       // Ensure proper centering after map is loaded
       const stage = layerRef.current?.getStage();
       if (stage) {
         const stageWidth = stage.width();
         const stageHeight = stage.height();
-        
+
         if (stageWidth > 0 && stageHeight > 0) {
           updateInitialPosition(stageWidth, stageHeight);
         }
@@ -146,18 +147,34 @@ export const useRegionsLayer = () => {
     // Calculate bounds for each region based on actual path dimensions
     Object.entries(pathRefs.current).forEach(([id, path]) => {
       if (path) {
-        const box = path.getClientRect();
+        try {
+          const box = path.getClientRect();
 
-        // Apply group transformation to get actual coordinates
-        calculatedBounds[id] = {
-          x: box.x,
-          y: box.y,
-          width: box.width,
-          height: box.height,
-        };
+          // Ensure we have valid bounds
+          if (box.width > 0 && box.height > 0) {
+            calculatedBounds[id] = {
+              x: box.x,
+              y: box.y,
+              width: box.width,
+              height: box.height,
+            };
+          }
+        } catch (error) {
+          console.warn(`Failed to calculate bounds for region ${id}:`, error);
+        }
       }
     });
-    setRegionBounds(calculatedBounds);
+
+    // Only update bounds if we have valid data for all regions
+    if (Object.keys(calculatedBounds).length === regions.length) {
+      setRegionBounds(calculatedBounds);
+    } else {
+      // Retry bounds calculation after a delay
+      setTimeout(() => {
+        // Trigger a re-render to recalculate bounds
+        setPathDataMap((prev) => ({ ...prev }));
+      }, 100);
+    }
   }, [pathDataMap, setRegionBounds]);
 
   // Reset zoom when no region is selected
@@ -170,7 +187,18 @@ export const useRegionsLayer = () => {
   // Zoom to selected region
   useEffect(() => {
     if (selectedRegion && layerRef.current && regionBounds[selectedRegion]) {
-      storeZoomToRegion(selectedRegion);
+      // Ensure stage is ready before zooming
+      const stage = layerRef.current.getStage();
+      if (stage && stage.width() > 0 && stage.height() > 0) {
+        storeZoomToRegion(selectedRegion);
+      } else {
+        // Wait for stage to be ready
+        setTimeout(() => {
+          if (layerRef.current && regionBounds[selectedRegion]) {
+            storeZoomToRegion(selectedRegion);
+          }
+        }, 100);
+      }
     }
   }, [selectedRegion, regionBounds, storeZoomToRegion]);
 
@@ -196,7 +224,17 @@ export const useRegionsLayer = () => {
     }
     // No loading operation to remove since we're not showing loading
 
-    storeZoomToRegion(id);
+    // Ensure bounds are available before zooming
+    if (regionBounds[id]) {
+      storeZoomToRegion(id);
+    } else {
+      // Wait for bounds to be calculated
+      setTimeout(() => {
+        if (regionBounds[id]) {
+          storeZoomToRegion(id);
+        }
+      }, 200);
+    }
   };
 
   const assignPathRef = (id: string, node: Konva.Path | null) => {

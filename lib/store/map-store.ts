@@ -128,6 +128,13 @@ const getInitialPosition = (
   };
 };
 
+// Debug helper for production issues
+const debugZoomIssues = (context: string, data: unknown) => {
+  if (process.env.NODE_ENV === "production") {
+    console.log(`[MapZoom Debug] ${context}:`, data);
+  }
+};
+
 export const useMapStore = create<MapState>((set, get) => ({
   // Initial state
   mapSize: { width: 2048, height: 2048 },
@@ -223,7 +230,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     const stage = layerRef?.current?.getStage();
     const stageWidth = stage?.width() || 0;
     const stageHeight = stage?.height() || 0;
-    
+
     // Ensure we have valid dimensions before calculating position
     if (stageWidth === 0 || stageHeight === 0) {
       // If dimensions are not available, try to get them from the container
@@ -232,7 +239,7 @@ export const useMapStore = create<MapState>((set, get) => ({
         const rect = container.getBoundingClientRect();
         const containerWidth = rect.width;
         const containerHeight = rect.height;
-        
+
         if (containerWidth > 0 && containerHeight > 0) {
           const newPos = getInitialPosition(
             containerWidth,
@@ -240,7 +247,7 @@ export const useMapStore = create<MapState>((set, get) => ({
             mapSize.width,
             mapSize.height
           );
-          
+
           // Update position immediately without animation if stage dimensions are not ready
           setScale(newScale);
           setPosition(newPos);
@@ -251,7 +258,7 @@ export const useMapStore = create<MapState>((set, get) => ({
         }
       }
     }
-    
+
     const newPos = getInitialPosition(
       stageWidth,
       stageHeight,
@@ -298,18 +305,52 @@ export const useMapStore = create<MapState>((set, get) => ({
       mapSize,
     } = get();
 
+    debugZoomIssues("zoomToRegion called", {
+      regionId,
+      hasBounds: !!regionBounds[regionId],
+    });
+
     setIsZooming(true);
 
     const bounds = regionBounds[regionId];
 
     if (!bounds || !layerRef?.current) {
+      debugZoomIssues("zoomToRegion failed", {
+        bounds,
+        layerRef: !!layerRef?.current,
+      });
       setIsZooming(false);
       return;
     }
 
     const stage = layerRef.current.getStage();
-    const stageWidth = stage?.width() || 0;
-    const stageHeight = stage?.height() || 0;
+    let stageWidth = stage?.width() || 0;
+    let stageHeight = stage?.height() || 0;
+
+    debugZoomIssues("stage dimensions", { stageWidth, stageHeight });
+
+    // Fallback to container dimensions if stage dimensions are not available
+    if (stageWidth === 0 || stageHeight === 0) {
+      const container = stage?.container();
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        stageWidth = rect.width;
+        stageHeight = rect.height;
+        debugZoomIssues("using container dimensions", {
+          stageWidth,
+          stageHeight,
+        });
+      }
+    }
+
+    // If we still don't have valid dimensions, try to wait and retry
+    if (stageWidth === 0 || stageHeight === 0) {
+      debugZoomIssues("retrying zoom after delay", { stageWidth, stageHeight });
+      setTimeout(() => {
+        get().zoomToRegion(regionId);
+      }, 100);
+      return;
+    }
 
     // Get the initial position for centering
     const initialPosition = getInitialPosition(
@@ -319,25 +360,30 @@ export const useMapStore = create<MapState>((set, get) => ({
       mapSize.height
     );
 
-    // Add some padding around the region
-    const paddingFactor = 0;
+    // Add some padding around the region (increased for better view)
+    const paddingFactor = 0.1;
     const paddedWidth = bounds.width * (1 + paddingFactor);
     const paddedHeight = bounds.height * (1 + paddingFactor);
-    const paddedX = bounds.x - bounds.width * paddingFactor;
-    const paddedY = bounds.y - bounds.height * paddingFactor;
+    const paddedX = bounds.x - bounds.width * paddingFactor * 0.5;
+    const paddedY = bounds.y - bounds.height * paddingFactor * 0.5;
 
-    // Calculate scale to fit the region
+    // Calculate scale to fit the region with some constraints
     const scaleX = stageWidth / paddedWidth;
     const scaleY = stageHeight / paddedHeight;
-    const newScale = Math.min(scaleX, scaleY);
+    let newScale = Math.min(scaleX, scaleY);
+
+    // Limit the scale to prevent over-zooming
+    newScale = Math.min(newScale, 3);
+    newScale = Math.max(newScale, 0.5);
 
     // Calculate position to center the region
+    const regionCenterX = paddedX + paddedWidth / 2;
+    const regionCenterY = paddedY + paddedHeight / 2;
+
     const newX =
-      stageWidth / 2 -
-      (paddedX + paddedWidth / 2 - initialPosition.x) * newScale;
+      stageWidth / 2 - (regionCenterX - initialPosition.x) * newScale;
     const newY =
-      stageHeight / 2 -
-      (paddedY + paddedHeight / 2 - initialPosition.y) * newScale;
+      stageHeight / 2 - (regionCenterY - initialPosition.y) * newScale;
 
     // Animate the zoom
     const tween = new Tween({
