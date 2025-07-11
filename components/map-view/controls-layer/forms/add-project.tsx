@@ -85,8 +85,24 @@ const AddProjectForm: React.FC = () => {
     clearCurrentPoints,
     currentPoints,
     pointsToFlatArray,
-    setPointsFromFlatArray,
+    setCurrentPoints,
   } = usePolygonMarkerStore();
+
+  // Helper function to transform stored points to drawing coordinates
+  const transformPointsForEditing = (storedPoints: number[]) => {
+    if (!storedPoints || storedPoints.length === 0) return [];
+    
+    // Convert flat array to Point objects
+    // The stored points should now be in the correct coordinate system
+    const points: { x: number; y: number }[] = [];
+    for (let i = 0; i < storedPoints.length; i += 2) {
+      points.push({
+        x: storedPoints[i],
+        y: storedPoints[i + 1],
+      });
+    }
+    return points;
+  };
 
   // Create schema with translations
   const formSchema = createFormSchema(t);
@@ -130,7 +146,7 @@ const AddProjectForm: React.FC = () => {
   useEffect(() => {
     if (isEditMode && project) {
       // Only set region and city if they're not already set (to avoid triggering fetches)
-      if (project.city?.region) {
+      if (project.city?.region && !selectedRegion) {
         setSelectedRegion(project.city.region.id.toString());
       }
       if (project.city && !selectedCity) {
@@ -140,7 +156,8 @@ const AddProjectForm: React.FC = () => {
 
       // Set polygon points if they exist
       if (project.points) {
-        setPointsFromFlatArray(project.points);
+        const transformedPoints = transformPointsForEditing(project.points);
+        setCurrentPoints(transformedPoints);
       }
 
       setIsDrawingMode(true);
@@ -173,7 +190,7 @@ const AddProjectForm: React.FC = () => {
     setSelectedRegion,
     setSelectedCity,
     setSelectedCityId,
-    setPointsFromFlatArray,
+    setCurrentPoints,
     tInstructions,
   ]);
 
