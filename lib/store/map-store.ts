@@ -34,6 +34,10 @@ interface MapState {
   isAdmin: boolean;
   instructions: string | null;
 
+  // Instruction layer state
+  showInstructionLayer: boolean;
+  setShowInstructionLayer: (show: boolean) => void;
+
   // Map view state
   scale: number;
   position: { x: number; y: number };
@@ -145,6 +149,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   selectedLandmark: null,
   landmarkTypeInDrawing: null,
   hiddenLandmarkTypes: new Set(),
+  showInstructionLayer: false,
 
   // Actions
   setSelectedRegion: (id) => set({ selectedRegion: id }),
@@ -167,6 +172,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   setSelectedLandmark: (landmarkId) => set({ selectedLandmark: landmarkId }),
   setLandmarkTypeInDrawing: (type) => set({ landmarkTypeInDrawing: type }),
   setHiddenLandmarkTypes: (types) => set({ hiddenLandmarkTypes: types }),
+  setShowInstructionLayer: (show) => set({ showInstructionLayer: show }),
   toggleLandmarkTypeVisibility: (type) => {
     const { hiddenLandmarkTypes } = get();
     const newHiddenTypes = new Set(hiddenLandmarkTypes);

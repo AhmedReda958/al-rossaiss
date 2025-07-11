@@ -298,7 +298,12 @@
     "selectCityForProject": "Please select a city in the selected region.",
     "editCityPolygon": "You can edit the city polygon.",
     "selectRegionForCity": "Please select a region on the map to start adding a city.",
-    "landmarkLocationSet": "Landmark location set! Ready to save."
+    "landmarkLocationSet": "Landmark location set! Ready to save.",
+    "projectsList": "Browse and search through available projects in the selected area",
+    "regionsMap": "Click on any region to explore cities and projects within that area",
+    "citySelection": "Click on a city to zoom in and view detailed projects and landmarks",
+    "citySlider": "Navigate between different cities in the selected region",
+    "landmarkFilter": "Filter landmarks by type (schools, hospitals, malls, etc.)"
   },
   "Dialogs": {
     "deleteConfirmation": "Are you sure you want to delete this item?",

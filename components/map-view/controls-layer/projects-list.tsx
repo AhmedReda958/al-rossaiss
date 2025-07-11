@@ -245,7 +245,7 @@ const ProjectsList = () => {
   };
 
   return (
-    <div className="absolute left-4 top-4 bottom-4 z-40 h-[calc(100vh-2rem)]">
+    <div id="projects-list" className="absolute left-4 top-4 bottom-4 z-40 h-[calc(100vh-2rem)]">
       {/* Projects Panel */}
       <Button
         variant="secondary"
