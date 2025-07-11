@@ -38,6 +38,7 @@ export default function ProjectsPage() {
 
   // Get current locale from pathname
   const currentLocale = pathname.split("/")[1] || "en";
+  const isArabic = currentLocale === "ar";
 
   // Helper function to get translated region name
   const getRegionName = (regionId: number) => {
@@ -108,16 +109,24 @@ export default function ProjectsPage() {
     <>
       <ProjectsHeader />
       <main className="py-8">
-        <div className="flex justify-start items-center mb-6 gap-4">
+        <div
+          className={`flex ${
+            isArabic ? "justify-end" : "justify-start"
+          } items-center mb-6 gap-4`}
+        >
           <div className="relative w-1/3">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+            <Search
+              className={`absolute ${
+                isArabic ? "right-3" : "left-3"
+              } top-1/2 -translate-y-1/2 h-5 w-5 text-primary`}
+            />
             <Input
               placeholder={t("searchPlaceholder")}
               value={searchTerm}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSearchTerm(e.target.value)
               }
-              className="pl-10 h-12"
+              className={`${isArabic ? "pr-10" : "pl-10"} h-12`}
             />
           </div>
 

@@ -37,7 +37,7 @@ const mapCityToCityPolygon = (
 };
 
 const CitiesLayer = () => {
-  const { cities } = useMapStore();
+  const { cities, mapType, editingCity } = useMapStore();
   const pathname = usePathname();
 
   // Get current locale from pathname
@@ -49,16 +49,25 @@ const CitiesLayer = () => {
 
   return (
     <Group>
-      {cities.map((city) => (
-        <Polygon
-          key={city.id}
-          polygon={mapCityToCityPolygon(city, currentLocale)}
-          type="city"
-          fillColor={colors.primaryHover}
-          strokeColor={colors.primary}
-          labelColor={colors.primary_100}
-        />
-      ))}
+      {cities
+        .filter((city) => {
+          // Hide the city being edited when in edit mode
+          return !(
+            mapType === "edit-city" &&
+            editingCity &&
+            city.id === editingCity.id
+          );
+        })
+        .map((city) => (
+          <Polygon
+            key={city.id}
+            polygon={mapCityToCityPolygon(city, currentLocale)}
+            type="city"
+            fillColor={colors.primaryHover}
+            strokeColor={colors.primary}
+            labelColor={colors.primary_100}
+          />
+        ))}
     </Group>
   );
 };

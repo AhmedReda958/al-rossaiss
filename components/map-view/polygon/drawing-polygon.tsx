@@ -59,11 +59,36 @@ const DrawingPolygon = () => {
 
       if (!point) return;
 
-      // Adjust for group transformation and stage position/scale
-      const adjustedPoint = {
-        x: (point.x - position.x) / scale,
-        y: (point.y - position.y) / scale,
-      };
+      // For city map, we need to get the relative position within the layer
+      // since the layer itself is positioned at (position.x, position.y)
+      let adjustedPoint;
+
+      if (selectedCity) {
+        // For city map, get the relative position within the layer
+        const layer = stage.findOne(".city-layer") || stage.find("Layer")[0];
+        const layerPointerPosition = layer
+          ? layer.getRelativePointerPosition()
+          : null;
+
+        if (layerPointerPosition) {
+          adjustedPoint = {
+            x: layerPointerPosition.x,
+            y: layerPointerPosition.y,
+          };
+        } else {
+          // Fallback: calculate relative position manually
+          adjustedPoint = {
+            x: point.x - position.x,
+            y: point.y - position.y,
+          };
+        }
+      } else {
+        // For region map, use the existing transformation
+        adjustedPoint = {
+          x: (point.x - position.x) / scale,
+          y: (point.y - position.y) / scale,
+        };
+      }
 
       // Add to current points
       addPoint(adjustedPoint);
@@ -74,7 +99,7 @@ const DrawingPolygon = () => {
     return () => {
       stage.off("click", handleClick);
     };
-  }, [isDrawingMode, position, scale, addPoint]);
+  }, [isDrawingMode, position, scale, addPoint, selectedCity]);
 
   return (
     <Group>

@@ -115,7 +115,7 @@ export default function CityCard({ city, onCityDeleted }: CityCardProps) {
       <Card
         className="shadow-md p-3 gap-2"
         onClick={() => {
-          router.push(`/dashboard/cities/${city.id}`);
+          router.push(`/${currentLocale}/dashboard/cities/${city.id}`);
         }}
       >
         <CardHeader className="p-0">
@@ -133,11 +133,15 @@ export default function CityCard({ city, onCityDeleted }: CityCardProps) {
           <div className="flex justify-between items-start">
             <CardTitle className="text-xl font-bold">{cityName}</CardTitle>
             <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                <Link href={`/dashboard/cities/edit/${city.id}`}>
-                  <Pencil className="h-4 w-4" />
-                </Link>
-              </Button>
+              <div onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                  <Link
+                    href={`/${currentLocale}/dashboard/cities/edit/${city.id}`}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
               <Button
                 variant="ghost"
                 size="icon"

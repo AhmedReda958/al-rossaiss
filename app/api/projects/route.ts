@@ -87,6 +87,7 @@ export async function POST(req: Request) {
     const points = JSON.parse(formData.get("points") as string) as number[];
     const cityId = parseInt(formData.get("cityId") as string, 10);
     const image = formData.get("image") as File | null;
+    const logo = formData.get("logo") as File | null;
     const unitType = formData.get("unitType") as string;
     const soldOut = formData.get("soldOut") === "true";
     const space = parseFloat(formData.get("space") as string);
@@ -125,6 +126,21 @@ export async function POST(req: Request) {
       imageUrl = blob.url;
     }
 
+    let logoUrl = null;
+    if (logo) {
+      // Handle logo upload to Vercel Blob
+      const fileExtension = logo.name.split(".").pop();
+      const filename = `projects/logos/${Date.now()}-${Math.round(
+        Math.random() * 1e9
+      )}.${fileExtension}`;
+
+      const blob = await put(filename, logo, {
+        access: "public",
+      });
+
+      logoUrl = blob.url;
+    }
+
     const project = await prisma.project.create({
       data: {
         name,
@@ -132,6 +148,7 @@ export async function POST(req: Request) {
         description,
         descriptionAr,
         image: imageUrl,
+        logo: logoUrl,
         labelDirection,
         points,
         cityId,

@@ -86,7 +86,7 @@ export async function PUT(
       data: {
         ...updateData,
         region: {
-          connect: { id: parseInt(regionId, 10) },
+          connect: { key: regionId },
         },
       },
     });

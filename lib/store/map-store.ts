@@ -70,6 +70,9 @@ interface MapState {
   zoomToRegion: (regionId: string) => void;
   zoomToPoint: (point: { x: number; y: number }) => void;
 
+  // Method to update initial position based on screen size
+  updateInitialPosition: (screenWidth: number, screenHeight: number) => void;
+
   // Project-related state
   selectedProject: number | null;
   editingProject: Project | null;
@@ -108,7 +111,13 @@ interface MapState {
   toggleLandmarkTypeVisibility: (type: LandmarkType) => void;
 }
 
-const intialPosition = { x: -200, y: -500 };
+// Helper function to calculate initial position based on screen size
+const getInitialPosition = (screenWidth: number, screenHeight: number, mapWidth: number, mapHeight: number) => {
+  return {
+    x: (screenWidth - mapWidth) / 2,
+    y: (screenHeight - mapHeight) / 2,
+  };
+};
 
 export const useMapStore = create<MapState>((set, get) => ({
   // Initial state
@@ -124,7 +133,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   isAdmin: true, // Set default admin state
   instructions: null,
   scale: 1,
-  position: { x: intialPosition.x, y: intialPosition.y },
+  position: { x: 0, y: 0 }, // Will be updated when stage is available
   isZooming: false,
   regionBounds: {},
   layerRef: null,
@@ -187,12 +196,17 @@ export const useMapStore = create<MapState>((set, get) => ({
     });
   },
   resetZoom: () => {
-    const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion } =
+    const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion, mapSize } =
       get();
 
     setIsZooming(true);
     const newScale = 1;
-    const newPos = intialPosition;
+    
+    // Calculate initial position based on screen size
+    const stage = layerRef?.current?.getStage();
+    const stageWidth = stage?.width() || 0;
+    const stageHeight = stage?.height() || 0;
+    const newPos = getInitialPosition(stageWidth, stageHeight, mapSize.width, mapSize.height);
 
     // Animate the zoom out if layer ref exists
     if (layerRef?.current) {
@@ -224,7 +238,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   },
 
   zoomToRegion: (regionId) => {
-    const { regionBounds, layerRef, setScale, setPosition, setIsZooming } =
+    const { regionBounds, layerRef, setScale, setPosition, setIsZooming, mapSize } =
       get();
 
     setIsZooming(true);
@@ -237,8 +251,11 @@ export const useMapStore = create<MapState>((set, get) => ({
     }
 
     const stage = layerRef.current.getStage();
-    const stageWidth = stage?.width();
-    const stageHeight = stage?.height();
+    const stageWidth = stage?.width() || 0;
+    const stageHeight = stage?.height() || 0;
+
+    // Get the initial position for centering
+    const initialPosition = getInitialPosition(stageWidth, stageHeight, mapSize.width, mapSize.height);
 
     // Add some padding around the region
     const paddingFactor = 0;
@@ -255,10 +272,10 @@ export const useMapStore = create<MapState>((set, get) => ({
     // Calculate position to center the region
     const newX =
       stageWidth / 2 -
-      (paddedX + paddedWidth / 2 - intialPosition.x) * newScale;
+      (paddedX + paddedWidth / 2 - initialPosition.x) * newScale;
     const newY =
       stageHeight / 2 -
-      (paddedY + paddedHeight / 2 - intialPosition.y) * newScale;
+      (paddedY + paddedHeight / 2 - initialPosition.y) * newScale;
 
     // Animate the zoom
     const tween = new Tween({
@@ -313,5 +330,15 @@ export const useMapStore = create<MapState>((set, get) => ({
     });
 
     tween.play();
+  },
+
+  updateInitialPosition: (screenWidth, screenHeight) => {
+    const { mapSize, scale, setPosition } = get();
+    
+    // Only update position if we're at initial scale (not zoomed)
+    if (scale === 1) {
+      const newPosition = getInitialPosition(screenWidth, screenHeight, mapSize.width, mapSize.height);
+      setPosition(newPosition);
+    }
   },
 }));

@@ -29,6 +29,7 @@ import ArrowRight from "@/svgs/arrow-right";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import DrawingControls from "../drawing-controls";
 
 // Define form schema function that takes translation function
 const createFormSchema = (t: (key: string) => string) =>
@@ -49,6 +50,7 @@ const createFormSchema = (t: (key: string) => string) =>
       .optional()
       .or(z.literal("")),
     image: z.instanceof(File).or(z.string()).optional(),
+    logo: z.instanceof(File).or(z.string()).optional(),
     description: z.string().optional(),
     descriptionAr: z.string().optional(),
     labelDirection: z.enum(["up", "down", "left", "right"]),
@@ -58,14 +60,23 @@ const createFormSchema = (t: (key: string) => string) =>
 type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 const AddProjectForm: React.FC = () => {
-  const { selectedRegion, selectedCity, setInstructions, setSelectedCity } =
-    useMapStore();
+  const {
+    selectedRegion,
+    selectedCity,
+    setInstructions,
+    setSelectedCity,
+    editingProject: project,
+    setSelectedRegion,
+    setSelectedCityId,
+  } = useMapStore();
   const router = useRouter();
   const t = useTranslations("Projects");
   const tCommon = useTranslations("Common");
   const tInstructions = useTranslations("Instructions");
 
+  const isEditMode = !!project;
   const [cityImagePreview, setCityImagePreview] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
 
@@ -74,7 +85,24 @@ const AddProjectForm: React.FC = () => {
     clearCurrentPoints,
     currentPoints,
     pointsToFlatArray,
+    setCurrentPoints,
   } = usePolygonMarkerStore();
+
+  // Helper function to transform stored points to drawing coordinates
+  const transformPointsForEditing = (storedPoints: number[]) => {
+    if (!storedPoints || storedPoints.length === 0) return [];
+
+    // Convert flat array to Point objects
+    // The stored points should now be in the correct coordinate system
+    const points: { x: number; y: number }[] = [];
+    for (let i = 0; i < storedPoints.length; i += 2) {
+      points.push({
+        x: storedPoints[i],
+        y: storedPoints[i + 1],
+      });
+    }
+    return points;
+  };
 
   // Create schema with translations
   const formSchema = createFormSchema(t);
@@ -83,17 +111,88 @@ const AddProjectForm: React.FC = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      cityId: selectedCity || "",
-      name: "",
-      nameAr: "",
-      url: "",
-      description: "",
-      descriptionAr: "",
-      image: undefined,
-      labelDirection: "up",
-      soldOut: false,
+      cityId: project?.cityId?.toString() || selectedCity || "",
+      name: project?.name || "",
+      nameAr: project?.nameAr || "",
+      unitType: project?.unitType || UNIT_TYPES.APARTMENT,
+      space: project?.space || 0,
+      unitsCount: project?.unitsCount || 0,
+      url: project?.url || "",
+      description: project?.description || "",
+      descriptionAr: project?.descriptionAr || "",
+      image: project?.image || undefined,
+      logo: project?.logo || undefined,
+      labelDirection:
+        (project?.labelDirection as "up" | "down" | "left" | "right") || "up",
+      soldOut: project?.soldOut || false,
     },
   });
+
+  // Set image preview if project has image
+  useEffect(() => {
+    if (project?.image) {
+      setCityImagePreview(project.image);
+    }
+  }, [project?.image]);
+
+  // Set logo preview if project has logo
+  useEffect(() => {
+    if (project?.logo) {
+      setLogoPreview(project.logo);
+    }
+  }, [project?.logo]);
+
+  // Set up edit mode data
+  useEffect(() => {
+    if (isEditMode && project) {
+      // Only set region and city if they're not already set (to avoid triggering fetches)
+      if (project.city?.region && !selectedRegion) {
+        setSelectedRegion(project.city.region.id.toString());
+      }
+      if (project.city && !selectedCity) {
+        setSelectedCity(project.city.id.toString());
+        setSelectedCityId(project.city.id);
+      }
+
+      // Set polygon points if they exist
+      if (project.points) {
+        const transformedPoints = transformPointsForEditing(project.points);
+        setCurrentPoints(transformedPoints);
+      }
+
+      setIsDrawingMode(true);
+      setInstructions(tInstructions("editProjectPolygon"));
+    } else {
+      // Reset for add mode
+      if (selectedRegion && selectedCity) {
+        setInstructions(tInstructions("drawProjectPolygon"));
+      } else {
+        setIsDrawingMode(false);
+        setInstructions(
+          !selectedRegion
+            ? tInstructions("selectRegionForProject")
+            : tInstructions("selectCityForProject")
+        );
+      }
+    }
+
+    return () => {
+      setIsDrawingMode(false);
+      setInstructions(null);
+    };
+  }, [
+    isEditMode,
+    project,
+    selectedRegion,
+    selectedCity,
+    setIsDrawingMode,
+    setInstructions,
+    setSelectedRegion,
+    setSelectedCity,
+    setSelectedCityId,
+    setCurrentPoints,
+    tInstructions,
+  ]);
 
   // Fetch cities for the selected region
   useEffect(() => {
@@ -117,30 +216,6 @@ const AddProjectForm: React.FC = () => {
     }
   }, [selectedCity, form]);
 
-  useEffect(() => {
-    if (selectedRegion && selectedCity) {
-      setIsDrawingMode(true);
-      setInstructions(tInstructions("drawProjectPolygon"));
-    } else {
-      setIsDrawingMode(false);
-      setInstructions(
-        !selectedRegion
-          ? tInstructions("selectRegionForProject")
-          : tInstructions("selectCityForProject")
-      );
-    }
-    return () => {
-      setIsDrawingMode(false);
-      setInstructions(null);
-    };
-  }, [
-    selectedRegion,
-    selectedCity,
-    setIsDrawingMode,
-    setInstructions,
-    tInstructions,
-  ]);
-
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     onChange: (value: File) => void
@@ -157,12 +232,35 @@ const AddProjectForm: React.FC = () => {
     }
   };
 
+  const handleLogoChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    onChange: (value: File) => void
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onChange(file); // Update form value
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setLogoPreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const onSubmit = async (values: FormValues) => {
-    if (!selectedRegion) {
+    const regionForSubmit = isEditMode
+      ? project?.city?.region?.id?.toString()
+      : selectedRegion;
+    const cityForSubmit = isEditMode
+      ? project?.city?.id?.toString()
+      : selectedCity;
+
+    if (!regionForSubmit) {
       toast.error(tCommon("selectRegionFirst"));
       return;
     }
-    if (!selectedCity) {
+    if (!cityForSubmit) {
       toast.error(tCommon("selectCityFirst"));
       return;
     }
@@ -187,6 +285,9 @@ const AddProjectForm: React.FC = () => {
       if (values.image instanceof File) {
         formData.append("image", values.image);
       }
+      if (values.logo instanceof File) {
+        formData.append("logo", values.logo);
+      }
       formData.append("labelDirection", values.labelDirection);
       formData.append("soldOut", String(values.soldOut));
       formData.append(
@@ -194,13 +295,20 @@ const AddProjectForm: React.FC = () => {
         JSON.stringify(pointsToFlatArray(currentPoints))
       );
 
-      const response = await fetch("/api/projects", {
-        method: "POST",
+      const url = isEditMode ? `/api/projects/${project.id}` : "/api/projects";
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
         body: formData,
       });
 
       if (response.ok) {
-        toast.success(tCommon("projectCreatedSuccess"));
+        toast.success(
+          isEditMode
+            ? tCommon("projectUpdatedSuccess")
+            : tCommon("projectCreatedSuccess")
+        );
         clearCurrentPoints();
         setIsDrawingMode(false);
         router.push("/dashboard/projects");
@@ -220,14 +328,18 @@ const AddProjectForm: React.FC = () => {
     router.push("/dashboard/projects");
   };
 
-  // Only show form if both region and city are selected
-  if (!selectedRegion || !selectedCity) return null;
+  // Only show form if both region and city are selected, or if in edit mode
+  if (!isEditMode && (!selectedRegion || !selectedCity)) return null;
 
   return (
     <>
       <div className="mb-6">
-        <h2 className="text-lg font-semibold">{t("addProject")}</h2>
-        <p className="text-xs text-muted mb-1">{t("drawProjectPolygon")}</p>
+        <h2 className="text-lg font-semibold">
+          {isEditMode ? t("editProject") : t("addProject")}
+        </h2>
+        <p className="text-xs text-muted mb-1">
+          {isEditMode ? t("editProjectPolygon") : t("drawProjectPolygon")}
+        </p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -442,6 +554,76 @@ const AddProjectForm: React.FC = () => {
 
           <FormField
             control={form.control}
+            name="logo"
+            render={({ field: { onChange, onBlur, name, ref } }) => (
+              <FormItem>
+                <div className="border rounded-lg px-3 py-2.5">
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <Image
+                      src="/icons/image-icon.svg"
+                      alt="Upload"
+                      width={44}
+                      height={44}
+                      className="w-14 h-14 rounded-[6px]"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWltYWdlIj48cmVjdCB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHg9IjMiIHk9IjMiIHJ4PSIyIiByeT0iMiIvPjxjaXJjbGUgY3g9IjguNSIgY3k9IjguNSIgcj0iMS41Ii8+PHBvbHlsaW5lIHBvaW50cz0iMjEgMTUgMTYgMTAgNSAyMSIvPjwvc3ZnPg==";
+                      }}
+                    />
+                    <div className="w-fit">
+                      <h3 className="text-sm font-medium">
+                        {t("uploadProjectLogo")}
+                      </h3>
+                      <p className="text-xs text-muted">
+                        {t("uploadLogoDescription")}
+                      </p>
+                    </div>
+                  </div>
+                  <FormControl>
+                    <div className="relative">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full text-base"
+                      >
+                        <Image
+                          src="/icons/upload-icon.svg"
+                          alt="Upload"
+                          width={24}
+                          height={24}
+                        />
+                        {tCommon("uploadImage")}
+                      </Button>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleLogoChange(e, onChange)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        name={name}
+                        ref={ref}
+                        onBlur={onBlur}
+                      />
+                    </div>
+                  </FormControl>
+                  {logoPreview && (
+                    <div className="mt-2">
+                      <Image
+                        src={logoPreview}
+                        alt="Logo Preview"
+                        width={200}
+                        height={200}
+                        className="max-w-full h-auto rounded-md"
+                      />
+                    </div>
+                  )}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
@@ -490,16 +672,16 @@ const AddProjectForm: React.FC = () => {
                   variant="outline"
                   className="text-primary"
                 >
-                  <ToggleGroupItem value="up" aria-label="Up">
+                  <ToggleGroupItem value="up" aria-label={tCommon("up")}>
                     <ArrowUp width={20} height={20} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="down" aria-label="Down">
+                  <ToggleGroupItem value="down" aria-label={tCommon("down")}>
                     <ArrowDown width={20} height={20} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="left" aria-label="Left">
+                  <ToggleGroupItem value="left" aria-label={tCommon("left")}>
                     <ArrowLeft width={20} height={20} />
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="right" aria-label="Right">
+                  <ToggleGroupItem value="right" aria-label={tCommon("right")}>
                     <ArrowRight width={20} height={20} />
                   </ToggleGroupItem>
                 </ToggleGroup>
@@ -525,6 +707,16 @@ const AddProjectForm: React.FC = () => {
             )}
           />
 
+          {/* Drawing Controls */}
+          {((selectedRegion && selectedCity) || isEditMode) && (
+            <div className="border-t pt-4">
+              <DrawingControls
+                translationNamespace="Projects"
+                showWhenReady={true}
+              />
+            </div>
+          )}
+
           <div className="flex justify-end gap-2 pt-4">
             <Button
               variant="ghost"
@@ -535,7 +727,11 @@ const AddProjectForm: React.FC = () => {
               {tCommon("cancel")}
             </Button>
             <Button type="submit" className="w-[114px]" disabled={isSubmitting}>
-              {isSubmitting ? t("saving") : tCommon("save")}
+              {isSubmitting
+                ? tCommon("saving")
+                : isEditMode
+                ? t("saveChanges")
+                : tCommon("save")}
             </Button>
           </div>
         </form>

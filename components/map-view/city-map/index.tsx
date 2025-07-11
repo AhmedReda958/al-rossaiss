@@ -20,8 +20,15 @@ interface CityData {
 }
 
 const CityMap = () => {
-  const { mapSize, selectedCity, mapType, setSelectedCityId, addLoadingOperation, removeLoadingOperation } =
-    useMapStore();
+  const {
+    mapSize,
+    selectedCity,
+    mapType,
+    setSelectedCityId,
+    addLoadingOperation,
+    removeLoadingOperation,
+    editingProject,
+  } = useMapStore();
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
 
@@ -52,8 +59,48 @@ const CityMap = () => {
       return;
     }
 
+    // If we're in edit mode and have project data with city, use it instead of fetching
+    if (
+      mapType === "edit-project" &&
+      editingProject &&
+      editingProject.city &&
+      editingProject.city.id.toString() === selectedCity
+    ) {
+      const projectCity = editingProject.city;
+      setCityData({ id: projectCity.id });
+      setSelectedCityId(projectCity.id);
+
+      // Try to get city image from a separate API call, but don't block on it
+      const fetchCityImage = async () => {
+        try {
+          const res = await fetch(`/api/cities/${projectCity.id}`);
+          if (res.ok) {
+            const cityData = await res.json();
+            if (cityData.image) {
+              const img = new window.Image();
+              img.src = cityData.image;
+              img.onload = () => {
+                setCityImage(img);
+              };
+              img.onerror = () => {
+                setCityImage(null);
+              };
+            } else {
+              setCityImage(null);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching city image:", error);
+          setCityImage(null);
+        }
+      };
+
+      fetchCityImage();
+      return;
+    }
+
     const fetchCity = async () => {
-      addLoadingOperation('city-data'); // Start loading when fetching city data
+      addLoadingOperation("city-data"); // Start loading when fetching city data
 
       try {
         const res = await fetch(`/api/cities/${selectedCity}`);
@@ -66,33 +113,40 @@ const CityMap = () => {
             img.src = data.image;
             img.onload = () => {
               setCityImage(img);
-              removeLoadingOperation('city-data'); // Stop loading when image is loaded
+              removeLoadingOperation("city-data"); // Stop loading when image is loaded
             };
             img.onerror = () => {
               setCityImage(null);
-              removeLoadingOperation('city-data'); // Stop loading even if image fails
+              removeLoadingOperation("city-data"); // Stop loading even if image fails
             };
           } else {
             setCityImage(null);
-            removeLoadingOperation('city-data'); // Stop loading if no image
+            removeLoadingOperation("city-data"); // Stop loading if no image
           }
         } else {
           setCityData(null);
           setCityImage(null);
           setSelectedCityId(null);
-          removeLoadingOperation('city-data'); // Stop loading on error
+          removeLoadingOperation("city-data"); // Stop loading on error
         }
       } catch (error) {
-        console.error('Error fetching city data:', error);
+        console.error("Error fetching city data:", error);
         setCityData(null);
         setCityImage(null);
         setSelectedCityId(null);
-        removeLoadingOperation('city-data'); // Stop loading on error
+        removeLoadingOperation("city-data"); // Stop loading on error
       }
     };
 
     fetchCity();
-  }, [selectedCity, setSelectedCityId, addLoadingOperation, removeLoadingOperation]);
+  }, [
+    selectedCity,
+    setSelectedCityId,
+    addLoadingOperation,
+    removeLoadingOperation,
+    mapType,
+    editingProject,
+  ]);
 
   if (!selectedCity || !cityData) return null;
 

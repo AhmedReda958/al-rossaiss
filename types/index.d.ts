@@ -71,6 +71,7 @@ export type Project = {
   description?: string | null;
   descriptionAr?: string | null;
   image?: string | null;
+  logo?: string | null;
   labelDirection?: string | null;
   points: number[];
   cityId: number;

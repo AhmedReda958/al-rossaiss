@@ -20,7 +20,24 @@ export const useCitiesLayer = () => {
   const effectiveMapWidth = mapSize.width;
   const effectiveMapHeight = mapSize.height;
 
-  const position = { x: -mapSize.width / 4, y: -mapSize.height / 4 }; // the initial position of the city map
+  // Calculate position based on screen size instead of image size
+  const getPosition = useCallback(() => {
+    const stage = layerRef.current?.getStage();
+    if (!stage) {
+      return { x: 0, y: 0 };
+    }
+    
+    const stageWidth = stage.width();
+    const stageHeight = stage.height();
+    
+    // Center the map on the screen
+    return {
+      x: (stageWidth - effectiveMapWidth) / 2,
+      y: (stageHeight - effectiveMapHeight) / 2,
+    };
+  }, [effectiveMapWidth, effectiveMapHeight]);
+
+  const position = getPosition();
 
   // Drag boundaries for the city map (no scale)
   const limitDragBoundaries = useCallback(

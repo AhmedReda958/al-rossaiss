@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { Group } from "react-konva";
 import { useMapStore } from "@/lib/store";
-import Polygon from "@/components/map-view/polygon/polygon";
+import ProjectPolygon from "@/components/map-view/polygon/project-polygon";
 import { CityPolygon } from "@/lib/store/polygon-marker-store";
 import { Project } from "@/types";
 import colors from "@/lib/colors";
@@ -35,6 +35,8 @@ const ProjectsLayer = () => {
     selectedCityId,
     addLoadingOperation,
     removeLoadingOperation,
+    mapType,
+    editingProject,
   } = useMapStore();
 
   const pathname = usePathname();
@@ -45,6 +47,11 @@ const ProjectsLayer = () => {
   useEffect(() => {
     const fetchCityProjects = async () => {
       if (!selectedCityId) return;
+
+      // Skip fetching if we already have projects and we're in edit mode
+      if (mapType === "edit-project" && projects.length > 0) {
+        return;
+      }
 
       addLoadingOperation("projects-data"); // Start loading when fetching projects
 
@@ -67,6 +74,8 @@ const ProjectsLayer = () => {
     setProjects,
     addLoadingOperation,
     removeLoadingOperation,
+    mapType,
+    projects.length,
   ]);
 
   if (!projects.length) {
@@ -75,16 +84,24 @@ const ProjectsLayer = () => {
 
   return (
     <Group>
-      {projects.map((project) => (
-        <Polygon
-          key={project.id}
-          polygon={mapProjectToCityPolygon(project, currentLocale)}
-          strokeColor={colors.primary}
-          fillColor={colors.primary_400}
-          labelColor={colors.primary}
-          type="project"
-        />
-      ))}
+      {projects
+        .filter((project) => {
+          // Hide the project being edited when in edit mode
+          return !(
+            mapType === "edit-project" &&
+            editingProject &&
+            project.id === editingProject.id
+          );
+        })
+        .map((project) => (
+          <ProjectPolygon
+            key={project.id}
+            polygon={mapProjectToCityPolygon(project, currentLocale)}
+            strokeColor={colors.primary}
+            fillColor={colors.primary_400}
+            logoUrl={project.logo}
+          />
+        ))}
     </Group>
   );
 };

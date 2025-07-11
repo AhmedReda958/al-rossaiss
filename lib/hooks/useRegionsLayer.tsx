@@ -23,6 +23,7 @@ export const useRegionsLayer = () => {
     regionBounds,
     selectedRegion,
     mapSize,
+    mapType,
     editingCity,
     setRegionBounds,
     setSelectedRegion,
@@ -32,6 +33,7 @@ export const useRegionsLayer = () => {
     setCities,
     addLoadingOperation,
     removeLoadingOperation,
+    updateInitialPosition,
   } = useMapStore();
 
   const effectiveMapWidth = mapSize.width; // Account for scaleX of the image
@@ -41,19 +43,27 @@ export const useRegionsLayer = () => {
   useLayoutEffect(() => {
     if (layerRef.current) {
       setLayerRef({ current: layerRef.current });
+      
+      // Update initial position based on screen size
+      const stage = layerRef.current.getStage();
+      if (stage) {
+        const stageWidth = stage.width();
+        const stageHeight = stage.height();
+        updateInitialPosition(stageWidth, stageHeight);
+      }
     }
-  }, [setLayerRef]);
+  }, [setLayerRef, updateInitialPosition]);
 
   // Start initial loading
   useLayoutEffect(() => {
-    addLoadingOperation('initial-map-load');
+    addLoadingOperation("initial-map-load");
   }, [addLoadingOperation]);
 
   // Handle initial map loading
   useEffect(() => {
     if (mapImage && Object.keys(pathDataMap).length > 0) {
       // Map image and regions are loaded, we can stop the initial loading
-      removeLoadingOperation('initial-map-load');
+      removeLoadingOperation("initial-map-load");
     }
   }, [mapImage, pathDataMap, removeLoadingOperation]);
 
@@ -123,8 +133,13 @@ export const useRegionsLayer = () => {
   }, [selectedRegion, regionBounds, storeZoomToRegion]);
 
   const handleRegionClick = async (id: string) => {
+    // Prevent region changes when in edit-city mode
+    if (mapType === "edit-city") {
+      return;
+    }
+
     setSelectedRegion(id);
-    addLoadingOperation('region-cities'); // Start loading when region is clicked
+    // Don't show loading when selecting a region
 
     try {
       const response = await fetch(`/api/cities/region/${id}`);
@@ -136,9 +151,8 @@ export const useRegionsLayer = () => {
     } catch (error) {
       console.error(error);
       setCities([]); // Clear cities in case of an error
-    } finally {
-      removeLoadingOperation('region-cities'); // Stop loading after data is fetched
     }
+    // No loading operation to remove since we're not showing loading
 
     storeZoomToRegion(id);
   };
