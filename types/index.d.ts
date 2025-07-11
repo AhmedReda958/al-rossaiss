@@ -22,6 +22,9 @@ export type City = {
   points: number[];
   regionId: string;
   region?: Region;
+  _count?: {
+    projects: number;
+  };
 };
 
 export type CitiesApiResponse = {

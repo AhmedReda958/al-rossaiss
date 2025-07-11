@@ -25,7 +25,7 @@ interface CityCardProps {
 }
 
 export default function CityCard({ city, onCityDeleted }: CityCardProps) {
-  const projectCount = city?.region?._count?.projects ?? 0;
+  const projectCount = city?._count?.projects ?? 0;
   const router = useRouter();
   const pathname = usePathname();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
