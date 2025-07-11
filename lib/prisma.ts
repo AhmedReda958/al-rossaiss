@@ -18,7 +18,6 @@ if (process.env.NODE_ENV === "production") {
 } else {
   if (!global.__prisma__) {
     global.__prisma__ = new PrismaClient({
-      log: ["query"],
       datasources: {
         db: {
           url: process.env.DATABASE_URL,
