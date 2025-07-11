@@ -116,7 +116,12 @@ interface MapState {
 }
 
 // Helper function to calculate initial position based on screen size
-const getInitialPosition = (screenWidth: number, screenHeight: number, mapWidth: number, mapHeight: number) => {
+const getInitialPosition = (
+  screenWidth: number,
+  screenHeight: number,
+  mapWidth: number,
+  mapHeight: number
+) => {
   return {
     x: (screenWidth - mapWidth) / 2,
     y: (screenHeight - mapHeight) / 2,
@@ -202,17 +207,28 @@ export const useMapStore = create<MapState>((set, get) => ({
     });
   },
   resetZoom: () => {
-    const { layerRef, setScale, setPosition, setIsZooming, setSelectedRegion, mapSize } =
-      get();
+    const {
+      layerRef,
+      setScale,
+      setPosition,
+      setIsZooming,
+      setSelectedRegion,
+      mapSize,
+    } = get();
 
     setIsZooming(true);
     const newScale = 1;
-    
+
     // Calculate initial position based on screen size
     const stage = layerRef?.current?.getStage();
     const stageWidth = stage?.width() || 0;
     const stageHeight = stage?.height() || 0;
-    const newPos = getInitialPosition(stageWidth, stageHeight, mapSize.width, mapSize.height);
+    const newPos = getInitialPosition(
+      stageWidth,
+      stageHeight,
+      mapSize.width,
+      mapSize.height
+    );
 
     // Animate the zoom out if layer ref exists
     if (layerRef?.current) {
@@ -244,8 +260,14 @@ export const useMapStore = create<MapState>((set, get) => ({
   },
 
   zoomToRegion: (regionId) => {
-    const { regionBounds, layerRef, setScale, setPosition, setIsZooming, mapSize } =
-      get();
+    const {
+      regionBounds,
+      layerRef,
+      setScale,
+      setPosition,
+      setIsZooming,
+      mapSize,
+    } = get();
 
     setIsZooming(true);
 
@@ -261,7 +283,12 @@ export const useMapStore = create<MapState>((set, get) => ({
     const stageHeight = stage?.height() || 0;
 
     // Get the initial position for centering
-    const initialPosition = getInitialPosition(stageWidth, stageHeight, mapSize.width, mapSize.height);
+    const initialPosition = getInitialPosition(
+      stageWidth,
+      stageHeight,
+      mapSize.width,
+      mapSize.height
+    );
 
     // Add some padding around the region
     const paddingFactor = 0;
@@ -340,10 +367,15 @@ export const useMapStore = create<MapState>((set, get) => ({
 
   updateInitialPosition: (screenWidth, screenHeight) => {
     const { mapSize, scale, setPosition } = get();
-    
+
     // Only update position if we're at initial scale (not zoomed)
     if (scale === 1) {
-      const newPosition = getInitialPosition(screenWidth, screenHeight, mapSize.width, mapSize.height);
+      const newPosition = getInitialPosition(
+        screenWidth,
+        screenHeight,
+        mapSize.width,
+        mapSize.height
+      );
       setPosition(newPosition);
     }
   },
