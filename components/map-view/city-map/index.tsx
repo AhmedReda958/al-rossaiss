@@ -1,16 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Image, Layer, Circle } from "react-konva";
-import { KonvaEventObject } from "konva/lib/Node";
+import { Image, Layer } from "react-konva";
 import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import { useCitiesLayer } from "@/lib/hooks/useCitiesLayer";
 import ProjectsLayer from "./projects-layer";
 import DrawingPolygon from "../polygon/drawing-polygon";
 import LandmarksLayer from "./landmarks-layer";
-import { LANDMARK_TYPES } from "@/lib/constants";
-import LandmarkPin from "../polygon/landmark-pin";
 
 // Define a minimal city data type
 interface CityData {
@@ -32,18 +29,11 @@ const CityMap = () => {
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
 
-  const { isDrawingMode, coordinates, setCoordinates } =
-    usePolygonMarkerStore();
-  const {
-    position,
-    effectiveMapWidth,
-    effectiveMapHeight,
-    limitDragBoundaries,
-    layerRef,
-  } = useCitiesLayer();
+  const { isDrawingMode, setCoordinates } = usePolygonMarkerStore();
+  const { position, limitDragBoundaries, layerRef } = useCitiesLayer();
 
   // Handle map click for landmark placement
-  const handleLayerClick = (e: KonvaEventObject<MouseEvent>) => {
+  const handleLayerClick = () => {
     if (isDrawingMode && mapType === "add-landmark") {
       const layerPoint = layerRef.current?.getRelativePointerPosition();
       if (layerPoint) {
@@ -157,12 +147,15 @@ const CityMap = () => {
     <Layer
       ref={layerRef}
       draggable={!isDrawingMode}
-      width={effectiveMapWidth}
-      height={effectiveMapHeight}
       dragBoundFunc={limitDragBoundaries}
       x={position.x}
       y={position.y}
       onClick={handleLayerClick}
+      onDragEnd={(e) => {
+        // Update position in the store to sync with the actual layer position
+        e.target.position();
+        // Note: For city map, we might want to handle this differently if needed
+      }}
     >
       {cityImage && (
         <Image

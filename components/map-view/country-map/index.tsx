@@ -16,22 +16,20 @@ const CountryMap = () => {
     scale,
     position,
     isZooming,
-    effectiveMapWidth,
-    effectiveMapHeight,
     limitDragBoundaries,
+    handleDragEnd,
   } = useRegionsLayer();
 
   return (
     <Layer
       ref={layerRef}
       draggable={!isZooming && !isDrawingMode}
-      width={effectiveMapWidth}
-      height={effectiveMapHeight}
       dragBoundFunc={limitDragBoundaries}
       x={position.x}
       y={position.y}
       scaleX={scale}
       scaleY={scale}
+      onDragEnd={handleDragEnd}
     >
       {mapImage && (
         <Image

@@ -97,18 +97,13 @@ export const useRegionsLayer = () => {
       // Map image and regions are loaded, we can stop the initial loading
       removeLoadingOperation("initial-map-load");
 
-      // Ensure proper centering after map is loaded
-      const stage = layerRef.current?.getStage();
-      if (stage) {
-        const stageWidth = stage.width();
-        const stageHeight = stage.height();
-
-        if (stageWidth > 0 && stageHeight > 0) {
-          updateInitialPosition(stageWidth, stageHeight);
-        }
-      }
+      // Ensure proper centering after map is loaded - use forceCenter for production
+      setTimeout(() => {
+        const { forceCenter } = useMapStore.getState();
+        forceCenter();
+      }, 100);
     }
-  }, [mapImage, pathDataMap, removeLoadingOperation, updateInitialPosition]);
+  }, [mapImage, pathDataMap, removeLoadingOperation]);
 
   // Extract path data on client-side only
   useLayoutEffect(() => {
@@ -271,6 +266,13 @@ export const useRegionsLayer = () => {
     [effectiveMapWidth, effectiveMapHeight, scale, isZooming]
   );
 
+  const handleDragEnd = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
+    const pos = e.target.position();
+    // Update position in the store to sync with the actual layer position
+    const { setPosition } = useMapStore.getState();
+    setPosition(pos);
+  }, []);
+
   return {
     pathDataMap,
     mapImage,
@@ -288,5 +290,6 @@ export const useRegionsLayer = () => {
     handleRegionClick,
     assignPathRef,
     limitDragBoundaries,
+    handleDragEnd,
   };
 };

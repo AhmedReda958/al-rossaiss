@@ -77,6 +77,9 @@ interface MapState {
   // Method to update initial position based on screen size
   updateInitialPosition: (screenWidth: number, screenHeight: number) => void;
 
+  // Force center map regardless of current state - useful for production fixes
+  forceCenter: () => void;
+
   // Project-related state
   selectedProject: number | null;
   editingProject: Project | null;
@@ -452,6 +455,44 @@ export const useMapStore = create<MapState>((set, get) => ({
         mapSize.height
       );
       setPosition(newPosition);
+    }
+  },
+
+  // Force center map regardless of current state - useful for production fixes
+  forceCenter: () => {
+    const { layerRef, mapSize, setPosition } = get();
+
+    if (layerRef?.current) {
+      const stage = layerRef.current.getStage();
+      if (stage) {
+        let stageWidth = stage.width();
+        let stageHeight = stage.height();
+
+        // Fallback to container dimensions if stage dimensions are not available
+        if (stageWidth === 0 || stageHeight === 0) {
+          const container = stage.container();
+          if (container) {
+            const rect = container.getBoundingClientRect();
+            stageWidth = rect.width;
+            stageHeight = rect.height;
+          }
+        }
+
+        if (stageWidth > 0 && stageHeight > 0) {
+          const newPosition = getInitialPosition(
+            stageWidth,
+            stageHeight,
+            mapSize.width,
+            mapSize.height
+          );
+          setPosition(newPosition);
+
+          // If we have a layer, also update its position immediately
+          if (layerRef.current) {
+            layerRef.current.position(newPosition);
+          }
+        }
+      }
     }
   },
 }));
