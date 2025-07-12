@@ -134,42 +134,48 @@ export const useRegionsLayer = () => {
       return;
     }
 
-    const calculatedBounds: Record<
-      string,
-      { x: number; y: number; width: number; height: number }
-    > = {};
+    // Add a small delay to ensure paths are fully rendered
+    const calculateBounds = () => {
+      const calculatedBounds: Record<
+        string,
+        { x: number; y: number; width: number; height: number }
+      > = {};
 
-    // Calculate bounds for each region based on actual path dimensions
-    Object.entries(pathRefs.current).forEach(([id, path]) => {
-      if (path) {
-        try {
-          const box = path.getClientRect();
+      // Calculate bounds for each region based on actual path dimensions
+      Object.entries(pathRefs.current).forEach(([id, path]) => {
+        if (path) {
+          try {
+            // Force a redraw before calculating bounds to ensure accuracy
+            path.getLayer()?.batchDraw();
 
-          // Ensure we have valid bounds
-          if (box.width > 0 && box.height > 0) {
-            calculatedBounds[id] = {
-              x: box.x,
-              y: box.y,
-              width: box.width,
-              height: box.height,
-            };
+            const box = path.getClientRect();
+
+            // Ensure we have valid bounds
+            if (box.width > 0 && box.height > 0) {
+              calculatedBounds[id] = {
+                x: box.x,
+                y: box.y,
+                width: box.width,
+                height: box.height,
+              };
+            }
+          } catch (error) {
+            console.warn(`Failed to calculate bounds for region ${id}:`, error);
           }
-        } catch (error) {
-          console.warn(`Failed to calculate bounds for region ${id}:`, error);
         }
-      }
-    });
+      });
 
-    // Only update bounds if we have valid data for all regions
-    if (Object.keys(calculatedBounds).length === regions.length) {
-      setRegionBounds(calculatedBounds);
-    } else {
-      // Retry bounds calculation after a delay
-      setTimeout(() => {
-        // Trigger a re-render to recalculate bounds
-        setPathDataMap((prev) => ({ ...prev }));
-      }, 100);
-    }
+      // Only update bounds if we have valid data for all regions
+      if (Object.keys(calculatedBounds).length === regions.length) {
+        setRegionBounds(calculatedBounds);
+      } else {
+        // Retry bounds calculation after a consistent delay for both environments
+        setTimeout(calculateBounds, 200);
+      }
+    };
+
+    // Use a consistent delay for both environments to ensure everything is fully rendered
+    setTimeout(calculateBounds, 300);
   }, [pathDataMap, setRegionBounds]);
 
   // Reset zoom when no region is selected
@@ -181,18 +187,32 @@ export const useRegionsLayer = () => {
 
   // Zoom to selected region
   useEffect(() => {
-    if (selectedRegion && layerRef.current && regionBounds[selectedRegion]) {
-      // Ensure stage is ready before zooming
-      const stage = layerRef.current.getStage();
-      if (stage && stage.width() > 0 && stage.height() > 0) {
-        storeZoomToRegion(selectedRegion);
+    if (selectedRegion && layerRef.current) {
+      // Check if bounds are available
+      if (regionBounds[selectedRegion]) {
+        // Ensure stage is ready before zooming
+        const stage = layerRef.current.getStage();
+        if (stage && stage.width() > 0 && stage.height() > 0) {
+          storeZoomToRegion(selectedRegion);
+        } else {
+          // Wait for stage to be ready
+          setTimeout(() => {
+            if (layerRef.current && regionBounds[selectedRegion]) {
+              storeZoomToRegion(selectedRegion);
+            }
+          }, 100);
+        }
       } else {
-        // Wait for stage to be ready
+        // Use fallback if bounds are not available
+        const { zoomToRegionFallback } = useMapStore.getState();
         setTimeout(() => {
-          if (layerRef.current && regionBounds[selectedRegion]) {
+          // Try bounds first, then fallback
+          if (regionBounds[selectedRegion]) {
             storeZoomToRegion(selectedRegion);
+          } else {
+            zoomToRegionFallback(selectedRegion);
           }
-        }, 100);
+        }, 300); // Consistent delay for both environments
       }
     }
   }, [selectedRegion, regionBounds, storeZoomToRegion]);
@@ -227,8 +247,12 @@ export const useRegionsLayer = () => {
       setTimeout(() => {
         if (regionBounds[id]) {
           storeZoomToRegion(id);
+        } else {
+          // Use fallback method if bounds are still not available
+          const { zoomToRegionFallback } = useMapStore.getState();
+          zoomToRegionFallback(id);
         }
-      }, 200);
+      }, 300); // Consistent delay for both environments
     }
   };
 

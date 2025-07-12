@@ -72,6 +72,7 @@ interface MapState {
 
   // Helper method to zoom to a region
   zoomToRegion: (regionId: string) => void;
+  zoomToRegionFallback: (regionId: string) => void;
   zoomToPoint: (point: { x: number; y: number }) => void;
 
   // Method to update initial position based on screen size
@@ -129,13 +130,6 @@ const getInitialPosition = (
     x: (screenWidth - mapWidth) / 2,
     y: (screenHeight - mapHeight) / 2,
   };
-};
-
-// Debug helper for production issues
-const debugZoomIssues = (context: string, data: unknown) => {
-  if (process.env.NODE_ENV === "production") {
-    console.log(`[MapZoom Debug] ${context}:`, data);
-  }
 };
 
 export const useMapStore = create<MapState>((set, get) => ({
@@ -308,20 +302,17 @@ export const useMapStore = create<MapState>((set, get) => ({
       mapSize,
     } = get();
 
-    debugZoomIssues("zoomToRegion called", {
-      regionId,
-      hasBounds: !!regionBounds[regionId],
-    });
-
     setIsZooming(true);
 
     const bounds = regionBounds[regionId];
 
     if (!bounds || !layerRef?.current) {
-      debugZoomIssues("zoomToRegion failed", {
-        bounds,
-        layerRef: !!layerRef?.current,
-      });
+      // Try fallback method if bounds are not available
+      if (!bounds && layerRef?.current) {
+        get().zoomToRegionFallback(regionId);
+        return;
+      }
+
       setIsZooming(false);
       return;
     }
@@ -330,8 +321,6 @@ export const useMapStore = create<MapState>((set, get) => ({
     let stageWidth = stage?.width() || 0;
     let stageHeight = stage?.height() || 0;
 
-    debugZoomIssues("stage dimensions", { stageWidth, stageHeight });
-
     // Fallback to container dimensions if stage dimensions are not available
     if (stageWidth === 0 || stageHeight === 0) {
       const container = stage?.container();
@@ -339,16 +328,11 @@ export const useMapStore = create<MapState>((set, get) => ({
         const rect = container.getBoundingClientRect();
         stageWidth = rect.width;
         stageHeight = rect.height;
-        debugZoomIssues("using container dimensions", {
-          stageWidth,
-          stageHeight,
-        });
       }
     }
 
     // If we still don't have valid dimensions, try to wait and retry
     if (stageWidth === 0 || stageHeight === 0) {
-      debugZoomIssues("retrying zoom after delay", { stageWidth, stageHeight });
       setTimeout(() => {
         get().zoomToRegion(regionId);
       }, 100);
@@ -380,6 +364,7 @@ export const useMapStore = create<MapState>((set, get) => ({
     newScale = Math.max(newScale, 0.5);
 
     // Calculate position to center the region
+    // The bounds already include the group offset, so we use them directly
     const regionCenterX = paddedX + paddedWidth / 2;
     const regionCenterY = paddedY + paddedHeight / 2;
 
@@ -494,5 +479,78 @@ export const useMapStore = create<MapState>((set, get) => ({
         }
       }
     }
+  },
+
+  // Fallback zoom to region using hardcoded region positions if bounds are not available
+  zoomToRegionFallback: (regionId: string) => {
+    const { layerRef, setScale, setPosition, setIsZooming, mapSize } = get();
+
+    // Hardcoded region center positions (relative to group, so we need to add group offset)
+    const regionCenters: Record<string, { x: number; y: number }> = {
+      western: { x: 225 + 369, y: 322 + 664 },
+      eastern: { x: 905 + 369, y: 372 + 664 },
+      northern: { x: 325 + 369, y: 52 + 664 },
+      southern: { x: 475 + 369, y: 572 + 664 },
+      central: { x: 525 + 369, y: 272 + 664 },
+    };
+
+    const regionCenter = regionCenters[regionId];
+    if (!regionCenter || !layerRef?.current) {
+      setIsZooming(false);
+      return;
+    }
+
+    setIsZooming(true);
+
+    const stage = layerRef.current.getStage();
+    let stageWidth = stage?.width() || 0;
+    let stageHeight = stage?.height() || 0;
+
+    // Fallback to container dimensions if stage dimensions are not available
+    if (stageWidth === 0 || stageHeight === 0) {
+      const container = stage?.container();
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        stageWidth = rect.width;
+        stageHeight = rect.height;
+      }
+    }
+
+    if (stageWidth === 0 || stageHeight === 0) {
+      setTimeout(() => {
+        get().zoomToRegionFallback(regionId);
+      }, 100);
+      return;
+    }
+
+    const initialPosition = getInitialPosition(
+      stageWidth,
+      stageHeight,
+      mapSize.width,
+      mapSize.height
+    );
+
+    const newScale = 2; // Fixed scale for fallback
+    const newX =
+      stageWidth / 2 - (regionCenter.x - initialPosition.x) * newScale;
+    const newY =
+      stageHeight / 2 - (regionCenter.y - initialPosition.y) * newScale;
+
+    const tween = new Tween({
+      node: layerRef.current,
+      duration: 0.5,
+      easing: Easings.EaseInOut,
+      scaleX: newScale,
+      scaleY: newScale,
+      x: newX,
+      y: newY,
+      onFinish: () => {
+        setScale(newScale);
+        setPosition({ x: newX, y: newY });
+        setIsZooming(false);
+      },
+    });
+
+    tween.play();
   },
 }));
