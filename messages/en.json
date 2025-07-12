@@ -75,7 +75,12 @@
     "up": "Up",
     "down": "Down",
     "left": "Left",
-    "right": "Right"
+    "right": "Right",
+    "menu": "Menu",
+    "fullscreen": "Fullscreen",
+    "share": "Share",
+    "connectWithUs": "Connect with us",
+    "companyHome": "Abdul Mohsen Al-Rosaies & Sons Group Co"
   },
   "Navigation": {
     "home": "Home",

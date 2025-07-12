@@ -1,32 +1,17 @@
-import React, { useCallback } from "react";
+import React from "react";
 
-import { BiSolidGridAlt } from "react-icons/bi";
 import { Button } from "@/components/ui/button";
 import { GoZoomOut } from "react-icons/go";
 import Image from "next/image";
 import { useMapStore } from "@/lib/store";
 import CitySlider from "./city-slider";
 import { useTranslations } from "next-intl";
+import MapMenu from "./map-menu";
 
 const ControlsLayerFooter = () => {
   const { resetZoom, setSelectedCity, selectedRegion, selectedCity } =
     useMapStore();
   const t = useTranslations("Common");
-
-  const openFullScreen = useCallback(() => {
-    const element = document.getElementById("map_view");
-    if (element) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        element.requestFullscreen().catch((err) => {
-          console.error(
-            `Error attempting to enable fullscreen: ${err.message}`
-          );
-        });
-      }
-    }
-  }, []);
 
   return (
     <footer className=" flex items-bottom justify-between z-10 absolute bottom-0 left-0 w-full  p-5 pointer-events-auto">
@@ -63,9 +48,7 @@ const ControlsLayerFooter = () => {
           ></Image>
         )}
 
-        <Button variant="light" size={"icon-sm"} onClick={openFullScreen}>
-          <BiSolidGridAlt className="w-3 h-3" />
-        </Button>
+        <MapMenu />
       </div>
     </footer>
   );
