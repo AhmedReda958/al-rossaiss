@@ -77,7 +77,7 @@ const MapMenu: React.FC<MapMenuProps> = ({ className }) => {
   }, []);
 
   const goToHome = useCallback(() => {
-    window.location.href = "/";
+    window.location.href = "https://alrossais.com/";
   }, []);
 
   const openSocialLink = useCallback((url: string) => {
@@ -122,7 +122,7 @@ const MapMenu: React.FC<MapMenuProps> = ({ className }) => {
               <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
                 <Image
                   src="/logo.svg"
-                  alt="Ayala logo"
+                  alt=" logo"
                   width={16}
                   height={16}
                   className="w-4 h-4"
@@ -171,7 +171,7 @@ const MapMenu: React.FC<MapMenuProps> = ({ className }) => {
             <DropdownMenuSeparator className="my-2 bg-gray-100" />
 
             {/* Social Media */}
-            <div className="px-3 pb-1">
+            <div className="px-1 pb-1">
               <div className="flex items-center justify-center gap-2">
                 <button
                   onClick={() => openSocialLink("https://twitter.com")}
