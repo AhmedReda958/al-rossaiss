@@ -15,16 +15,16 @@ const regions = [
     name: "Eastern Region",
     Component: Eastern,
   },
-  {
-    id: "northern",
-    name: "Northern Region",
-    Component: Northern,
-  },
-  {
-    id: "southern",
-    name: "Southern Region",
-    Component: Southern,
-  },
+  // {
+  //   id: "northern",
+  //   name: "Northern Region",
+  //   Component: Northern,
+  // },
+  // {
+  //   id: "southern",
+  //   name: "Southern Region",
+  //   Component: Southern,
+  // },
   {
     id: "central",
     name: "Central Region",

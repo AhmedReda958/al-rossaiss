@@ -5,8 +5,6 @@ async function main() {
   const regions = [
     { id: 1, name: "Western Region", key: "western" },
     { id: 2, name: "Eastern Region", key: "eastern" },
-    { id: 3, name: "Northern Region", key: "northern" },
-    { id: 4, name: "Southern Region", key: "southern" },
     { id: 5, name: "Central Region", key: "central" },
   ];
 

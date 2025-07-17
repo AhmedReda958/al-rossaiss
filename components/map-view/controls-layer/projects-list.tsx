@@ -72,8 +72,8 @@ const ProjectsList = () => {
     const regionIdToKey: Record<number, string> = {
       1: "western",
       2: "eastern",
-      3: "northern",
-      4: "southern",
+      // 3: "northern",
+      // 4: "southern",
       5: "central",
     };
     const key = regionIdToKey[regionId];
