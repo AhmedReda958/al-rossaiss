@@ -31,7 +31,7 @@ const RegionsLayer = () => {
   } = useRegionsLayer();
   const { mapType } = useMapStore();
   const tRegions = useTranslations("Regions");
-  const [regionCityCounts, setRegionCityCounts] = useState<Record<
+  const [regionProjectCounts, setRegionProjectCounts] = useState<Record<
     string,
     number
   > | null>(null);
@@ -41,8 +41,10 @@ const RegionsLayer = () => {
   useEffect(() => {
     fetch("/api/regions/counts")
       .then((res) => res.json())
-      .then((data) => setRegionCityCounts(data))
-      .catch((err) => console.error("Failed to fetch region counts", err));
+      .then((data) => setRegionProjectCounts(data))
+      .catch((err) =>
+        console.error("Failed to fetch region project counts", err)
+      );
   }, []);
 
   const animateLabel = (id: string, isHovered: boolean) => {
@@ -65,13 +67,13 @@ const RegionsLayer = () => {
       {regions.map(({ id }) => {
         const pathData = pathDataMap[id] || "";
         const labelPos = regionLabelPositions[id] || { x: 0, y: 0 };
-        const cityCount = regionCityCounts ? regionCityCounts[id] : -1;
+        const projectCount = regionProjectCounts ? regionProjectCounts[id] : -1;
 
         // In edit-city mode, disable all regions except the currently selected one
         const isDisabled =
           mapType === "edit-city"
             ? selectedRegion !== id
-            : cityCount === 0 && mapType === "main";
+            : projectCount === 0 && mapType === "main";
 
         // Get translated region name
         const translatedName = tRegions(id);
@@ -162,14 +164,14 @@ const RegionsLayer = () => {
                   fontWeight="bold"
                 />
 
-                {regionCityCounts && cityCount > 0 && (
+                {regionProjectCounts && projectCount > 0 && (
                   <>
                     {/* Number circle */}
                     <Circle x={130} y={23} radius={14} fill="#ffffff" />
 
-                    {/* Number text */}
+                    {/* Number of projects text */}
                     <Text
-                      text={cityCount.toString()}
+                      text={projectCount.toString()}
                       x={130}
                       y={24}
                       fontSize={14}

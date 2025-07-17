@@ -13,8 +13,12 @@ export async function GET() {
   try {
     const regions = await prisma.region.findMany({
       include: {
-        _count: {
-          select: { cities: true },
+        cities: {
+          include: {
+            _count: {
+              select: { projects: true },
+            },
+          },
         },
       },
     });
@@ -22,7 +26,11 @@ export async function GET() {
     const regionCounts = regions.reduce((acc, region) => {
       const shortName = regionNameMapping[region.name];
       if (shortName) {
-        acc[shortName] = region._count.cities;
+        // Sum up all projects from all cities in this region
+        acc[shortName] = region.cities.reduce(
+          (sum, city) => sum + city._count.projects,
+          0
+        );
       }
       return acc;
     }, {} as Record<string, number>);

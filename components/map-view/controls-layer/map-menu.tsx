@@ -182,7 +182,9 @@ const MapMenu: React.FC<MapMenuProps> = ({ className }) => {
                   <FaXTwitter className="w-5 h-5 text-gray-600 group-hover:text-black transition-colors relative z-10" />
                 </button>
                 <button
-                  onClick={() => openSocialLink("https://www.instagram.com/alrossaisgroup/")}
+                  onClick={() =>
+                    openSocialLink("https://www.instagram.com/alrossaisgroup/")
+                  }
                   className="p-3 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 rounded-full transition-all duration-150 hover:scale-110 group relative overflow-hidden cursor-pointer"
                   aria-label="Instagram"
                 >
@@ -190,7 +192,11 @@ const MapMenu: React.FC<MapMenuProps> = ({ className }) => {
                   <FaInstagram className="w-5 h-5 text-gray-600 group-hover:text-pink-600 transition-colors relative z-10" />
                 </button>
                 <button
-                  onClick={() => openSocialLink("https://api.whatsapp.com/send/?phone=966920031005&text&type=phone_number&app_absent=0")}
+                  onClick={() =>
+                    openSocialLink(
+                      "https://api.whatsapp.com/send/?phone=966920031005&text&type=phone_number&app_absent=0"
+                    )
+                  }
                   className="p-3 hover:bg-green-50 rounded-full transition-all duration-150 hover:scale-110 group relative overflow-hidden cursor-pointer"
                   aria-label="WhatsApp"
                 >
