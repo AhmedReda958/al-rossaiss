@@ -85,7 +85,7 @@ const LandmarksLayer = () => {
             y={landmark.coordinates.y}
             type={landmark.type}
             name={landmarkName}
-            size={40}
+            size={24}
             onClick={() => {
               console.log("Landmark clicked:", landmarkName);
             }}
@@ -99,7 +99,7 @@ const LandmarksLayer = () => {
           x={coordinates[0]}
           y={coordinates[1]}
           type={landmarkTypeInDrawing}
-          size={40}
+          size={24}
         />
       )}
     </Group>

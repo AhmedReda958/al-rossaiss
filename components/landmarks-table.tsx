@@ -19,7 +19,7 @@ import {
   Eye,
   Trash2,
 } from "lucide-react";
-import { MdMosque } from "react-icons/md";
+import { FaRegMoon } from "react-icons/fa";
 import { IoBagHandle } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -58,7 +58,7 @@ const getLandmarkIcon = (type: string) => {
     case LANDMARK_TYPES.PARK:
       return TreePine;
     case LANDMARK_TYPES.MOSQUE:
-      return MdMosque;
+      return FaRegMoon;
     case LANDMARK_TYPES.LANDMARK:
     default:
       return LandmarkIcon;

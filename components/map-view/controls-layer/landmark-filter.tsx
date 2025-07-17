@@ -6,7 +6,7 @@ import { useMapStore } from "@/lib/store";
 import { LANDMARK_TYPES, LandmarkType } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { LandmarkIcon, GraduationCap, Hospital, TreePine } from "lucide-react";
-import { MdMosque } from "react-icons/md";
+import { FaRegMoon } from "react-icons/fa";
 import { IoBagHandle } from "react-icons/io5";
 import { useTranslations } from "next-intl";
 
@@ -22,7 +22,7 @@ const getLandmarkIcon = (type: LandmarkType) => {
     case LANDMARK_TYPES.PARK:
       return TreePine;
     case LANDMARK_TYPES.MOSQUE:
-      return MdMosque;
+      return FaRegMoon;
     case LANDMARK_TYPES.LANDMARK:
     default:
       return LandmarkIcon;
