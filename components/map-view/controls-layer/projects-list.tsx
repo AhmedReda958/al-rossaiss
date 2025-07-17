@@ -247,36 +247,53 @@ const ProjectsList = () => {
   return (
     <div
       id="projects-list"
-      className="absolute left-4 top-4 bottom-4 z-40 h-[calc(100vh-2rem)]"
+      className={`absolute ${
+        currentLocale === "ar" ? "right-4" : "left-4"
+      } top-4 bottom-4 z-40 h-[calc(100vh-2rem)]`}
     >
       {/* Projects Panel */}
       <Button
+        dir={currentLocale === "ar" ? "rtl" : "ltr"}
         variant="secondary"
-        className="absolute -left-4 text-xs font-thin top-1/2 -translate-y-1/2 shadow-lg z-10 rounded-s-none rounded-e-md !pe-2"
+        className={`absolute ${
+          currentLocale === "ar" ? "-right-4 " : "-left-4 "
+        } text-sm font-medium top-1/2 -translate-y-1/2 shadow-lg z-10 rounded-s-none rounded-e-md !px-3 !py-5`}
         onClick={() => setIsOpen(true)}
         hidden={isOpen}
       >
         {tCommon("allProjects")}
-        <ChevronRight className="h-4 w-4" />
+        {currentLocale === "ar" ? (
+          <ChevronLeft className="h-5 w-5 ms-1" />
+        ) : (
+          <ChevronRight className="h-5 w-5 ms-1" />
+        )}
       </Button>
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ x: "-100%" }}
+            initial={{ x: currentLocale === "ar" ? "100%" : "-100%" }}
             animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
+            exit={{ x: currentLocale === "ar" ? "100%" : "-100%" }}
             transition={{ type: "tween", duration: 0.2 }}
-            className="bg-white rounded-lg shadow-md w-80 h-[calc(100vh-5em)] lg:h-[calc(100vh-3rem)] left-4"
+            className={`bg-white rounded-lg shadow-md w-84 h-[calc(100vh-5em)] lg:h-[calc(100vh-3rem)] ${
+              currentLocale === "ar" ? "right-4" : "left-4"
+            }`}
           >
             <div className="relative h-full">
               {/* Toggle Button */}
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute -right-10 top-1/2 -translate-y-1/2 shadow-lg z-10"
+                className={`absolute ${
+                  currentLocale === "ar" ? "-left-12" : "-right-12"
+                } top-1/2 -translate-y-1/2 shadow-lg z-10 h-10 w-10`}
                 onClick={handleClose}
               >
-                <ChevronLeft className="h-4 w-4" />
+                {currentLocale === "ar" ? (
+                  <ChevronRight className="h-5 w-5" />
+                ) : (
+                  <ChevronLeft className="h-5 w-5" />
+                )}
               </Button>
 
               <div className="p-4 pe-0 h-[calc(100%-1rem)] overflow-y-hidden">
@@ -294,12 +311,18 @@ const ProjectsList = () => {
                   </div>
 
                   <div className="relative">
-                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Search
+                      className={`absolute ${
+                        currentLocale === "ar" ? "right-2" : "left-2"
+                      } top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400`}
+                    />
                     <Input
                       placeholder={tCommon("searchOnProjects")}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8 pr-4 py-2 bg-gray-100/50"
+                      className={`${
+                        currentLocale === "ar" ? "pr-8 pl-4" : "pl-8 pr-4"
+                      } py-2 bg-gray-100/50`}
                     />
                   </div>
                 </div>
