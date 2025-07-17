@@ -32,7 +32,6 @@ interface CitiesResponse {
 
 const CitySlider = () => {
   const { setSelectedCity, selectedCity } = useMapStore();
-  const router = useRouter();
   const pathname = usePathname();
 
   // Get current locale from pathname
@@ -55,7 +54,6 @@ const CitySlider = () => {
 
   const handleCityClick = (cityId: string) => {
     setSelectedCity(cityId);
-    router.push(`/dashboard/cities/${cityId}`);
   };
 
   if (!cities.length) return null;
