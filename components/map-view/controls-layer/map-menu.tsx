@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { BiSolidGridAlt } from "react-icons/bi";
 import { BsFullscreen, BsShare } from "react-icons/bs";
 import { MdClose } from "react-icons/md";
-import { FaInstagram, FaYoutube, FaLinkedin } from "react-icons/fa";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { HiOutlineExternalLink } from "react-icons/hi";
 import Image from "next/image";
@@ -92,7 +92,7 @@ const MapMenu: React.FC<MapMenuProps> = ({ className }) => {
           variant="light"
           size="icon-sm"
           onClick={openFullScreen}
-          className={`${className} shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 bg-white/90 backdrop-blur-sm border border-white/20 hover:bg-white/95 focus:ring-2 focus:ring-blue-500/20`}
+          className={`${className} shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 bg-white/90 backdrop-blur-sm border border-white/20 hover:bg-white/95 focus:ring-2 focus:ring-blue-500/20 cursor-pointer`}
         >
           <MdClose className="w-4 h-4 text-gray-700" />
         </Button>
@@ -103,7 +103,7 @@ const MapMenu: React.FC<MapMenuProps> = ({ className }) => {
             <Button
               variant="light"
               size="icon-sm"
-              className={`${className} shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 bg-white/90 backdrop-blur-sm border border-white/20 hover:bg-white/95 focus:ring-2 focus:ring-blue-500/20`}
+              className={`${className} shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 bg-white/90 backdrop-blur-sm border border-white/20 hover:bg-white/95 focus:ring-2 focus:ring-blue-500/20 cursor-pointer`}
             >
               <BiSolidGridAlt className="w-3 h-3 text-gray-700" />
             </Button>
@@ -174,36 +174,28 @@ const MapMenu: React.FC<MapMenuProps> = ({ className }) => {
             <div className="px-1 pb-1">
               <div className="flex items-center justify-center gap-2">
                 <button
-                  onClick={() => openSocialLink("https://twitter.com")}
-                  className="p-3 hover:bg-gray-100 rounded-full transition-all duration-150 hover:scale-110 group relative overflow-hidden"
+                  onClick={() => openSocialLink("https://x.com/alrossaisgroup")}
+                  className="p-3 hover:bg-gray-100 rounded-full transition-all duration-150 hover:scale-110 group relative overflow-hidden cursor-pointer"
                   aria-label="Twitter"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-10 transition-opacity rounded-full"></div>
                   <FaXTwitter className="w-5 h-5 text-gray-600 group-hover:text-black transition-colors relative z-10" />
                 </button>
                 <button
-                  onClick={() => openSocialLink("https://instagram.com")}
-                  className="p-3 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 rounded-full transition-all duration-150 hover:scale-110 group relative overflow-hidden"
+                  onClick={() => openSocialLink("https://www.instagram.com/alrossaisgroup/")}
+                  className="p-3 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 rounded-full transition-all duration-150 hover:scale-110 group relative overflow-hidden cursor-pointer"
                   aria-label="Instagram"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity rounded-full"></div>
                   <FaInstagram className="w-5 h-5 text-gray-600 group-hover:text-pink-600 transition-colors relative z-10" />
                 </button>
                 <button
-                  onClick={() => openSocialLink("https://youtube.com")}
-                  className="p-3 hover:bg-red-50 rounded-full transition-all duration-150 hover:scale-110 group relative overflow-hidden"
-                  aria-label="YouTube"
+                  onClick={() => openSocialLink("https://api.whatsapp.com/send/?phone=966920031005&text&type=phone_number&app_absent=0")}
+                  className="p-3 hover:bg-green-50 rounded-full transition-all duration-150 hover:scale-110 group relative overflow-hidden cursor-pointer"
+                  aria-label="WhatsApp"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 opacity-0 group-hover:opacity-10 transition-opacity rounded-full"></div>
-                  <FaYoutube className="w-5 h-5 text-gray-600 group-hover:text-red-600 transition-colors relative z-10" />
-                </button>
-                <button
-                  onClick={() => openSocialLink("https://linkedin.com")}
-                  className="p-3 hover:bg-blue-50 rounded-full transition-all duration-150 hover:scale-110 group relative overflow-hidden"
-                  aria-label="LinkedIn"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-700 opacity-0 group-hover:opacity-10 transition-opacity rounded-full"></div>
-                  <FaLinkedin className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors relative z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 opacity-0 group-hover:opacity-10 transition-opacity rounded-full"></div>
+                  <FaWhatsapp className="w-5 h-5 text-gray-600 group-hover:text-green-600 transition-colors relative z-10" />
                 </button>
               </div>
             </div>
