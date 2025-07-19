@@ -3,18 +3,17 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-export function LoginForm({
+export function ForgotPasswordForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const t = useTranslations("Auth");
   const pathname = usePathname();
 
@@ -24,23 +23,27 @@ export function LoginForm({
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
+
     const form = e.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement)?.value;
-    const password = (form.elements.namedItem("password") as HTMLInputElement)
-      ?.value;
+
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, locale: currentLocale }),
       });
+
       const data = await res.json();
+
       if (!res.ok) {
-        setError(data.error || t("loginFailed"));
+        setError(data.error || t("unexpectedError"));
       } else {
-        // Redirect or show success
-        window.location.href = `/${currentLocale}/dashboard`;
+        setSuccess(data.message || t("resetLinkSent"));
+        // Clear the form
+        form.reset();
       }
     } catch {
       setError(t("unexpectedError"));
@@ -53,9 +56,11 @@ export function LoginForm({
     <div className="w-full max-w-lg">
       <div className="mb-6 ">
         <h1 className="text-2xl font-bold mb-3 text-black">
-          {t("adminLoginPanel")}
+          {t("forgotPasswordTitle")}
         </h1>
-        <p className="text-xs text-[#7c7c7c]">{t("welcomeBack")}</p>
+        <p className="text-xs text-[#7c7c7c]">
+          {t("forgotPasswordDescription")}
+        </p>
       </div>
       <form
         className={`flex flex-col gap-4 ${className || ""}`}
@@ -69,33 +74,17 @@ export function LoginForm({
           required
           className="bg-white"
         />
-        <div className="relative">
-          <Input
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder={t("password")}
-            required
-            className="bg-white pr-10"
-          />
-          <button
-            type="button"
-            tabIndex={-1}
-            onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900 focus:outline-none"
-          >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-          </button>
-        </div>
         {error && <div className="text-red-500 text-sm">{error}</div>}
+        {success && <div className="text-green-500 text-sm">{success}</div>}
         <Button type="submit" size="lg" className="mt-2" disabled={loading}>
-          {loading ? t("loggingIn") : t("login")}
+          {loading ? t("sendingResetLink") : t("sendResetLink")}
         </Button>
         <div className="text-center mt-4">
           <Link
-            href={`/${currentLocale}/forgot-password`}
+            href={`/${currentLocale}/login`}
             className="text-sm text-blue-600 hover:text-blue-800 underline"
           >
-            {t("forgotPassword")}
+            {t("backToLogin")}
           </Link>
         </div>
       </form>
