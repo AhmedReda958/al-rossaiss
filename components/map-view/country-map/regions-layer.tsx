@@ -147,7 +147,7 @@ const RegionsLayer = () => {
                   align="center"
                   verticalAlign="middle"
                   fill={colors.primary}
-                  fontWeight="bold"
+                  fontStyle="bold"
                 />
 
                 {regionProjectCounts && projectCount > 0 && (
@@ -161,7 +161,7 @@ const RegionsLayer = () => {
                       x={130}
                       y={24}
                       fontSize={14}
-                      fontFamily="Arial"
+                      fontFamily="inter, sans-serif"
                       fill={colors.primary}
                       align="center"
                       verticalAlign="middle"
