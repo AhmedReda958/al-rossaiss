@@ -222,6 +222,7 @@ const Polygon = ({
           width={70}
           align="center"
           verticalAlign="middle"
+          fontFamily="inter, sans-serif"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           listening={true}
