@@ -12,8 +12,8 @@ export default async function Home({
   setRequestLocale(locale);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between ">
-      <div className="container mx-auto " id="map-container">
+    <main>
+      <div id="map-container">
         <MapView />
       </div>
     </main>

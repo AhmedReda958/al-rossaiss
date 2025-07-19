@@ -87,8 +87,8 @@ const CountriesLayer = () => {
             rotation={rotation}
             offsetX={70}
             offsetY={10}
-            scaleY={0.95} // Slightly squished vertically for wave effect
-            letterSpacing={3} // Add spacing between letters for wave effect
+            scaleY={0.95}
+            letterSpacing={3}
             direction={isArabic ? "rtl" : "ltr"}
           />
         );
