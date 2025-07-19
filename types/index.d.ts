@@ -41,6 +41,7 @@ export type Landmark = {
   name: string;
   nameAr?: string;
   type: string;
+  image?: string; // Custom image for landmark type
   coordinates: { lat: number; lng: number };
   cityId: number;
   city?: {

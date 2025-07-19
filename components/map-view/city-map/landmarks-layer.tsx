@@ -5,7 +5,8 @@ import { Group } from "react-konva";
 import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import LandmarkPin from "@/components/map-view/polygon/landmark-pin";
-import { LandmarkType } from "@/lib/constants";
+import CustomLandmarkLogo from "@/components/map-view/polygon/custom-landmark-logo";
+import { LandmarkType, LANDMARK_TYPES } from "@/lib/constants";
 import { usePathname } from "next/navigation";
 import { getLocalizedName } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ interface Landmark {
   name: string;
   nameAr?: string;
   type: LandmarkType;
+  image?: string; // Add image field
   coordinates: {
     x: number;
     y: number;
@@ -77,6 +79,20 @@ const LandmarksLayer = () => {
       {/* Render existing landmarks */}
       {visibleLandmarks?.map((landmark: Landmark) => {
         const landmarkName = getLocalizedName(landmark, currentLocale);
+
+        // Use custom logo for landmark type with image, otherwise use pin
+        if (landmark.type === LANDMARK_TYPES.LANDMARK && landmark.image) {
+          return (
+            <CustomLandmarkLogo
+              key={landmark.id}
+              x={landmark.coordinates.x}
+              y={landmark.coordinates.y}
+              name={landmarkName}
+              imageUrl={landmark.image}
+              size={40}
+            />
+          );
+        }
 
         return (
           <LandmarkPin

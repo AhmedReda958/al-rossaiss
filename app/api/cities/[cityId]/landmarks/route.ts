@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { LandmarkType } from "@/lib/constants";
+import { put } from "@vercel/blob";
 
 export async function GET(
   request: Request,
@@ -30,14 +31,43 @@ export async function POST(
   try {
     const { cityId: cityIdParam } = await params;
     const cityId = parseInt(cityIdParam);
-    const data = await request.json();
+    const formData = await request.formData();
+
+    const name = formData.get("name") as string;
+    const nameAr = formData.get("nameAr") as string;
+    const type = formData.get("type") as LandmarkType;
+    const coordinates = JSON.parse(formData.get("coordinates") as string);
+    const image = formData.get("image") as File | null;
+
+    if (!name || !nameAr || !type || !coordinates) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    let imageUrl = null;
+    if (image) {
+      // Handle file upload to Vercel Blob
+      const fileExtension = image.name.split(".").pop();
+      const filename = `landmarks/${Date.now()}-${Math.round(
+        Math.random() * 1e9
+      )}.${fileExtension}`;
+
+      const blob = await put(filename, image, {
+        access: "public",
+      });
+
+      imageUrl = blob.url;
+    }
 
     const landmark = await prisma.landmark.create({
       data: {
-        name: data.name,
-        nameAr: data.nameAr,
-        type: data.type as LandmarkType,
-        coordinates: data.coordinates,
+        name,
+        nameAr,
+        type,
+        image: imageUrl,
+        coordinates,
         cityId,
       },
     });

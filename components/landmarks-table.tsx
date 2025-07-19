@@ -145,6 +145,9 @@ export default function LandmarksTable({
               <TableHead className="font-semibold">
                 {t("landmarkType")}
               </TableHead>
+              <TableHead className="font-semibold">
+                {tCommon("image")}
+              </TableHead>
               <TableHead className="font-semibold">{tCommon("city")}</TableHead>
               <TableHead className="font-semibold">
                 {tCommon("region")}

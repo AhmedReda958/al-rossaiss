@@ -65,6 +65,7 @@ model Landmark {
   name        String
   nameAr      String?
   type        String
+  image       String?  // Custom image for landmark type
   coordinates Json
   cityId      Int
   city        City     @relation(fields: [cityId], references: [id])

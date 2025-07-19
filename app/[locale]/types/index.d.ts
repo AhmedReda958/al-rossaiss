@@ -36,15 +36,19 @@ export type RegionApiResponse = {
 export type Landmark = {
   id: number;
   name: string;
+  nameAr?: string;
   type: string;
+  image?: string; // Custom image for landmark type
   coordinates: { lat: number; lng: number };
   cityId: number;
   city?: {
     id: number;
     name: string;
+    nameAr?: string;
     region?: {
       id: number;
       name: string;
+      nameAr?: string;
     } | null;
   } | null;
   createdAt: string;
