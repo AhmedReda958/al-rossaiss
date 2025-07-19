@@ -98,14 +98,6 @@ const RegionsLayer = () => {
                 if (container) {
                   container.style.cursor = "pointer";
                 }
-                const path = e.target as Konva.Path;
-                if (selectedRegion !== id) {
-                  path.to({
-                    fill: colors.primaryHover,
-                    duration: HOVER_ANIMATION_DURATION,
-                    easing: Konva.Easings.EaseInOut,
-                  });
-                }
                 animateLabel(id, true);
                 setHoveredRegionId(id);
               }}
@@ -113,14 +105,6 @@ const RegionsLayer = () => {
                 const container = e.target.getStage()?.container();
                 if (container) {
                   container.style.cursor = "default";
-                }
-                const path = e.target as Konva.Path;
-                if (selectedRegion !== id) {
-                  path.to({
-                    fill: "white",
-                    duration: HOVER_ANIMATION_DURATION,
-                    easing: Konva.Easings.EaseInOut,
-                  });
                 }
                 animateLabel(id, false);
                 setHoveredRegionId(null);
