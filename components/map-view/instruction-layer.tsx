@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useMapStore } from "@/lib/store";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 interface InstructionTooltip {
   id: string;
@@ -25,6 +25,8 @@ const InstructionLayer = () => {
     selectedCity,
   } = useMapStore();
   const t = useTranslations("Instructions");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
 
   // Define instruction tooltips based on map state
   const getInstructionTooltips = (): InstructionTooltip[] => {
@@ -35,8 +37,12 @@ const InstructionLayer = () => {
       tooltips.push({
         id: "projects-list",
         target: "projects-list",
-        position: { top: "50%", left: "120px", transform: "translateY(-50%)" },
-        arrowPosition: "left",
+        position: { 
+          top: "50%", 
+          [isRTL ? "right" : "left"]: "120px", 
+          transform: "translateY(-50%)" 
+        },
+        arrowPosition: isRTL ? "right" : "left",
         textKey: "projectsList",
       });
     }
@@ -148,7 +154,10 @@ const InstructionLayer = () => {
           <div className="relative">
             {/* Tooltip content */}
             <div className="bg-white rounded-lg shadow-xl p-4 max-w-xs border border-gray-200 backdrop-blur-sm">
-              <p className="text-sm text-gray-700 leading-relaxed font-medium">
+              <p 
+                className="text-sm text-gray-700 leading-relaxed font-medium"
+                dir={isRTL ? "rtl" : "ltr"}
+              >
                 {t(tooltip.textKey)}
               </p>
             </div>
@@ -162,7 +171,9 @@ const InstructionLayer = () => {
                   ? "border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white -bottom-1 left-1/2 -translate-x-1/2"
                   : tooltip.arrowPosition === "left"
                   ? "border-t-4 border-b-4 border-r-4 border-t-transparent border-b-transparent border-r-white -left-1 top-1/2 -translate-y-1/2"
-                  : "border-t-4 border-b-4 border-l-4 border-t-transparent border-b-transparent border-l-white -right-1 top-1/2 -translate-y-1/2"
+                  : tooltip.arrowPosition === "right"
+                  ? "border-t-4 border-b-4 border-l-4 border-t-transparent border-b-transparent border-l-white -right-1 top-1/2 -translate-y-1/2"
+                  : ""
               }`}
             />
           </div>
