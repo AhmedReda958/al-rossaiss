@@ -215,18 +215,16 @@ const ProjectPolygon = ({
   }
 
   // Logo dimensions
-  const logoSize = 40;
-  const logoX = center.x - logoSize / 2;
-  const logoY = center.y - logoSize / 2;
+  const logoSize = 50;
 
   // Tooltip dimensions (similar to landmark pin)
-  const tooltipPadding = 8;
-  const tooltipHeight = 25;
+  const tooltipPadding = 12;
+  const tooltipHeight = 36;
   const tooltipWidth = Math.max(
     polygon.name.length * 8 + tooltipPadding * 2,
     80
   );
-  const tooltipX = logoSize / 2 + 28; // Position to the right of the logo
+  const tooltipX = logoSize / 2 + 38; // Position to the right of the logo
   const tooltipY = -tooltipHeight / 2 + logoSize / 2; // Center vertically with the logo
 
   return (
@@ -272,19 +270,17 @@ const ProjectPolygon = ({
             image={logoImage}
             width={logoSize}
             height={logoSize}
-            cornerRadius={logoSize / 2}
+            cornerRadius={12}
             alt="Project Logo"
           />
         ) : (
           // Default logo (website logo)
           <Group>
-            <Circle
-              radius={logoSize / 2}
+            <Rect
+              width={logoSize}
+              height={logoSize}
               fill="white"
-              stroke={strokeColor}
-              strokeWidth={2}
-              x={logoSize / 2}
-              y={logoSize / 2}
+              cornerRadius={12}
             />
             {defaultLogoImage && (
               <Image
@@ -328,8 +324,8 @@ const ProjectPolygon = ({
             fontStyle="bold"
             fill="white"
             x={tooltipPadding}
-            y={6}
-            width={tooltipWidth - tooltipPadding * 2}
+            y={tooltipPadding}
+            height={tooltipHeight - tooltipPadding * 2}
             align="center"
             verticalAlign="middle"
           />
