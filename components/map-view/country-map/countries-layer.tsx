@@ -57,7 +57,7 @@ const CountriesLayer = () => {
             fontSize={isArabic ? 20 : 16}
             fontFamily="inter, sans-serif"
             fill="white"
-            opacity={0.3}
+            opacity={0.2}
             align="center"
             verticalAlign="middle"
             offsetX={countryId === "saudi-arabia" ? 150 : 50}

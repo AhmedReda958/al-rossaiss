@@ -143,7 +143,9 @@ const RegionsLayer = () => {
                   x={8}
                   y={16}
                   fontSize={14}
-                  fontFamily="Arial"
+                  fontFamily="inter, sans-serif"
+                  align="center"
+                  verticalAlign="middle"
                   fill={colors.primary}
                   fontWeight="bold"
                 />

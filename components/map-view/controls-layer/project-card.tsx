@@ -16,11 +16,13 @@ import {
   HotelIcon,
   DoorClosed,
   LucideIcon,
+  Building,
 } from "lucide-react";
 import Link from "next/link";
 import { UNIT_TYPES } from "@/lib/constants";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
+import { FaCity } from "react-icons/fa";
 
 interface ProjectCardProps {
   project: Project;
@@ -112,7 +114,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
       <div className="mb-2 flex gap-4 text-sm text-gray-500">
         <div className="flex items-center gap-1">
-          <SnowflakeIcon className="h-4 w-4 text-primary" strokeWidth={1.2} />
+          <Building className="h-4 w-4 text-primary" strokeWidth={1.2} />
           <span className="font-normal text-accent-foreground">
             {t("units")}:
           </span>
