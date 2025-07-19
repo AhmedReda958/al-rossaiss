@@ -82,7 +82,7 @@ export function ForgotPasswordForm({
         <div className="text-center mt-4">
           <Link
             href={`/${currentLocale}/login`}
-            className="text-sm text-blue-600 hover:text-blue-800 underline"
+            className="text-sm text-primary hover:opacity-80 underline"
           >
             {t("backToLogin")}
           </Link>
