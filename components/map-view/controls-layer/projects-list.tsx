@@ -5,7 +5,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, ChevronLeft, MapPin, Search } from "lucide-react";
 import { useMapStore } from "@/lib/store";
 import ProjectCard from "./project-card";
-import { UnitType } from "@/lib/constants";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/lib/hooks/use-debounce";
@@ -28,7 +27,8 @@ export interface Project {
   unitsCount: number;
   soldOut: boolean;
   url?: string | null;
-  unitType: UnitType;
+  unitType: string;
+  unitTypeAr?: string;
   city?: {
     id: number;
     name: string;

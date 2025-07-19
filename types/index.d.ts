@@ -1,5 +1,3 @@
-import { UNIT_TYPES } from "@/lib/constants";
-
 export type Region = {
   id: string;
   name: string;
@@ -88,7 +86,8 @@ export type Project = {
       nameAr?: string;
     } | null;
   } | null;
-  unitType: (typeof UNIT_TYPES)[keyof typeof UNIT_TYPES];
+  unitType: string;
+  unitTypeAr?: string | null;
   soldOut: boolean;
   space: number;
   unitsCount: number;

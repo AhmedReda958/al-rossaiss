@@ -89,6 +89,7 @@ export async function POST(req: Request) {
     const image = formData.get("image") as File | null;
     const logo = formData.get("logo") as File | null;
     const unitType = formData.get("unitType") as string;
+    const unitTypeAr = formData.get("unitTypeAr") as string | null;
     const soldOut = formData.get("soldOut") === "true";
     const space = parseFloat(formData.get("space") as string);
     const unitsCount = parseInt(formData.get("unitsCount") as string, 10);
@@ -153,6 +154,7 @@ export async function POST(req: Request) {
         points,
         cityId,
         unitType,
+        unitTypeAr,
         soldOut,
         space,
         unitsCount,

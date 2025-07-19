@@ -68,6 +68,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     project.descriptionAr,
     currentLocale
   );
+  const unitTypeName = getLocalizedText(
+    project.unitType,
+    project.unitTypeAr,
+    currentLocale
+  );
   return (
     <Card
       className={cn(
@@ -100,7 +105,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
           <div className="flex items-center gap-1 text-md font-thin text-primary">
             {getUnitTypeIcon(project.unitType)}
-            {project.unitType}
+            {unitTypeName}
           </div>
         </div>
       </div>

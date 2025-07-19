@@ -53,6 +53,11 @@ export default function ProjectCard({
     project.descriptionAr,
     currentLocale
   );
+  const unitTypeName = getLocalizedText(
+    project.unitType,
+    project.unitTypeAr,
+    currentLocale
+  );
   const cityName = project.city
     ? getLocalizedName(project.city, currentLocale)
     : "N/A";
@@ -166,7 +171,7 @@ export default function ProjectCard({
           </div>
           <div className="flex items-center space-x-2">
             <Home className="h-5 w-5 text-primary" />
-            <span className="font-semibold">{project.unitType}</span>
+            <span className="font-semibold">{unitTypeName}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Building2 className="h-5 w-5 text-primary" />

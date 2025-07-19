@@ -64,6 +64,7 @@ export async function PUT(
     const nameAr = formData.get("nameAr") as string;
     const cityId = formData.get("cityId") as string;
     const unitType = formData.get("unitType") as string;
+    const unitTypeAr = formData.get("unitTypeAr") as string;
     const space = formData.get("space") as string;
     const unitsCount = formData.get("unitsCount") as string;
     const url = formData.get("url") as string;
@@ -80,6 +81,7 @@ export async function PUT(
       nameAr: string;
       cityId: number;
       unitType: string;
+      unitTypeAr: string | null;
       space: number;
       unitsCount: number;
       url: string | null;
@@ -95,6 +97,7 @@ export async function PUT(
       nameAr,
       cityId: parseInt(cityId),
       unitType,
+      unitTypeAr: unitTypeAr || null,
       space: parseFloat(space),
       unitsCount: parseInt(unitsCount),
       url: url || null,

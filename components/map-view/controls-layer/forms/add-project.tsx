@@ -21,7 +21,6 @@ import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Switch } from "@/components/ui/switch";
-import { UNIT_TYPES } from "@/lib/constants";
 import ArrowUp from "@/svgs/arrow-up";
 import ArrowDown from "@/svgs/arrow-down";
 import ArrowLeft from "@/svgs/arrow-left";
@@ -41,7 +40,8 @@ const createFormSchema = (t: (key: string) => string) =>
     nameAr: z.string().min(2, {
       message: t("projectNameArRequired"),
     }),
-    unitType: z.enum(Object.values(UNIT_TYPES) as [string, ...string[]]),
+    unitType: z.string().min(1, { message: t("unitTypeRequired") }),
+    unitTypeAr: z.string().optional(),
     space: z.number().min(1, { message: t("spaceRequired") }),
     unitsCount: z.number().min(1, { message: t("unitsRequired") }),
     url: z
@@ -114,7 +114,8 @@ const AddProjectForm: React.FC = () => {
       cityId: project?.cityId?.toString() || selectedCity || "",
       name: project?.name || "",
       nameAr: project?.nameAr || "",
-      unitType: project?.unitType || UNIT_TYPES.APARTMENT,
+      unitType: project?.unitType || "",
+      unitTypeAr: project?.unitTypeAr || "",
       space: project?.space || 0,
       unitsCount: project?.unitsCount || 0,
       url: project?.url || "",
@@ -275,6 +276,7 @@ const AddProjectForm: React.FC = () => {
       formData.append("nameAr", values.nameAr);
       formData.append("cityId", values.cityId);
       formData.append("unitType", values.unitType);
+      if (values.unitTypeAr) formData.append("unitTypeAr", values.unitTypeAr);
       formData.append("space", String(values.space));
       formData.append("unitsCount", String(values.unitsCount));
       if (values.url) formData.append("url", values.url);
@@ -403,14 +405,33 @@ const AddProjectForm: React.FC = () => {
             name="unitType"
             render={({ field }) => (
               <FormItem>
-                <Label>{t("unitType")}</Label>
-                <select className="w-full border rounded px-2 py-2" {...field}>
-                  {Object.entries(UNIT_TYPES).map(([key, value]) => (
-                    <option key={key} value={value}>
-                      {key.charAt(0) + key.slice(1).toLowerCase()}
-                    </option>
-                  ))}
-                </select>
+                <Label>{t("unitTypeEn")}</Label>
+                <FormControl>
+                  <Input
+                    placeholder={t("unitTypePlaceholder")}
+                    className="w-full"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="unitTypeAr"
+            render={({ field }) => (
+              <FormItem>
+                <Label>{t("unitTypeAr")}</Label>
+                <FormControl>
+                  <Input
+                    placeholder={t("unitTypeArPlaceholder")}
+                    className="w-full"
+                    dir="rtl"
+                    {...field}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
