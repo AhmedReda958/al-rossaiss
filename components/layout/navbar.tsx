@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { LogOutIcon } from "lucide-react";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -56,6 +57,14 @@ export function Navbar() {
     router.push(newPath);
   };
 
+  const handleLogout = () => {
+    // Clear the auth_token cookie
+    document.cookie =
+      "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    // Redirect to login page
+    router.push(`/${currentLocale}/login`);
+  };
+
   return (
     <nav className="container bg-white mx-auto mt-8 mb-8 px-5 rounded-lg">
       <div className="flex justify-between md:justify-start items-center gap-16 h-16">
@@ -94,15 +103,14 @@ export function Navbar() {
             );
           })}
         </div>
-        {/* Language Toggle Button */}
-        <div className="hidden md:flex items-center ">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={switchLanguage}
-            className="ml-4"
-          >
+        {/* Language Toggle Button and Logout */}
+        <div className="hidden md:flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={switchLanguage}>
             {isArabic ? "English" : "العربية"}
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleLogout}>
+            {t("logout")}
+            <LogOutIcon className="ml-1 w-4 h-4" />
           </Button>
         </div>
         {/* Mobile menu button */}
@@ -110,6 +118,11 @@ export function Navbar() {
           {/* Mobile Language Toggle */}
           <Button variant="ghost" size="sm" onClick={switchLanguage}>
             {isArabic ? "English" : "العربية"}
+          </Button>
+          {/* Mobile Logout Button */}
+          <Button variant="ghost" size="sm" onClick={handleLogout}>
+            {t("logout")}
+            <LogOutIcon className="ml-1 w-4 h-4" />
           </Button>
           <button
             type="button"

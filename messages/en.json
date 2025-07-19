@@ -106,7 +106,8 @@
     "projects": "Projects",
     "landmarks": "Landmarks",
     "dashboard": "Dashboard",
-    "toggleMenu": "Toggle menu"
+    "toggleMenu": "Toggle menu",
+    "logout": "Logout"
   },
   "Auth": {
     "adminLoginPanel": "Admin Login Panel",

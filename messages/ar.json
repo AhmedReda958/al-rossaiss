@@ -107,7 +107,8 @@
     "projects": "المشاريع",
     "landmarks": "المعالم",
     "dashboard": "لوحة التحكم",
-    "toggleMenu": "تبديل القائمة"
+    "toggleMenu": "تبديل القائمة",
+    "logout": "تسجيل الخروج"
   },
   "Auth": {
     "adminLoginPanel": "لوحة تسجيل دخول المسؤول",
