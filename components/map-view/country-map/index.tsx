@@ -6,6 +6,7 @@ import RegionsLayer from "./regions-layer";
 import MarkersLayer from "../polygon/markers-layer";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import CitiesLayer from "./cities-layer";
+import CountriesLayer from "./countries-layer";
 
 const CountryMap = () => {
   const { mapSize } = useMapStore();
@@ -42,6 +43,7 @@ const CountryMap = () => {
 
       <RegionsLayer />
       <CitiesLayer />
+      <CountriesLayer />
       <MarkersLayer />
     </Layer>
   );

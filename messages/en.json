@@ -1,4 +1,21 @@
 {
+  "Countries": {
+    "saudi-arabia": "Saudi Arabia",
+    "egypt": "Egypt",
+    "jordan": "Jordan",
+    "iraq": "Iraq",
+    "kuwait": "Kuwait",
+    "qatar": "Qatar",
+    "uae": "United Arab \n Emirates",
+    "oman": "Oman",
+    "yemen": "Yemen",
+    "sudan": "Sudan",
+    "eritrea": "Eritrea",
+    "iran": "Iran",
+    "red-sea": "Red Sea",
+    "arabian-sea": "Arabian Sea",
+    "arabian-gulf": "Arabian Gulf"
+  },
   "Common": {
     "loading": "Loading...",
     "save": "Save",
