@@ -25,6 +25,7 @@ const CityMap = () => {
     addLoadingOperation,
     removeLoadingOperation,
     editingProject,
+    setSelectedProject,
   } = useMapStore();
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
@@ -39,6 +40,9 @@ const CityMap = () => {
       if (layerPoint) {
         setCoordinates(layerPoint.x, layerPoint.y);
       }
+    } else {
+      // Clear project selection when clicking on background
+      setSelectedProject(null);
     }
   };
 

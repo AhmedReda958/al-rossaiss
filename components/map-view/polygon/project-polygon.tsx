@@ -1,6 +1,6 @@
 import colors from "@/lib/colors";
-import React, { useRef, useEffect, useState } from "react";
-import { Line, Group, Text, Image, Circle, Rect } from "react-konva";
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import { Line, Group, Text, Image, Rect } from "react-konva";
 import { CityPolygon } from "@/lib/store/polygon-marker-store";
 import { useMapStore } from "@/lib/store";
 import { Tween, Easings } from "konva/lib/Tween";
@@ -59,9 +59,8 @@ const ProjectPolygon = ({
   strokeColor?: string;
   logoUrl?: string | null;
 }) => {
-  const { setSelectedProject } = useMapStore();
+  const { setSelectedProject, selectedProject } = useMapStore();
   const polygonRef = useRef<Konva.Line>(null);
-  const textRef = useRef<Konva.Text>(null);
   const logoRef = useRef<Konva.Image>(null);
   const logoGroupRef = useRef<Konva.Group>(null);
   const tooltipGroupRef = useRef<Konva.Group>(null);
@@ -69,6 +68,19 @@ const ProjectPolygon = ({
   const [logoImage, setLogoImage] = useState<HTMLImageElement | null>(null);
   const [defaultLogoImage, setDefaultLogoImage] =
     useState<HTMLImageElement | null>(null);
+
+  // Check if this project is selected or if any project is selected
+  const isThisProjectSelected = selectedProject === parseInt(polygon.id, 10);
+  const isAnyProjectSelected = selectedProject !== null;
+
+  // Calculate opacity based on selection state
+  const getOpacity = useCallback(() => {
+    if (!isAnyProjectSelected) return 1; // Default opacity when no selection
+    if (isThisProjectSelected) return 1; // Full opacity for selected project
+    return 0.3; // Reduced opacity for non-selected projects when something is selected
+  }, [isAnyProjectSelected, isThisProjectSelected]);
+
+  const baseOpacity = getOpacity();
 
   // Load default logo image
   useEffect(() => {
@@ -94,7 +106,11 @@ const ProjectPolygon = ({
     }
   }, [logoUrl]);
 
-  const handlePolygonClick = () => {
+  const handlePolygonClick = (e?: Konva.KonvaEventObject<Event>) => {
+    // Prevent event propagation to avoid triggering background click
+    if (e) {
+      e.cancelBubble = true;
+    }
     setSelectedProject(parseInt(polygon.id, 10));
   };
 
@@ -119,13 +135,13 @@ const ProjectPolygon = ({
       currentTween.current.destroy();
     }
 
-    // Animate polygon opacity
+    // Animate polygon opacity - increase from base opacity
     if (polygonRef.current) {
       currentTween.current = new Tween({
         node: polygonRef.current,
         duration: 0.2,
         easing: Easings.EaseInOut,
-        opacity: 1,
+        opacity: Math.min(baseOpacity, 1), // Increase opacity on hover but cap at 1
       });
       currentTween.current.play();
     }
@@ -140,13 +156,13 @@ const ProjectPolygon = ({
       currentTween.current.destroy();
     }
 
-    // Animate polygon opacity back
+    // Animate polygon opacity back to base opacity
     if (polygonRef.current) {
       currentTween.current = new Tween({
         node: polygonRef.current,
         duration: 0.2,
         easing: Easings.EaseInOut,
-        opacity: 0.7,
+        opacity: baseOpacity,
       });
       currentTween.current.play();
     }
@@ -163,6 +179,27 @@ const ProjectPolygon = ({
       }
     };
   }, []);
+
+  // Update opacity when selection changes
+  useEffect(() => {
+    if (polygonRef.current) {
+      const newOpacity = getOpacity();
+      polygonRef.current.to({
+        opacity: newOpacity,
+        duration: 0.3,
+        easing: Konva.Easings.EaseInOut,
+      });
+    }
+
+    if (logoGroupRef.current) {
+      const newOpacity = getOpacity();
+      logoGroupRef.current.to({
+        opacity: newOpacity,
+        duration: 0.3,
+        easing: Konva.Easings.EaseInOut,
+      });
+    }
+  }, [selectedProject, polygon.id, getOpacity]);
 
   const center = getPolygonCenter(polygon.points);
   const edgePoint = getEdgePoint(polygon.points, polygon.labelDirection || "");
@@ -237,7 +274,7 @@ const ProjectPolygon = ({
         fill={fillColor}
         stroke={strokeColor}
         strokeWidth={1}
-        opacity={0.7}
+        opacity={baseOpacity}
         closed={true}
         onClick={handlePolygonClick}
         onTap={handlePolygonClick}
@@ -249,7 +286,12 @@ const ProjectPolygon = ({
 
       {/* Connecting line from polygon to label (if labelDirection is set) */}
       {linePoints.length > 0 && (
-        <Line points={linePoints} stroke={strokeColor} strokeWidth={1} />
+        <Line
+          points={linePoints}
+          stroke={strokeColor}
+          strokeWidth={1}
+          opacity={baseOpacity - 0.2}
+        />
       )}
 
       {/* Logo or Default Icon */}
@@ -257,6 +299,7 @@ const ProjectPolygon = ({
         ref={logoGroupRef}
         x={labelPos.x - logoSize / 2}
         y={labelPos.y - logoSize / 2}
+        opacity={baseOpacity}
         onClick={handlePolygonClick}
         onTap={handlePolygonClick}
         onMouseEnter={handleMouseEnter}

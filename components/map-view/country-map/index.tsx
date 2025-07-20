@@ -9,7 +9,7 @@ import CitiesLayer from "./cities-layer";
 import CountriesLayer from "./countries-layer";
 
 const CountryMap = () => {
-  const { mapSize } = useMapStore();
+  const { mapSize, setSelectedProject } = useMapStore();
   const { isDrawingMode } = usePolygonMarkerStore();
   const {
     mapImage,
@@ -21,6 +21,11 @@ const CountryMap = () => {
     handleDragEnd,
   } = useRegionsLayer();
 
+  // Handle background click to clear project selection
+  const handleLayerClick = () => {
+    setSelectedProject(null);
+  };
+
   return (
     <Layer
       ref={layerRef}
@@ -31,6 +36,7 @@ const CountryMap = () => {
       scaleX={scale}
       scaleY={scale}
       onDragEnd={handleDragEnd}
+      onClick={handleLayerClick}
     >
       {mapImage && (
         <Image
