@@ -84,6 +84,7 @@ const ProjectsLayer = () => {
 
   return (
     <Group>
+      {/* First pass: Render all polygons and connecting lines */}
       {projects
         .filter((project) => {
           // Hide the project being edited when in edit mode
@@ -95,11 +96,33 @@ const ProjectsLayer = () => {
         })
         .map((project) => (
           <ProjectPolygon
-            key={project.id}
+            key={`polygon-${project.id}`}
             polygon={mapProjectToCityPolygon(project, currentLocale)}
             strokeColor={colors.primary}
             fillColor={colors.primary_400}
             logoUrl={project.logo}
+            renderMode="polygon"
+          />
+        ))}
+      
+      {/* Second pass: Render all labels/logos on top */}
+      {projects
+        .filter((project) => {
+          // Hide the project being edited when in edit mode
+          return !(
+            mapType === "edit-project" &&
+            editingProject &&
+            project.id === editingProject.id
+          );
+        })
+        .map((project) => (
+          <ProjectPolygon
+            key={`label-${project.id}`}
+            polygon={mapProjectToCityPolygon(project, currentLocale)}
+            strokeColor={colors.primary}
+            fillColor={colors.primary_400}
+            logoUrl={project.logo}
+            renderMode="label"
           />
         ))}
     </Group>

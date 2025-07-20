@@ -53,11 +53,13 @@ const ProjectPolygon = ({
   fillColor = colors.primary_400,
   strokeColor = colors.primary,
   logoUrl,
+  renderMode = "full",
 }: {
   polygon: CityPolygon;
   fillColor?: string;
   strokeColor?: string;
   logoUrl?: string | null;
+  renderMode?: "full" | "polygon" | "label";
 }) => {
   const { setSelectedProject, selectedProject } = useMapStore();
   const polygonRef = useRef<Konva.Line>(null);
@@ -281,114 +283,121 @@ const ProjectPolygon = ({
 
   return (
     <Group>
-      {/* Polygon */}
-      <Line
-        ref={polygonRef}
-        key={polygon.id}
-        points={polygon.points}
-        fill={fillColor}
-        stroke={strokeColor}
-        strokeWidth={1}
-        opacity={baseOpacity}
-        closed={true}
-        onClick={handlePolygonClick}
-        onTap={handlePolygonClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        listening={true}
-        cursor="pointer"
-      />
+      {/* Render polygon and connecting line only in polygon or full mode */}
+      {(renderMode === "polygon" || renderMode === "full") && (
+        <>
+          {/* Polygon */}
+          <Line
+            ref={polygonRef}
+            key={polygon.id}
+            points={polygon.points}
+            fill={fillColor}
+            stroke={strokeColor}
+            strokeWidth={1}
+            opacity={baseOpacity}
+            closed={true}
+            onClick={handlePolygonClick}
+            onTap={handlePolygonClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            listening={true}
+            cursor="pointer"
+          />
 
-      {/* Connecting line from polygon to label (if labelDirection is set) */}
-      {linePoints.length > 0 && (
-        <Line
-          points={linePoints}
-          stroke={strokeColor}
-          strokeWidth={1}
-          opacity={baseOpacity - 0.2}
-        />
+          {/* Connecting line from polygon to label (if labelDirection is set) */}
+          {linePoints.length > 0 && (
+            <Line
+              points={linePoints}
+              stroke={strokeColor}
+              strokeWidth={1}
+              opacity={baseOpacity - 0.2}
+            />
+          )}
+        </>
       )}
 
-      {/* Logo or Default Icon */}
-      <Group
-        ref={logoGroupRef}
-        x={labelPos.x - logoSize / 2}
-        y={labelPos.y - logoSize / 2}
-        opacity={baseOpacity}
-        onClick={handlePolygonClick}
-        onTap={handlePolygonClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        listening={true}
-        cursor="pointer"
-      >
-        {logoUrl && logoImage ? (
-          <Image
-            ref={logoRef}
-            image={logoImage}
-            width={logoSize}
-            height={logoSize}
-            cornerRadius={12}
-            alt="Project Logo"
-          />
-        ) : (
-          // Default logo (website logo)
-          <Group>
-            <Rect
+      {/* Render logo/label only in label or full mode */}
+      {(renderMode === "label" || renderMode === "full") && (
+        <Group
+          ref={logoGroupRef}
+          x={labelPos.x - logoSize / 2}
+          y={labelPos.y - logoSize / 2}
+          opacity={baseOpacity}
+          onClick={handlePolygonClick}
+          onTap={handlePolygonClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          listening={true}
+          cursor="pointer"
+        >
+          {logoUrl && logoImage ? (
+            <Image
+              ref={logoRef}
+              image={logoImage}
               width={logoSize}
               height={logoSize}
-              fill="white"
               cornerRadius={12}
+              alt="Project Logo"
             />
-            {defaultLogoImage && (
-              <Image
-                image={defaultLogoImage}
-                width={logoSize * 0.6}
-                height={logoSize * 0.6}
-                x={logoSize * 0.2}
-                y={logoSize * 0.2}
-                alt="Default Logo"
+          ) : (
+            // Default logo (website logo)
+            <Group>
+              <Rect
+                width={logoSize}
+                height={logoSize}
+                fill="white"
+                cornerRadius={12}
               />
-            )}
-          </Group>
-        )}
+              {defaultLogoImage && (
+                <Image
+                  image={defaultLogoImage}
+                  width={logoSize * 0.6}
+                  height={logoSize * 0.6}
+                  x={logoSize * 0.2}
+                  y={logoSize * 0.2}
+                  alt="Default Logo"
+                />
+              )}
+            </Group>
+          )}
 
-        {/* Tooltip with project name - positioned like landmark tooltip */}
-        <Group
-          ref={tooltipGroupRef}
-          x={tooltipX}
-          y={tooltipY}
-          opacity={0}
-          scaleX={0.8}
-          scaleY={0.8}
-        >
-          <Rect
-            width={tooltipWidth}
-            height={tooltipHeight}
-            fill={colors.primary}
-            cornerRadius={5}
-            shadowColor="black"
-            shadowBlur={10}
-            shadowOffsetX={2}
-            shadowOffsetY={2}
-            shadowOpacity={0.5}
-            stroke={colors.primary}
-            strokeWidth={1}
-          />
-          {/* Tooltip text */}
-          <Text
-            text={polygon.name}
-            fontSize={12}
-            fontStyle="bold"
-            fill="white"
-            x={tooltipPadding}
-            y={tooltipPadding}
-            height={tooltipHeight - tooltipPadding * 2}
-            align="center"
-            verticalAlign="middle"
-          />
+          {/* Tooltip with project name - positioned like landmark tooltip */}
+          <Group
+            ref={tooltipGroupRef}
+            x={tooltipX}
+            y={tooltipY}
+            opacity={0}
+            scaleX={0.8}
+            scaleY={0.8}
+          >
+            <Rect
+              width={tooltipWidth}
+              height={tooltipHeight}
+              fill={colors.primary}
+              cornerRadius={5}
+              shadowColor="black"
+              shadowBlur={10}
+              shadowOffsetX={2}
+              shadowOffsetY={2}
+              shadowOpacity={0.5}
+              stroke={colors.primary}
+              strokeWidth={1}
+            />
+            {/* Tooltip text */}
+            <Text
+              text={polygon.name}
+              fontSize={12}
+              fontStyle="bold"
+              fill="white"
+              x={tooltipPadding}
+              y={tooltipPadding}
+              height={tooltipHeight - tooltipPadding * 2}
+              align="center"
+              verticalAlign="middle"
+            />
+          </Group>
         </Group>
-      </Group>
+      )}
     </Group>
   );
 };
