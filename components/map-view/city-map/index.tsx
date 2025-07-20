@@ -41,8 +41,10 @@ const CityMap = () => {
         setCoordinates(layerPoint.x, layerPoint.y);
       }
     } else {
-      // Clear project selection when clicking on background
+      // Clear project selection and reset zoom when clicking on background
       setSelectedProject(null);
+      const { resetZoom } = useMapStore.getState();
+      resetZoom();
     }
   };
 

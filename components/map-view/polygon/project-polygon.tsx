@@ -112,6 +112,21 @@ const ProjectPolygon = ({
       e.cancelBubble = true;
     }
     setSelectedProject(parseInt(polygon.id, 10));
+
+    // Zoom to the project polygon with dynamic scaling
+    // Get the layer that this polygon is actually on
+    const polygonLayer = polygonRef.current?.getLayer();
+    if (polygonLayer) {
+      const { zoomToPolygon } = useMapStore.getState();
+      // Temporarily override the layer reference for this zoom operation
+      const originalLayerRef = useMapStore.getState().layerRef;
+      useMapStore.setState({ layerRef: { current: polygonLayer } });
+      zoomToPolygon(polygon.points);
+      // Restore the original layer reference after a short delay
+      setTimeout(() => {
+        useMapStore.setState({ layerRef: originalLayerRef });
+      }, 700); // Slightly longer than the zoom animation duration
+    }
   };
 
   const animateTooltip = (show: boolean) => {

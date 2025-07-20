@@ -3,12 +3,18 @@ import Konva from "konva";
 import { useMapStore } from "@/lib/store";
 
 /**
- * Custom hook to manage the cities layer state, including hover, selection, and drag boundaries (no scale)
+ * Custom hook to manage the cities layer state, including hover, selection, and drag boundaries with scale support
  */
 export const useCitiesLayer = () => {
   const layerRef = useRef<Konva.Layer>(null);
-  const { selectedCity, setSelectedCity, mapSize, isZooming, setLayerRef } =
-    useMapStore();
+  const {
+    selectedCity,
+    setSelectedCity,
+    mapSize,
+    isZooming,
+    setLayerRef,
+    scale,
+  } = useMapStore();
 
   // Set the layer reference in the store
   useLayoutEffect(() => {
@@ -26,10 +32,10 @@ export const useCitiesLayer = () => {
     if (!stage) {
       return { x: 0, y: 0 };
     }
-    
+
     const stageWidth = stage.width();
     const stageHeight = stage.height();
-    
+
     // Center the map on the screen
     return {
       x: (stageWidth - effectiveMapWidth) / 2,
@@ -39,7 +45,7 @@ export const useCitiesLayer = () => {
 
   const position = getPosition();
 
-  // Drag boundaries for the city map (no scale)
+  // Drag boundaries for the city map (with scale consideration)
   const limitDragBoundaries = useCallback(
     (pos: { x: number; y: number }) => {
       if (isZooming) return pos;
@@ -47,14 +53,21 @@ export const useCitiesLayer = () => {
       if (!stage) return pos;
       const stageWidth = stage.width();
       const stageHeight = stage.height();
-      const xMin = Math.min(0, stageWidth - effectiveMapWidth);
-      const yMin = Math.min(0, stageHeight - effectiveMapHeight);
+
+      // Account for current scale when calculating boundaries
+      const scaledMapWidth = effectiveMapWidth * scale;
+      const scaledMapHeight = effectiveMapHeight * scale;
+
+      // Calculate minimum position to keep map content visible
+      const xMin = Math.min(0, stageWidth - scaledMapWidth);
+      const yMin = Math.min(0, stageHeight - scaledMapHeight);
+
       return {
         x: Math.max(xMin, Math.min(0, pos.x)),
         y: Math.max(yMin, Math.min(0, pos.y)),
       };
     },
-    [effectiveMapWidth, effectiveMapHeight, isZooming]
+    [effectiveMapWidth, effectiveMapHeight, isZooming, scale]
   );
 
   return {

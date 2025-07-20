@@ -74,6 +74,7 @@ interface MapState {
   zoomToRegion: (regionId: string) => void;
   zoomToRegionFallback: (regionId: string) => void;
   zoomToPoint: (point: { x: number; y: number }) => void;
+  zoomToPolygon: (points: number[]) => void;
 
   // Method to update initial position based on screen size
   updateInitialPosition: (screenWidth: number, screenHeight: number) => void;
@@ -413,6 +414,74 @@ export const useMapStore = create<MapState>((set, get) => ({
     const tween = new Tween({
       node: layerRef.current,
       duration: 0.5,
+      easing: Easings.EaseInOut,
+      scaleX: newScale,
+      scaleY: newScale,
+      x: newX,
+      y: newY,
+      onFinish: () => {
+        setScale(newScale);
+        setPosition({ x: newX, y: newY });
+        setIsZooming(false);
+      },
+    });
+
+    tween.play();
+  },
+
+  zoomToPolygon: (points) => {
+    const { layerRef, setScale, setPosition, setIsZooming } = get();
+    if (!layerRef?.current || points.length < 6) {
+      // Need at least 3 points (6 coordinates)
+      return;
+    }
+    setIsZooming(true);
+
+    const stage = layerRef.current.getStage();
+    const stageWidth = stage?.width() || 0;
+    const stageHeight = stage?.height() || 0;
+
+    // Calculate polygon bounds
+    let minX = Infinity,
+      maxX = -Infinity,
+      minY = Infinity,
+      maxY = -Infinity;
+    for (let i = 0; i < points.length; i += 2) {
+      const x = points[i];
+      const y = points[i + 1];
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y);
+    }
+
+    const polygonWidth = maxX - minX;
+    const polygonHeight = maxY - minY;
+    const polygonCenterX = (minX + maxX) / 2;
+    const polygonCenterY = (minY + maxY) / 2;
+
+    // Add padding around the polygon
+    const paddingFactor = 0.3; // 30% padding
+    const paddedWidth = polygonWidth * (1 + paddingFactor);
+    const paddedHeight = polygonHeight * (1 + paddingFactor);
+
+    // Calculate scale to fit the polygon in the viewport
+    const scaleX = stageWidth / paddedWidth;
+    const scaleY = stageHeight / paddedHeight;
+    let newScale = Math.min(scaleX, scaleY);
+
+    // Limit the scale to prevent over-zooming or under-zooming
+    newScale = Math.min(newScale, 2); // Max 4x zoom
+    newScale = Math.max(newScale, 1); // Min 1x zoom
+
+    // Calculate position to center the polygon
+    const newX = stageWidth / 2 - polygonCenterX * newScale;
+    const newY = stageHeight / 2 - polygonCenterY * newScale;
+
+    // Animate the zoom
+    const tween = new Tween({
+      node: layerRef.current,
+      duration: 0.6, // Slightly longer for smoother feel
       easing: Easings.EaseInOut,
       scaleX: newScale,
       scaleY: newScale,
