@@ -254,7 +254,15 @@
     "enterLandmarkName": "Enter landmark name",
     "searchPlaceholder": "Search for Landmark",
     "filterByRegion": "Filter by Region",
-    "filterByCity": "Filter by City"
+    "filterByCity": "Filter by City",
+    "Common": {
+      "view": "View",
+      "delete": "Delete"
+    },
+    "Dialogs": {
+      "deleteLandmark": "Delete Landmark",
+      "deleteLandmarkConfirmation": "Are you sure you want to delete this landmark?"
+    }
   },
   "Regions": {
     "allRegions": "All Regions",

@@ -254,7 +254,15 @@
     "enterLandmarkName": "أدخل اسم المعلم",
     "searchPlaceholder": "البحث عن معلم",
     "filterByRegion": "تصفية حسب المنطقة",
-    "filterByCity": "تصفية حسب المدينة"
+    "filterByCity": "تصفية حسب المدينة",
+    "Common": {
+      "view": "عرض",
+      "delete": "حذف"
+    },
+    "Dialogs": {
+      "deleteLandmark": "حذف معلم",
+      "deleteLandmarkConfirmation": "هل أنت متأكد أنك تريد حذف هذا المعلم؟"
+    }
   },
   "Regions": {
     "allRegions": "جميع المناطق",
