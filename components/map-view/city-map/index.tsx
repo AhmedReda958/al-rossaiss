@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Image, Layer } from "react-konva";
+import Konva from "konva";
 import { useMapStore } from "@/lib/store";
 import { usePolygonMarkerStore } from "@/lib/store/polygon-marker-store";
 import { useCitiesLayer } from "@/lib/hooks/useCitiesLayer";
@@ -26,12 +27,65 @@ const CityMap = () => {
     removeLoadingOperation,
     editingProject,
     setSelectedProject,
+    scale,
+    setScale,
+    position,
+    setPosition,
   } = useMapStore();
   const [cityData, setCityData] = useState<CityData | null>(null);
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
 
   const { isDrawingMode, setCoordinates } = usePolygonMarkerStore();
-  const { position, limitDragBoundaries, layerRef } = useCitiesLayer();
+  const { position: cityPosition, limitDragBoundaries, layerRef } = useCitiesLayer();
+
+  // Use store position when zoomed, otherwise use city position
+  const activePosition = scale !== 1 ? position : cityPosition;
+
+  // Handle scroll-based zoom for city map (1x to 2x)
+  const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
+    e.evt.preventDefault();
+    
+    if (!layerRef.current) return;
+    
+    const stage = layerRef.current.getStage();
+    if (!stage) return;
+    
+    const pointer = stage.getPointerPosition();
+    if (!pointer) return;
+    
+    // Get current scale
+    const currentScale = scale;
+    
+    // Calculate zoom direction and amount
+    const scaleBy = 1.1;
+    const deltaY = e.evt.deltaY;
+    let newScale = deltaY > 0 ? currentScale / scaleBy : currentScale * scaleBy;
+    
+    // Clamp scale between 1x and 2x
+    newScale = Math.max(1, Math.min(2, newScale));
+    
+    // If scale hasn't changed (at limits), do nothing
+    if (newScale === currentScale) return;
+    
+    // Calculate new position to zoom towards mouse pointer
+    const mousePointTo = {
+      x: (pointer.x - position.x) / currentScale,
+      y: (pointer.y - position.y) / currentScale,
+    };
+    
+    const newPos = {
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    };
+    
+    // Apply the new scale and position
+    setScale(newScale);
+    setPosition(newPos);
+    
+    // Update the layer immediately
+    layerRef.current.scale({ x: newScale, y: newScale });
+    layerRef.current.position(newPos);
+  };
 
   // Handle map click for landmark placement
   const handleLayerClick = () => {
@@ -154,13 +208,16 @@ const CityMap = () => {
       ref={layerRef}
       draggable={!isDrawingMode}
       dragBoundFunc={limitDragBoundaries}
-      x={position.x}
-      y={position.y}
+      x={activePosition.x}
+      y={activePosition.y}
+      scaleX={scale}
+      scaleY={scale}
       onClick={handleLayerClick}
+      onWheel={handleWheel}
       onDragEnd={(e) => {
         // Update position in the store to sync with the actual layer position
-        e.target.position();
-        // Note: For city map, we might want to handle this differently if needed
+        const newPos = e.target.position();
+        setPosition(newPos);
       }}
     >
       {cityImage && (
