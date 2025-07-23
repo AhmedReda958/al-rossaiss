@@ -122,6 +122,25 @@ const RegionsLayer = () => {
                   x: (isDisabled ? 120 : 150) / 2,
                   y: 44 / 2,
                 }}
+                listening={!isDisabled}
+                onClick={() => handleRegionClick(id)}
+                onTap={() => handleRegionClick(id)}
+                onMouseEnter={(e) => {
+                  const container = e.target.getStage()?.container();
+                  if (container) {
+                    container.style.cursor = "pointer";
+                  }
+                  animateLabel(id, true);
+                  setHoveredRegionId(id);
+                }}
+                onMouseLeave={(e) => {
+                  const container = e.target.getStage()?.container();
+                  if (container) {
+                    container.style.cursor = "default";
+                  }
+                  animateLabel(id, false);
+                  setHoveredRegionId(null);
+                }}
                 ref={(node) => {
                   if (node) {
                     labelRefs.current[id] = node;
