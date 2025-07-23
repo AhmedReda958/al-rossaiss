@@ -31,6 +31,7 @@ const LandmarksLayer = () => {
     hiddenLandmarkTypes,
     addLoadingOperation,
     removeLoadingOperation,
+    scale, // Add scale from map store
   } = useMapStore();
   const { coordinates, isDrawingMode } = usePolygonMarkerStore();
   const pathname = usePathname();
@@ -102,6 +103,7 @@ const LandmarksLayer = () => {
             type={landmark.type}
             name={landmarkName}
             size={24}
+            scale={scale}
             onClick={() => {
               console.log("Landmark clicked:", landmarkName);
             }}
@@ -116,6 +118,7 @@ const LandmarksLayer = () => {
           y={coordinates[1]}
           type={landmarkTypeInDrawing}
           size={24}
+          scale={scale}
         />
       )}
     </Group>

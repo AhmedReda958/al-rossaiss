@@ -48,6 +48,7 @@ interface LandmarkPinProps {
   type: LandmarkType;
   name?: string;
   size?: number;
+  scale?: number; // Add scale prop
   onClick?: () => void;
 }
 
@@ -57,6 +58,7 @@ const LandmarkPin = ({
   type,
   name = "",
   size = 30,
+  scale = 1, // Default scale
   onClick,
 }: LandmarkPinProps) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -166,8 +168,12 @@ const LandmarkPin = ({
         transformFunc={(attrs) => {
           return {
             ...attrs,
-            x: attrs.x - size / 4,
-            y: attrs.y - size / 4,
+            // Adjust position based on both the size and current scale
+            x: attrs.x - (size / 4) * scale,
+            y: attrs.y - (size / 4) * scale,
+            // Scale the HTML element to match the canvas scale
+            scaleX: 1 * scale,
+            scaleY: 1 * scale,
           };
         }}
       >
