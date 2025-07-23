@@ -73,9 +73,25 @@ const CityMap = () => {
       y: (pointer.y - position.y) / currentScale,
     };
     
-    const newPos = {
+    let newPos = {
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
+    };
+    
+    // Apply boundary constraints similar to drag boundaries
+    const stageWidth = stage.width();
+    const stageHeight = stage.height();
+    const scaledMapWidth = mapSize.width * newScale;
+    const scaledMapHeight = mapSize.height * newScale;
+    
+    // Calculate minimum position to keep map content visible
+    const xMin = Math.min(0, stageWidth - scaledMapWidth);
+    const yMin = Math.min(0, stageHeight - scaledMapHeight);
+    
+    // Constrain the new position within boundaries
+    newPos = {
+      x: Math.max(xMin, Math.min(0, newPos.x)),
+      y: Math.max(yMin, Math.min(0, newPos.y)),
     };
     
     // Apply the new scale and position
