@@ -109,6 +109,10 @@ const CityMap = () => {
       return;
     }
 
+    // Reset zoom when opening a new city
+    const { resetZoom } = useMapStore.getState();
+    resetZoom();
+
     // If we're in edit mode and have project data with city, use it instead of fetching
     if (
       mapType === "edit-project" &&
