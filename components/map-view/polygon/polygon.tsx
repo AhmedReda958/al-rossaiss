@@ -194,7 +194,20 @@ const Polygon = ({
   }
 
   return (
-    <Group>
+    <Group
+      onMouseEnter={(e) => {
+        const container = e.target.getStage()?.container();
+        if (container) {
+          container.style.cursor = "pointer";
+        }
+      }}
+      onMouseLeave={(e) => {
+        const container = e.target.getStage()?.container();
+        if (container) {
+          container.style.cursor = "default";
+        }
+      }}
+    >
       <Line
         ref={polygonRef}
         key={polygon.id}
@@ -209,7 +222,6 @@ const Polygon = ({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         listening={true}
-        cursor="pointer"
       />
       <Line points={linePoints} stroke={strokeColor} strokeWidth={1} />
       <Group x={labelPos.x} y={labelPos.y}>
@@ -223,8 +235,6 @@ const Polygon = ({
           align="center"
           verticalAlign="middle"
           fontFamily="inter, sans-serif"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
           listening={true}
           cursor="pointer"
         />
