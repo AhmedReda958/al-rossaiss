@@ -385,7 +385,7 @@ const ProjectPolygon = ({
             </Group>
           )}
 
-          {/* Tooltip with project name - positioned like landmark tooltip */}
+          {/* Tooltip with project name - positioned like landmark tooltip  */}
           <Group
             ref={tooltipGroupRef}
             x={tooltipX}
