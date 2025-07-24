@@ -57,12 +57,23 @@ export function Navbar() {
     router.push(newPath);
   };
 
-  const handleLogout = () => {
-    // Clear the auth_token cookie
-    document.cookie =
-      "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    // Redirect to login page
-    router.push(`/${currentLocale}/login`);
+  const handleLogout = async () => {
+    try {
+      // Call the logout API to properly clear the HttpOnly cookie
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      // Redirect to login page
+      router.push(`/${currentLocale}/login`);
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Even if the API fails, redirect to login page
+      router.push(`/${currentLocale}/login`);
+    }
   };
 
   return (

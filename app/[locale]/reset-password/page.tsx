@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { ResetPasswordForm } from "@/components/reset-password-form";
 import { setRequestLocale } from "next-intl/server";
+import { isAuthenticated } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function ResetPasswordPage({
   params,
@@ -14,6 +16,12 @@ export default async function ResetPasswordPage({
 
   // Enable static rendering
   setRequestLocale(locale);
+
+  // Check if user is already authenticated
+  const authenticated = await isAuthenticated();
+  if (authenticated) {
+    redirect(`/${locale}/dashboard`);
+  }
 
   if (!token) {
     return (

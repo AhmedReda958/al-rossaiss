@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { ForgotPasswordForm } from "@/components/forgot-password-form";
 import { setRequestLocale } from "next-intl/server";
+import { isAuthenticated } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function ForgotPasswordPage({
   params,
@@ -11,6 +13,12 @@ export default async function ForgotPasswordPage({
 
   // Enable static rendering
   setRequestLocale(locale);
+
+  // Check if user is already authenticated
+  const authenticated = await isAuthenticated();
+  if (authenticated) {
+    redirect(`/${locale}/dashboard`);
+  }
 
   return (
     <div className="min-h-screen container mx-auto flex flex-col ">
