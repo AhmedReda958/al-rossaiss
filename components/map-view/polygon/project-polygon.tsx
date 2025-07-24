@@ -5,6 +5,7 @@ import { CityPolygon } from "@/lib/store/polygon-marker-store";
 import { useMapStore } from "@/lib/store";
 import { Tween, Easings } from "konva/lib/Tween";
 import Konva from "konva";
+import { group } from "console";
 
 const getPolygonCenter = (points: number[]) => {
   let x = 0;
@@ -64,6 +65,8 @@ const ProjectPolygon = ({
   const { setSelectedProject, selectedProject } = useMapStore();
   const polygonRef = useRef<Konva.Line>(null);
   const logoRef = useRef<Konva.Image>(null);
+  const logoRectRef = useRef<Konva.Rect>(null);
+  const defaultLogoRectRef = useRef<Konva.Rect>(null);
   const logoGroupRef = useRef<Konva.Group>(null);
   const tooltipGroupRef = useRef<Konva.Group>(null);
   const currentTween = useRef<Tween | null>(null);
@@ -137,8 +140,18 @@ const ProjectPolygon = ({
       if (tooltipNode && tooltipNode.getStage()) {
         tooltipNode.to({
           opacity: show ? 1 : 0,
-          scaleX: show ? 1 : 0.8,
-          scaleY: show ? 1 : 0.8,
+          scaleX: show ? 1 : 0,
+          scaleY: 1,
+          duration: 0.2,
+          easing: Konva.Easings.EaseInOut,
+        });
+      }
+
+      // Animate main logo border radius
+      const logoRect = logoRectRef.current || defaultLogoRectRef.current;
+      if (logoRect && logoRect.getStage()) {
+        logoRect.to({
+          cornerRadius: show ? [12, 0, 0, 12] : [12, 12, 12, 12],
           duration: 0.2,
           easing: Konva.Easings.EaseInOut,
         });
@@ -278,8 +291,8 @@ const ProjectPolygon = ({
     polygon.name.length * 8 + tooltipPadding * 2,
     80
   );
-  const tooltipX = logoSize / 2 + 38; // Position to the right of the logo
-  const tooltipY = -tooltipHeight / 2 + logoSize / 2; // Center vertically with the logo
+  const tooltipX = logoSize - 3; // Position to the right of the logo
+  const tooltipY = 0; // Center vertically with the logo
 
   return (
     <Group>
@@ -331,22 +344,33 @@ const ProjectPolygon = ({
           cursor="pointer"
         >
           {logoUrl && logoImage ? (
-            <Image
-              ref={logoRef}
-              image={logoImage}
-              width={logoSize}
-              height={logoSize}
-              cornerRadius={12}
-              alt="Project Logo"
-            />
+            <Group>
+              <Rect
+                ref={logoRectRef}
+                width={logoSize}
+                height={logoSize}
+                fill="white"
+                cornerRadius={[12, 12, 12, 12]}
+              />
+              <Image
+                ref={logoRef}
+                image={logoImage}
+                width={logoSize * 0.8}
+                height={logoSize * 0.8}
+                x={logoSize * 0.1}
+                y={logoSize * 0.1}
+                alt="Project Logo"
+              />
+            </Group>
           ) : (
             // Default logo (website logo)
             <Group>
               <Rect
+                ref={defaultLogoRectRef}
                 width={logoSize}
                 height={logoSize}
                 fill="white"
-                cornerRadius={12}
+                cornerRadius={[12, 12, 12, 12]}
               />
               {defaultLogoImage && (
                 <Image
@@ -365,22 +389,20 @@ const ProjectPolygon = ({
           <Group
             ref={tooltipGroupRef}
             x={tooltipX}
-            y={tooltipY}
+            y={tooltipY + 0.5}
             opacity={0}
-            scaleX={0.8}
-            scaleY={0.8}
           >
             <Rect
               width={tooltipWidth}
-              height={tooltipHeight}
-              fill={colors.primary}
-              cornerRadius={5}
-              shadowColor="black"
+              height={logoSize - 1}
+              fill={"white"}
+              cornerRadius={[0, 12, 12, 0]}
+              shadowColor="white"
               shadowBlur={10}
               shadowOffsetX={2}
               shadowOffsetY={2}
-              shadowOpacity={0.5}
-              stroke={colors.primary}
+              shadowOpacity={0.1}
+              stroke={"white"}
               strokeWidth={1}
             />
             {/* Tooltip text */}
@@ -388,10 +410,9 @@ const ProjectPolygon = ({
               text={polygon.name}
               fontSize={12}
               fontStyle="bold"
-              fill="white"
-              x={tooltipPadding}
-              y={tooltipPadding}
-              height={tooltipHeight - tooltipPadding * 2}
+              fill={colors.primary}
+              x={10}
+              height={logoSize}
               align="center"
               verticalAlign="middle"
             />
