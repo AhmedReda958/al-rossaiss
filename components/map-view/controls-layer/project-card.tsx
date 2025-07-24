@@ -9,47 +9,18 @@ import {
   ChevronDown,
   ChevronUp,
   Grid2x2Icon,
-  SnowflakeIcon,
-  HomeIcon,
   Building2Icon,
-  Home,
-  HotelIcon,
-  DoorClosed,
-  LucideIcon,
   Building,
 } from "lucide-react";
 import Link from "next/link";
-import { UNIT_TYPES } from "@/lib/constants";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { FaCity } from "react-icons/fa";
 
 interface ProjectCardProps {
   project: Project;
   isSelected?: boolean;
   onClick: () => void;
 }
-
-const UnitIcon = ({ icon: Icon }: { icon: LucideIcon }) => {
-  return <Icon className="h-4 w-4 text-primary" strokeWidth={1.2} />;
-};
-
-const getUnitTypeIcon = (unitType: string) => {
-  switch (unitType.toLowerCase()) {
-    case UNIT_TYPES.VILLA:
-      return <UnitIcon icon={HomeIcon} />;
-    case UNIT_TYPES.APARTMENT:
-      return <UnitIcon icon={Building2Icon} />;
-    case UNIT_TYPES.TOWNHOUSE:
-      return <UnitIcon icon={Home} />;
-    case UNIT_TYPES.PENTHOUSE:
-      return <UnitIcon icon={HotelIcon} />;
-    case UNIT_TYPES.STUDIO:
-      return <UnitIcon icon={DoorClosed} />;
-    default:
-      return <UnitIcon icon={HomeIcon} />;
-  }
-};
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
@@ -106,7 +77,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             <h3 className="text-lg font-semibold">{projectName}</h3>
           </div>
           <div className="flex items-center gap-1 text-md font-thin text-primary">
-            {getUnitTypeIcon(project.unitType)}
+            <Building2Icon className="h-4 w-4" />
             {unitTypeName}
           </div>
         </div>
