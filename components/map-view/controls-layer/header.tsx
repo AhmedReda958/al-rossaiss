@@ -61,23 +61,15 @@ const ControlsLayerHeader = () => {
       {/* logo */}
       <div
         id="logo-container"
-        className="bg-white rounded-sm p-1 order-1"
+        className="-mt-1 order-1 flex-1 relative"
         hidden={mapType !== "main"}
       >
         <Image
           src={"/logo_large.png"}
           alt="Logo"
-          width={212}
-          height={60}
-          className="hidden lg:block selection:hidden"
-          draggable={false}
-        />
-        <Image
-          src={"/logo.svg"}
-          alt="Logo"
-          width={32}
-          height={32}
-          className="block lg:hidden selection:hidden"
+          width={250}
+          height={80}
+          className="selection:hidden absolute right-0"
           draggable={false}
         />
       </div>
