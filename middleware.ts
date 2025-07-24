@@ -1,11 +1,11 @@
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./src/i18n/routing";
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { verifyJWT } from "./lib/jwt-edge";
 
 const intlMiddleware = createMiddleware(routing);
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   // Handle authentication for dashboard routes
   if (req.nextUrl.pathname.includes("/dashboard")) {
     const token = req.cookies.get("auth_token")?.value;
@@ -21,8 +21,8 @@ export function middleware(req: NextRequest) {
     }
 
     try {
-      // Verify the JWT token
-      jwt.verify(token, JWT_SECRET);
+      // Verify the JWT token using Edge Runtime compatible function
+      await verifyJWT(token, JWT_SECRET);
     } catch (error) {
       // Token is invalid or expired, redirect to login
       console.error("Invalid or expired token:", error);
