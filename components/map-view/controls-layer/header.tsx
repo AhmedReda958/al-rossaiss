@@ -61,7 +61,7 @@ const ControlsLayerHeader = () => {
       {/* logo */}
       <div
         id="logo-container"
-        className="-mt-1 order-1 flex-1 relative"
+        className="-mt-1 order-1 w-full lg:w-[250px] relative"
         hidden={mapType !== "main"}
       >
         <Image
@@ -77,7 +77,7 @@ const ControlsLayerHeader = () => {
       {/* Landmark Filter - Center */}
       <div
         id="landmark-filter"
-        className="flex-1 hidden lg:flex justify-center -me-30"
+        className="flex-1 hidden lg:flex justify-center -me-80"
       >
         <LandmarkFilter />
       </div>
