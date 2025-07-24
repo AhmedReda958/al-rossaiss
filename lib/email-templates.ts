@@ -148,9 +148,7 @@ export function getPasswordResetEmailTemplate(data: PasswordResetEmailData) {
 </head>
 <body>
     <div class="email-container">
-        <div class="logo">
-            <img src="${baseUrl}/logo.svg" alt="Al Rossais Logo" />
-        </div>
+
         
         <h1>${content.title}</h1>
         
