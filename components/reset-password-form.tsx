@@ -7,6 +7,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuthRedirect } from "@/lib/hooks/use-auth";
 
 interface ResetPasswordFormProps
   extends React.ComponentPropsWithoutRef<"form"> {
@@ -26,9 +27,19 @@ export function ResetPasswordForm({
   const t = useTranslations("Auth");
   const pathname = usePathname();
   const router = useRouter();
+  const { isLoading: authLoading } = useAuthRedirect();
 
   // Get current locale from pathname
   const currentLocale = pathname.split("/")[1] || "en";
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
