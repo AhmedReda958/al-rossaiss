@@ -36,7 +36,11 @@ const CityMap = () => {
   const [cityImage, setCityImage] = useState<HTMLImageElement | null>(null);
 
   const { isDrawingMode, setCoordinates } = usePolygonMarkerStore();
-  const { position: cityPosition, limitDragBoundaries, layerRef } = useCitiesLayer();
+  const {
+    position: cityPosition,
+    limitDragBoundaries,
+    layerRef,
+  } = useCitiesLayer();
 
   // Use store position when zoomed, otherwise use city position
   const activePosition = scale !== 1 ? position : cityPosition;
@@ -44,60 +48,60 @@ const CityMap = () => {
   // Handle scroll-based zoom for city map (1x to 2x)
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
-    
+
     if (!layerRef.current) return;
-    
+
     const stage = layerRef.current.getStage();
     if (!stage) return;
-    
+
     const pointer = stage.getPointerPosition();
     if (!pointer) return;
-    
+
     // Get current scale
     const currentScale = scale;
-    
+
     // Calculate zoom direction and amount
     const scaleBy = 1.1;
     const deltaY = e.evt.deltaY;
     let newScale = deltaY > 0 ? currentScale / scaleBy : currentScale * scaleBy;
-    
+
     // Clamp scale between 1x and 2x
     newScale = Math.max(1, Math.min(2, newScale));
-    
+
     // If scale hasn't changed (at limits), do nothing
     if (newScale === currentScale) return;
-    
+
     // Calculate new position to zoom towards mouse pointer
     const mousePointTo = {
       x: (pointer.x - position.x) / currentScale,
       y: (pointer.y - position.y) / currentScale,
     };
-    
+
     let newPos = {
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
     };
-    
+
     // Apply boundary constraints similar to drag boundaries
     const stageWidth = stage.width();
     const stageHeight = stage.height();
     const scaledMapWidth = mapSize.width * newScale;
     const scaledMapHeight = mapSize.height * newScale;
-    
+
     // Calculate minimum position to keep map content visible
     const xMin = Math.min(0, stageWidth - scaledMapWidth);
     const yMin = Math.min(0, stageHeight - scaledMapHeight);
-    
+
     // Constrain the new position within boundaries
     newPos = {
       x: Math.max(xMin, Math.min(0, newPos.x)),
       y: Math.max(yMin, Math.min(0, newPos.y)),
     };
-    
+
     // Apply the new scale and position
     setScale(newScale);
     setPosition(newPos);
-    
+
     // Update the layer immediately
     layerRef.current.scale({ x: newScale, y: newScale });
     layerRef.current.position(newPos);
@@ -233,6 +237,7 @@ const CityMap = () => {
       scaleX={scale}
       scaleY={scale}
       onClick={handleLayerClick}
+      onTouchEnd={handleLayerClick}
       onWheel={handleWheel}
       onDragEnd={(e) => {
         // Update position in the store to sync with the actual layer position
