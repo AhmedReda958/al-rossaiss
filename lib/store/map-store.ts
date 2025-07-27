@@ -120,16 +120,29 @@ interface MapState {
   toggleLandmarkTypeVisibility: (type: LandmarkType) => void;
 }
 
+// Helper function to detect mobile screens
+const isMobileScreen = (screenWidth: number) => {
+  return screenWidth < 768; // Tailwind's md breakpoint
+};
+
+// Helper function to get initial scale based on screen size
+const getInitialScale = (screenWidth: number) => {
+  return isMobileScreen(screenWidth) ? 0.5 : 1;
+};
+
 // Helper function to calculate initial position based on screen size
 const getInitialPosition = (
   screenWidth: number,
   screenHeight: number,
   mapWidth: number,
-  mapHeight: number
+  mapHeight: number,
+  scale: number = 1
 ) => {
+  const scaledMapWidth = mapWidth * scale;
+  const scaledMapHeight = mapHeight * scale;
   return {
-    x: (screenWidth - mapWidth) / 2,
-    y: (screenHeight - mapHeight) / 2,
+    x: (screenWidth - scaledMapWidth) / 2 + 40, // Add 1 pixel to avoid rounding issues
+    y: (screenHeight - scaledMapHeight) / 2 - 40,
   };
 };
 
@@ -222,12 +235,14 @@ export const useMapStore = create<MapState>((set, get) => ({
     } = get();
 
     setIsZooming(true);
-    const newScale = 1;
 
     // Calculate initial position based on screen size
     const stage = layerRef?.current?.getStage();
     const stageWidth = stage?.width() || 0;
     const stageHeight = stage?.height() || 0;
+
+    // Get the appropriate scale for the screen size
+    const newScale = getInitialScale(stageWidth);
 
     // Ensure we have valid dimensions before calculating position
     if (stageWidth === 0 || stageHeight === 0) {
@@ -239,15 +254,17 @@ export const useMapStore = create<MapState>((set, get) => ({
         const containerHeight = rect.height;
 
         if (containerWidth > 0 && containerHeight > 0) {
+          const containerScale = getInitialScale(containerWidth);
           const newPos = getInitialPosition(
             containerWidth,
             containerHeight,
             mapSize.width,
-            mapSize.height
+            mapSize.height,
+            containerScale
           );
 
           // Update position immediately without animation if stage dimensions are not ready
-          setScale(newScale);
+          setScale(containerScale);
           setPosition(newPos);
           setIsZooming(false);
           setSelectedRegion(null);
@@ -261,7 +278,8 @@ export const useMapStore = create<MapState>((set, get) => ({
       stageWidth,
       stageHeight,
       mapSize.width,
-      mapSize.height
+      mapSize.height,
+      newScale
     );
 
     // Animate the zoom out if layer ref exists
@@ -498,23 +516,34 @@ export const useMapStore = create<MapState>((set, get) => ({
   },
 
   updateInitialPosition: (screenWidth, screenHeight) => {
-    const { mapSize, scale, setPosition } = get();
+    const { mapSize, scale, setPosition, setScale } = get();
+    const expectedScale = getInitialScale(screenWidth);
 
-    // Only update position if we're at initial scale (not zoomed) and have valid dimensions
-    if (scale === 1 && screenWidth > 0 && screenHeight > 0) {
+    // Update position and scale if we're at initial scale or need to adjust for screen size
+    if (
+      (scale === 1 || scale === 0.75) &&
+      screenWidth > 0 &&
+      screenHeight > 0
+    ) {
       const newPosition = getInitialPosition(
         screenWidth,
         screenHeight,
         mapSize.width,
-        mapSize.height
+        mapSize.height,
+        expectedScale
       );
       setPosition(newPosition);
+
+      // Update scale if it doesn't match the expected scale for this screen size
+      if (scale !== expectedScale) {
+        setScale(expectedScale);
+      }
     }
   },
 
   // Force center map regardless of current state - useful for production fixes
   forceCenter: () => {
-    const { layerRef, mapSize, setPosition } = get();
+    const { layerRef, mapSize, setPosition, setScale } = get();
 
     if (layerRef?.current) {
       const stage = layerRef.current.getStage();
@@ -533,17 +562,21 @@ export const useMapStore = create<MapState>((set, get) => ({
         }
 
         if (stageWidth > 0 && stageHeight > 0) {
+          const expectedScale = getInitialScale(stageWidth);
           const newPosition = getInitialPosition(
             stageWidth,
             stageHeight,
             mapSize.width,
-            mapSize.height
+            mapSize.height,
+            expectedScale
           );
           setPosition(newPosition);
+          setScale(expectedScale);
 
-          // If we have a layer, also update its position immediately
+          // If we have a layer, also update its position and scale immediately
           if (layerRef.current) {
             layerRef.current.position(newPosition);
+            layerRef.current.scale({ x: expectedScale, y: expectedScale });
           }
         }
       }
@@ -596,7 +629,8 @@ export const useMapStore = create<MapState>((set, get) => ({
       stageWidth,
       stageHeight,
       mapSize.width,
-      mapSize.height
+      mapSize.height,
+      getInitialScale(stageWidth)
     );
 
     const newScale = 2; // Fixed scale for fallback
