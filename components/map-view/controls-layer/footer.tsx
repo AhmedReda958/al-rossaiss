@@ -37,7 +37,7 @@ const ControlsLayerFooter = () => {
           </Button>
         )}
 
-        {selectedRegion && selectedCity && (
+        {selectedCity && (
           <Image
             src={"/map.jpg"}
             alt="go to map"
