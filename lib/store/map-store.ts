@@ -126,8 +126,9 @@ const isMobileScreen = (screenWidth: number) => {
 };
 
 // Helper function to get initial scale based on screen size
-const getInitialScale = (screenWidth: number) => {
-  return isMobileScreen(screenWidth) ? 0.5 : 1;
+const getInitialScale = (screenWidth: number, isRegionsMap: boolean = true) => {
+  // Only apply mobile scaling to regions map, not city maps
+  return isMobileScreen(screenWidth) && isRegionsMap ? 0.5 : 1;
 };
 
 // Helper function to calculate initial position based on screen size
@@ -141,7 +142,7 @@ const getInitialPosition = (
   const scaledMapWidth = mapWidth * scale;
   const scaledMapHeight = mapHeight * scale;
   return {
-    x: (screenWidth - scaledMapWidth) / 2 + 40, // Add 1 pixel to avoid rounding issues
+    x: (screenWidth - scaledMapWidth) / 2 + 40,
     y: (screenHeight - scaledMapHeight) / 2 - 40,
   };
 };
@@ -232,6 +233,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       setIsZooming,
       setSelectedRegion,
       mapSize,
+      selectedCity,
     } = get();
 
     setIsZooming(true);
@@ -241,8 +243,11 @@ export const useMapStore = create<MapState>((set, get) => ({
     const stageWidth = stage?.width() || 0;
     const stageHeight = stage?.height() || 0;
 
+    // Check if we're viewing regions map (no city selected)
+    const isRegionsMap = !selectedCity;
+
     // Get the appropriate scale for the screen size
-    const newScale = getInitialScale(stageWidth);
+    const newScale = getInitialScale(stageWidth, isRegionsMap);
 
     // Ensure we have valid dimensions before calculating position
     if (stageWidth === 0 || stageHeight === 0) {
@@ -254,7 +259,7 @@ export const useMapStore = create<MapState>((set, get) => ({
         const containerHeight = rect.height;
 
         if (containerWidth > 0 && containerHeight > 0) {
-          const containerScale = getInitialScale(containerWidth);
+          const containerScale = getInitialScale(containerWidth, isRegionsMap);
           const newPos = getInitialPosition(
             containerWidth,
             containerHeight,
@@ -516,8 +521,11 @@ export const useMapStore = create<MapState>((set, get) => ({
   },
 
   updateInitialPosition: (screenWidth, screenHeight) => {
-    const { mapSize, scale, setPosition, setScale } = get();
-    const expectedScale = getInitialScale(screenWidth);
+    const { mapSize, scale, setPosition, setScale, selectedCity } = get();
+
+    // Check if we're viewing regions map (no city selected)
+    const isRegionsMap = !selectedCity;
+    const expectedScale = getInitialScale(screenWidth, isRegionsMap);
 
     // Update position and scale if we're at initial scale or need to adjust for screen size
     if (
@@ -543,7 +551,7 @@ export const useMapStore = create<MapState>((set, get) => ({
 
   // Force center map regardless of current state - useful for production fixes
   forceCenter: () => {
-    const { layerRef, mapSize, setPosition, setScale } = get();
+    const { layerRef, mapSize, setPosition, setScale, selectedCity } = get();
 
     if (layerRef?.current) {
       const stage = layerRef.current.getStage();
@@ -562,7 +570,9 @@ export const useMapStore = create<MapState>((set, get) => ({
         }
 
         if (stageWidth > 0 && stageHeight > 0) {
-          const expectedScale = getInitialScale(stageWidth);
+          // Check if we're viewing regions map (no city selected)
+          const isRegionsMap = !selectedCity;
+          const expectedScale = getInitialScale(stageWidth, isRegionsMap);
           const newPosition = getInitialPosition(
             stageWidth,
             stageHeight,
@@ -585,7 +595,14 @@ export const useMapStore = create<MapState>((set, get) => ({
 
   // Fallback zoom to region using hardcoded region positions if bounds are not available
   zoomToRegionFallback: (regionId: string) => {
-    const { layerRef, setScale, setPosition, setIsZooming, mapSize } = get();
+    const {
+      layerRef,
+      setScale,
+      setPosition,
+      setIsZooming,
+      mapSize,
+      selectedCity,
+    } = get();
 
     // Hardcoded region center positions (relative to group, so we need to add group offset)
     const regionCenters: Record<string, { x: number; y: number }> = {
@@ -625,12 +642,14 @@ export const useMapStore = create<MapState>((set, get) => ({
       return;
     }
 
+    // Check if we're viewing regions map (no city selected)
+    const isRegionsMap = !selectedCity;
     const initialPosition = getInitialPosition(
       stageWidth,
       stageHeight,
       mapSize.width,
       mapSize.height,
-      getInitialScale(stageWidth)
+      getInitialScale(stageWidth, isRegionsMap)
     );
 
     const newScale = 2; // Fixed scale for fallback
